@@ -23,6 +23,7 @@ class Application extends App implements IBootstrap {
         $eventDispatcher = $container->get(IEventDispatcher::class);
         $eventDispatcher->addListener(LoadAdditionalScriptsEvent::class, function() {
             Util::addScript(self::APP_ID, 'openotpsign-fileActions');
+            Util::addStyle(self::APP_ID, 'style');
         });
     }
 
