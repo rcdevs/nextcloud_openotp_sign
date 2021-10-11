@@ -13,6 +13,9 @@
 				<p>
 					Digital signature of file <strong>{{ filename }}</strong>
 				</p>
+				<p v-if="error" class="error">
+					{{ errorMessage }}
+				</p>
 				<br>
 				<div v-if="!requesting && !success">
 					<button type="button" @click="advancedSignature">
@@ -37,6 +40,8 @@
 <script>
 import Modal from '@nextcloud/vue/dist/Components/Modal'
 import EventBus from './EventBus'
+import queryString from 'query-string'
+import axios from '@nextcloud/axios'
 
 export default {
 	name: 'OpenOTPSignModal',
@@ -48,6 +53,8 @@ export default {
 			modal: false,
 			requesting: false,
 			success: false,
+			error: false,
+			errorMessage: '',
 		}
 	},
 	mounted() {
@@ -65,12 +72,28 @@ export default {
 			this.modal = false
 		},
 		advancedSignature() {
+			this.error = false
 			this.requesting = true
 			const self = this
-			setTimeout(function() {
-				self.requesting = false
-				self.success = true
-			}, 2000)
+			const baseUrl = OC.generateUrl('/apps/openotpsign')
+
+			axios.post(baseUrl + '/advanced_sign', {
+				path: this.getFilePath(),
+			})
+				.then(function(response) {
+					self.requesting = false
+					if (response.data.code === 1) {
+						self.success = true
+					} else {
+						self.error = true
+						self.errorMessage = 'Error: ' + response.data.message
+					}
+				})
+				.catch(function(error) {
+					self.requesting = false
+					self.error = true
+					self.errorMessage = error
+				})
 		},
 		qualifiedSignature() {
 			this.requesting = true
@@ -78,6 +101,14 @@ export default {
 			setTimeout(function() {
 				self.requesting = false
 			}, 2000)
+		},
+		getFilePath() {
+			const parsed = queryString.parse(window.location.search)
+			if (parsed.dir === '/') {
+				return this.filename
+			} else {
+				return parsed.dir + '/' + this.filename
+			}
 		},
 	},
 }
@@ -98,5 +129,9 @@ export default {
 		color: green;
 		margin-top: 100px;
 		margin-bottom: 100px;
+	}
+
+	.error {
+		color: red;
 	}
 </style>
