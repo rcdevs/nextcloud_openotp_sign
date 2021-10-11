@@ -55,6 +55,7 @@ export default {
 			success: false,
 			error: false,
 			errorMessage: '',
+			source: null,
 		}
 	},
 	mounted() {
@@ -67,8 +68,17 @@ export default {
 	methods: {
 		showModal() {
 			this.modal = true
+			this.requesting = false
+			this.success = false
+			this.error = false
+			this.errorMessage = ''
 		},
 		closeModal() {
+			if (this.source !== null) {
+				this.source.cancel('Operation canceled by the user.')
+				this.source = null
+			}
+
 			this.modal = false
 		},
 		advancedSignature() {
@@ -77,8 +87,12 @@ export default {
 			const self = this
 			const baseUrl = OC.generateUrl('/apps/openotpsign')
 
+			const CancelToken = axios.CancelToken
+			this.source = CancelToken.source()
 			axios.post(baseUrl + '/advanced_sign', {
 				path: this.getFilePath(),
+			}, {
+				cancelToken: this.source.token,
 			})
 				.then(function(response) {
 					self.requesting = false
