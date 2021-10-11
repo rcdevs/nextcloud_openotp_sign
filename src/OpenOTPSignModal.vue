@@ -3,9 +3,33 @@
 		<button @click="showModal">
 			Show Modal
 		</button>
-		<Modal v-if="modal" size="small" @close="closeModal">
+		<Modal v-if="modal" @close="closeModal">
 			<div class="modal__content">
-				Hello world
+				<h1>OpenOTP Sign</h1>
+				<img v-if="!success" src="/nextcloud/apps/notestutorial/img/mobile-signing.png" style="max-width: 500px;">
+				<p v-else id="green-tick">
+					&#10003;
+				</p>
+				<p>
+					Digital signature of file <strong>{{ filename }}</strong>
+				</p>
+				<br>
+				<div v-if="!requesting && !success">
+					<button type="button" @click="advancedSignature">
+						Advanced signature
+					</button>
+					<button type="button" @click="qualifiedSignature">
+						Qualified signature
+					</button>
+				</div>
+				<div v-if="requesting">
+					<img src="/nextcloud/core/img/loading.gif">
+				</div>
+				<div v-if="success">
+					<button type="button" class="primary" @click="closeModal">
+						Close
+					</button>
+				</div>
 			</div>
 		</Modal>
 	</div>
@@ -22,6 +46,8 @@ export default {
 	data() {
 		return {
 			modal: false,
+			requesting: false,
+			success: false,
 		}
 	},
 	mounted() {
@@ -38,6 +64,21 @@ export default {
 		closeModal() {
 			this.modal = false
 		},
+		advancedSignature() {
+			this.requesting = true
+			const self = this
+			setTimeout(function() {
+				self.requesting = false
+				self.success = true
+			}, 2000)
+		},
+		qualifiedSignature() {
+			this.requesting = true
+			const self = this
+			setTimeout(function() {
+				self.requesting = false
+			}, 2000)
+		},
 	},
 }
 </script>
@@ -47,4 +88,15 @@ export default {
 		text-align: center;
 	}
 
+	h1 {
+		font-size: 2em;
+		font-weight: bold;
+	}
+
+	#green-tick {
+		font-size: 150px;
+		color: green;
+		margin-top: 100px;
+		margin-bottom: 100px;
+	}
 </style>
