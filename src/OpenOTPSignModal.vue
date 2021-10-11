@@ -79,6 +79,10 @@ export default {
 				this.source = null
 			}
 
+			if (this.success) {
+				FileList.reload()
+			}
+
 			this.modal = false
 		},
 		advancedSignature() {
