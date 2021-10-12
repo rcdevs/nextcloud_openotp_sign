@@ -115,11 +115,32 @@ export default {
 				})
 		},
 		qualifiedSignature() {
+			this.error = false
 			this.requesting = true
 			const self = this
-			setTimeout(function() {
-				self.requesting = false
-			}, 2000)
+			const baseUrl = generateUrl('/apps/openotpsign')
+
+			const CancelToken = axios.CancelToken
+			this.source = CancelToken.source()
+			axios.post(baseUrl + '/qualified_sign', {
+				path: this.getFilePath(),
+			}, {
+				cancelToken: this.source.token,
+			})
+				.then(function(response) {
+					self.requesting = false
+					if (response.data.code === 1) {
+						self.success = true
+					} else {
+						self.error = true
+						self.errorMessage = 'Error: ' + response.data.message
+					}
+				})
+				.catch(function(error) {
+					self.requesting = false
+					self.error = true
+					self.errorMessage = error
+				})
 		},
 		getFilePath() {
 			const parsed = queryString.parse(window.location.search)
