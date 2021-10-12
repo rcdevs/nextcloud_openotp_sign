@@ -42,6 +42,7 @@ import Modal from '@nextcloud/vue/dist/Components/Modal'
 import EventBus from './EventBus'
 import queryString from 'query-string'
 import axios from '@nextcloud/axios'
+import { generateUrl } from '@nextcloud/router'
 
 export default {
 	name: 'OpenOTPSignModal',
@@ -89,7 +90,7 @@ export default {
 			this.error = false
 			this.requesting = true
 			const self = this
-			const baseUrl = OC.generateUrl('/apps/openotpsign')
+			const baseUrl = generateUrl('/apps/openotpsign')
 
 			const CancelToken = axios.CancelToken
 			this.source = CancelToken.source()
