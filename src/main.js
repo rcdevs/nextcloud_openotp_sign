@@ -8,7 +8,7 @@ modalHolder.id = modalHolderId
 document.body.append(modalHolder)
 
 // eslint-disable-next-line
-const vm = new Vue({
+new Vue({
 	el: modalHolder,
 	render: h => {
 		return h(OpenOTPSignModal)
