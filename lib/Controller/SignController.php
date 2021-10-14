@@ -6,17 +6,21 @@ use OCP\IRequest;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\Files\IRootFolder;
+use OCP\IConfig;
 
 class SignController extends Controller {
 	use GetsFile;
 
 	private $storage;
 	private $userId;
+	private $serverUrl;
 
-	public function __construct($AppName, IRequest $request, IRootFolder $storage, $UserId){
+	public function __construct($AppName, IRequest $request, IRootFolder $storage, IConfig $config, $UserId){
 		parent::__construct($AppName, $request);
 		$this->storage = $storage;
 		$this->userId = $UserId;
+
+		$this->serverUrl = $config->getAppValue('openotpsign', 'server_url');
 	}
 
 	/**
@@ -39,7 +43,7 @@ class SignController extends Controller {
 			'stream_context' => $context);
 
 		ini_set('default_socket_timeout', 600);
-		$client = new \SoapClient("https://webadm.rcdevs.com/websrvs/wsdl.php?websrv=openotp", $opts);
+		$client = new \SoapClient($this->serverUrl, $opts);
 		$resp = $client->openotpNormalConfirm(
 			$this->userId,
 			"Demos",
@@ -87,7 +91,7 @@ class SignController extends Controller {
 			'stream_context' => $context);
 
 		ini_set('default_socket_timeout', 600);
-		$client = new \SoapClient("https://webadm.rcdevs.com/websrvs/wsdl.php?websrv=openotp", $opts);
+		$client = new \SoapClient($this->serverUrl, $opts);
 		$resp = $client->openotpNormalSign(
 			$this->userId,
 			"Demos",

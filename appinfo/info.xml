@@ -22,4 +22,8 @@
             <route>openotpsign.page.index</route>
         </navigation>
     </navigations>
+    <settings>
+        <admin>OCA\OpenOTPSign\Settings\AdminSettings</admin>
+        <admin-section>OCA\OpenOTPSign\Settings\AdminSection</admin-section>
+    </settings>
 </info>
