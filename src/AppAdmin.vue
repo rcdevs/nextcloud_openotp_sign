@@ -1,12 +1,19 @@
 <script>
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
+import CheckboxRadioSwitch from '@nextcloud/vue/dist/Components/CheckboxRadioSwitch'
 
 export default {
 	name: 'AppAdmin',
+	components: {
+		CheckboxRadioSwitch,
+	},
 	data() {
 		return {
 			serverUrl: this.$parent.serverUrl,
+			ignoreSslErrors: !!this.$parent.ignoreSslErrors,
+			sslSettingEnabled: this.$parent.serverUrl.startsWith('https://'),
+
 		}
 	},
 	methods: {
@@ -15,6 +22,7 @@ export default {
 
 			axios.post(baseUrl + '/settings', {
 				server_url: this.serverUrl,
+				ignore_ssl_errors: this.ignoreSslErrors,
 			})
 				.then(function(response) {
 					// eslint-disable-next-line
@@ -24,6 +32,9 @@ export default {
 					// eslint-disable-next-line
 					console.log(error)
 				})
+		},
+		enableSslSetting() {
+			this.sslSettingEnabled = this.serverUrl.startsWith('https://')
 		},
 	},
 }
@@ -41,7 +52,13 @@ export default {
 				v-model="serverUrl"
 				type="text"
 				name="ootp_server_url"
-				placeholder="https://myserver/openotp/websrvs/wsdl.php?websrv=openotp">
+				placeholder="https://myserver/openotp/websrvs/wsdl.php?websrv=openotp"
+				@input="enableSslSetting">
+		</p>
+		<p>
+			<CheckboxRadioSwitch :checked.sync="ignoreSslErrors" :disabled="!sslSettingEnabled">
+				Ignore SSL/TLS certificate errors
+			</CheckboxRadioSwitch>
 		</p>
 		<p>
 			<button @click="saveSettings">

@@ -19,6 +19,7 @@ class SettingsController extends Controller {
 
 	public function saveSettings() {
 		$this->config->setAppValue('openotpsign', 'server_url', $this->request->getParam('server_url'));
+		$this->config->setAppValue('openotpsign', 'ignore_ssl_errors', $this->request->getParam('ignore_ssl_errors'));
 
 		return new JSONResponse([
 			'code' => 1,

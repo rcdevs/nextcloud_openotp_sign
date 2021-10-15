@@ -14,6 +14,7 @@ class SignController extends Controller {
 	private $storage;
 	private $userId;
 	private $serverUrl;
+	private $ignoreSslErrors;
 
 	public function __construct($AppName, IRequest $request, IRootFolder $storage, IConfig $config, $UserId){
 		parent::__construct($AppName, $request);
@@ -21,6 +22,7 @@ class SignController extends Controller {
 		$this->userId = $UserId;
 
 		$this->serverUrl = $config->getAppValue('openotpsign', 'server_url');
+		$this->ignoreSslErrors = $config->getAppValue('openotpsign', 'ignore_ssl_errors');
 	}
 
 	/**
@@ -30,17 +32,19 @@ class SignController extends Controller {
 		$path = $this->request->getParam('path');
 		list($mimeType, $fileContent, $fileName) = $this->getFile($path, $this->userId);
 
-		$context = stream_context_create([
-			'ssl' => [
-				// set some SSL/TLS specific options
-				'verify_peer' => false,
-				'verify_peer_name' => false,
-				'allow_self_signed' => true
-			]
-		]);
+		$opts = array();
+		if ($this->ignoreSslErrors) {
+			$context = stream_context_create([
+				'ssl' => [
+					// set some SSL/TLS specific options
+					'verify_peer' => false,
+					'verify_peer_name' => false,
+					'allow_self_signed' => true
+				]
+			]);
 
-		$opts = array(
-			'stream_context' => $context);
+			$opts['stream_context'] = $context;
+		}
 
 		ini_set('default_socket_timeout', 600);
 		$client = new \SoapClient($this->serverUrl, $opts);
@@ -78,17 +82,19 @@ class SignController extends Controller {
 		$path = $this->request->getParam('path');
 		list($mimeType, $fileContent, $fileName) = $this->getFile($path, $this->userId);
 
-		$context = stream_context_create([
-			'ssl' => [
-				// set some SSL/TLS specific options
-				'verify_peer' => false,
-				'verify_peer_name' => false,
-				'allow_self_signed' => true
-			]
-		]);
+		$opts = array();
+		if ($this->ignoreSslErrors) {
+			$context = stream_context_create([
+				'ssl' => [
+					// set some SSL/TLS specific options
+					'verify_peer' => false,
+					'verify_peer_name' => false,
+					'allow_self_signed' => true
+				]
+			]);
 
-		$opts = array(
-			'stream_context' => $context);
+			$opts['stream_context'] = $context;
+		}
 
 		ini_set('default_socket_timeout', 600);
 		$client = new \SoapClient($this->serverUrl, $opts);
