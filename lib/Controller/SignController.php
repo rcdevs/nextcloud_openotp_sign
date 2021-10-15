@@ -32,7 +32,7 @@ class SignController extends Controller {
 		$path = $this->request->getParam('path');
 		list($mimeType, $fileContent, $fileName) = $this->getFile($path, $this->userId);
 
-		$opts = array();
+		$opts = array('location' => $this->serverUrl);
 		if ($this->ignoreSslErrors) {
 			$context = stream_context_create([
 				'ssl' => [
@@ -47,7 +47,7 @@ class SignController extends Controller {
 		}
 
 		ini_set('default_socket_timeout', 600);
-		$client = new \SoapClient($this->serverUrl, $opts);
+		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
 		$resp = $client->openotpNormalConfirm(
 			$this->userId,
 			"Demos",
@@ -82,7 +82,7 @@ class SignController extends Controller {
 		$path = $this->request->getParam('path');
 		list($mimeType, $fileContent, $fileName) = $this->getFile($path, $this->userId);
 
-		$opts = array();
+		$opts = array('location' => $this->serverUrl);
 		if ($this->ignoreSslErrors) {
 			$context = stream_context_create([
 				'ssl' => [
@@ -97,7 +97,7 @@ class SignController extends Controller {
 		}
 
 		ini_set('default_socket_timeout', 600);
-		$client = new \SoapClient($this->serverUrl, $opts);
+		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
 		$resp = $client->openotpNormalSign(
 			$this->userId,
 			"Demos",

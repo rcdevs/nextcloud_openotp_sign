@@ -52,7 +52,7 @@ export default {
 				v-model="serverUrl"
 				type="text"
 				name="ootp_server_url"
-				placeholder="https://myserver/openotp/websrvs/wsdl.php?websrv=openotp"
+				placeholder="https://myserver:8443/openotp/"
 				@input="enableSslSetting">
 		</p>
 		<p>
