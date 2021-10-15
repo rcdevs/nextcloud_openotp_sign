@@ -15,6 +15,9 @@ class SignController extends Controller {
 	private $userId;
 	private $serverUrl;
 	private $ignoreSslErrors;
+	private $clientId;
+	private $defaultDomain;
+	private $userSettings;
 
 	public function __construct($AppName, IRequest $request, IRootFolder $storage, IConfig $config, $UserId){
 		parent::__construct($AppName, $request);
@@ -23,6 +26,9 @@ class SignController extends Controller {
 
 		$this->serverUrl = $config->getAppValue('openotpsign', 'server_url');
 		$this->ignoreSslErrors = $config->getAppValue('openotpsign', 'ignore_ssl_errors');
+		$this->clientId = $config->getAppValue('openotpsign', 'client_id');
+		$this->defaultDomain = $config->getAppValue('openotpsign', 'default_domain');
+		$this->userSettings = $config->getAppValue('openotpsign', 'user_settings');
 	}
 
 	/**
@@ -50,7 +56,7 @@ class SignController extends Controller {
 		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
 		$resp = $client->openotpNormalConfirm(
 			$this->userId,
-			"Demos",
+			$this->defaultDomain,
 			"NextCloud signature request for " . $fileName,
 			$fileContent,
 			null,
@@ -58,9 +64,9 @@ class SignController extends Controller {
 			false,
 			120,
 			'',
-			"nextcloud",
+			$this->clientId,
 			$_SERVER['REMOTE_ADDR'],
-			null,
+			$this->userSettings,
 			null
 		);
 
@@ -100,16 +106,16 @@ class SignController extends Controller {
 		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
 		$resp = $client->openotpNormalSign(
 			$this->userId,
-			"Demos",
+			$this->defaultDomain,
 			"NextCloud signature request for " . $fileName,
 			$fileContent,
 			'',
 			false,
 			120,
 			'',
-			"nextcloud",
+			$this->clientId,
 			$_SERVER['REMOTE_ADDR'],
-			null,
+			$this->userSettings,
 			null
 		);
 

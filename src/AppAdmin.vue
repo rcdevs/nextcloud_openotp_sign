@@ -13,6 +13,9 @@ export default {
 			serverUrl: this.$parent.serverUrl,
 			ignoreSslErrors: !!this.$parent.ignoreSslErrors,
 			sslSettingEnabled: this.$parent.serverUrl.startsWith('https://'),
+			clientId: this.$parent.clientId,
+			defaultDomain: this.$parent.defaultDomain,
+			userSettings: this.$parent.userSettings,
 
 		}
 	},
@@ -23,6 +26,9 @@ export default {
 			axios.post(baseUrl + '/settings', {
 				server_url: this.serverUrl,
 				ignore_ssl_errors: this.ignoreSslErrors,
+				client_id: this.clientId,
+				default_domain: this.defaultDomain,
+				user_settings: this.userSettings,
 			})
 				.then(function(response) {
 					// eslint-disable-next-line
@@ -59,6 +65,28 @@ export default {
 			<CheckboxRadioSwitch :checked.sync="ignoreSslErrors" :disabled="!sslSettingEnabled">
 				Ignore SSL/TLS certificate errors
 			</CheckboxRadioSwitch>
+		</p>
+		<p>
+			<label for="ootp_client_id">{{ $t('openotpsign', 'OpenOTP client id') }}</label>
+			<input id="ootp_client_id"
+				v-model="clientId"
+				type="text"
+				name="ootp_client_id"
+				placeholder="Nextcloud">
+		</p>
+		<p>
+			<label for="ootp_default_domain">{{ $t('openotpsign', 'OpenOTP Default Domain') }}</label>
+			<input id="ootp_default_domain"
+				v-model="defaultDomain"
+				type="text"
+				name="ootp_default_domain">
+		</p>
+		<p>
+			<label for="ootp_user_settings">{{ $t('openotpsign', 'OpenOTP User settings') }}</label>
+			<input id="ootp_user_settings"
+				v-model="userSettings"
+				type="text"
+				name="ootp_user_settings">
 		</p>
 		<p>
 			<button @click="saveSettings">
