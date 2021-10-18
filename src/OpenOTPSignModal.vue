@@ -60,10 +60,9 @@ export default {
 		}
 	},
 	mounted() {
-		const _self = this
-		EventBus.$on('ootp-sign-click', function(payload) {
-			_self.showModal()
-			_self.filename = payload.filename
+		EventBus.$on('ootp-sign-click', payload => {
+			this.showModal()
+			this.filename = payload.filename
 		})
 	},
 	methods: {
@@ -89,7 +88,6 @@ export default {
 		advancedSignature() {
 			this.error = false
 			this.requesting = true
-			const self = this
 			const baseUrl = generateUrl('/apps/openotpsign')
 
 			const CancelToken = axios.CancelToken
@@ -99,25 +97,24 @@ export default {
 			}, {
 				cancelToken: this.source.token,
 			})
-				.then(function(response) {
-					self.requesting = false
+				.then(response => {
+					this.requesting = false
 					if (response.data.code === 1) {
-						self.success = true
+						this.success = true
 					} else {
-						self.error = true
-						self.errorMessage = 'Error: ' + response.data.message
+						this.error = true
+						this.errorMessage = 'Error: ' + response.data.message
 					}
 				})
-				.catch(function(error) {
-					self.requesting = false
-					self.error = true
-					self.errorMessage = error
+				.catch(error => {
+					this.requesting = false
+					this.error = true
+					this.errorMessage = error
 				})
 		},
 		qualifiedSignature() {
 			this.error = false
 			this.requesting = true
-			const self = this
 			const baseUrl = generateUrl('/apps/openotpsign')
 
 			const CancelToken = axios.CancelToken
@@ -127,19 +124,19 @@ export default {
 			}, {
 				cancelToken: this.source.token,
 			})
-				.then(function(response) {
-					self.requesting = false
+				.then(response => {
+					this.requesting = false
 					if (response.data.code === 1) {
-						self.success = true
+						this.success = true
 					} else {
-						self.error = true
-						self.errorMessage = 'Error: ' + response.data.message
+						this.error = true
+						this.errorMessage = 'Error: ' + response.data.message
 					}
 				})
-				.catch(function(error) {
-					self.requesting = false
-					self.error = true
-					self.errorMessage = error
+				.catch(error => {
+					this.requesting = false
+					this.error = true
+					this.errorMessage = error
 				})
 		},
 		getFilePath() {
