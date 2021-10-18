@@ -18,6 +18,11 @@ class SignController extends Controller {
 	private $clientId;
 	private $defaultDomain;
 	private $userSettings;
+	private $useProxy;
+	private $proxyHost;
+	private $proxyPort;
+	private $proxyUsername;
+	private $proxyPassword;
 
 	public function __construct($AppName, IRequest $request, IRootFolder $storage, IConfig $config, $UserId){
 		parent::__construct($AppName, $request);
@@ -29,6 +34,11 @@ class SignController extends Controller {
 		$this->clientId = $config->getAppValue('openotpsign', 'client_id');
 		$this->defaultDomain = $config->getAppValue('openotpsign', 'default_domain');
 		$this->userSettings = $config->getAppValue('openotpsign', 'user_settings');
+		$this->useProxy = $config->getAppValue('openotpsign', 'use_proxy');
+		$this->proxyHost = $config->getAppValue('openotpsign', 'proxy_host');
+		$this->proxyPort = $config->getAppValue('openotpsign', 'proxy_port');
+		$this->proxyUsername = $config->getAppValue('openotpsign', 'proxy_username');
+		$this->proxyPassword = $config->getAppValue('openotpsign', 'proxy_password');
 	}
 
 	/**
@@ -50,6 +60,13 @@ class SignController extends Controller {
 			]);
 
 			$opts['stream_context'] = $context;
+		}
+
+		if ($this->useProxy) {
+			$opts['proxy_host'] = $this->proxyHost;
+			$opts['proxy_port'] = $this->proxyPort;
+			$opts['proxy_login'] = $this->proxyUsername;
+			$opts['proxy_password'] = $this->proxyPassword;
 		}
 
 		ini_set('default_socket_timeout', 600);
@@ -100,6 +117,13 @@ class SignController extends Controller {
 			]);
 
 			$opts['stream_context'] = $context;
+		}
+
+		if ($this->useProxy) {
+			$opts['proxy_host'] = $this->proxyHost;
+			$opts['proxy_port'] = $this->proxyPort;
+			$opts['proxy_login'] = $this->proxyUsername;
+			$opts['proxy_password'] = $this->proxyPassword;
 		}
 
 		ini_set('default_socket_timeout', 600);

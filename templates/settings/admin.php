@@ -11,4 +11,9 @@ OCP\Util::addscript($appId, 'openotpsign-adminSettings');
   data-client-id="<?php echo $_['client_id'] ?>"
   data-default-domain="<?php echo $_['default_domain'] ?>"
   data-user-settings="<?php echo $_['user_settings'] ?>"
+  data-use-proxy="<?php echo $_['use_proxy'] ?>"
+  data-proxy-host="<?php echo $_['proxy_host'] ?>"
+  data-proxy-port="<?php echo $_['proxy_port'] ?>"
+  data-proxy-username="<?php echo $_['proxy_username'] ?>"
+  data-proxy-password="<?php echo $_['proxy_password'] ?>"
 ></div>

@@ -28,6 +28,11 @@ class AdminSettings implements ISettings {
             'client_id' => $this->config->getAppValue('openotpsign', 'client_id'),
             'default_domain' => $this->config->getAppValue('openotpsign', 'default_domain'),
             'user_settings' => $this->config->getAppValue('openotpsign', 'user_settings'),
+            'use_proxy' => $this->config->getAppValue('openotpsign', 'use_proxy'),
+            'proxy_host' => $this->config->getAppValue('openotpsign', 'proxy_host'),
+            'proxy_port' => $this->config->getAppValue('openotpsign', 'proxy_port'),
+            'proxy_username' => $this->config->getAppValue('openotpsign', 'proxy_username'),
+            'proxy_password' => $this->config->getAppValue('openotpsign', 'proxy_password'),
         ], 'blank');
     }
 
