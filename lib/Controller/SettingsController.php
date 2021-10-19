@@ -33,4 +33,37 @@ class SettingsController extends Controller {
 			'code' => 1,
 		]);
 	}
+
+	public function checkServerUrl() {
+		$opts = array('location' => $this->request->getParam('server_url'));
+
+		if ($this->request->getParam('ignore_ssl_errors')) {
+			$context = stream_context_create([
+				'ssl' => [
+					// set some SSL/TLS specific options
+					'verify_peer' => false,
+					'verify_peer_name' => false,
+					'allow_self_signed' => true
+				]
+			]);
+
+			$opts['stream_context'] = $context;
+		}
+
+		if ($this->request->getParam('use_proxy')) {
+			$opts['proxy_host'] = $this->request->getParam('proxy_host');
+			$opts['proxy_port'] = $this->request->getParam('proxy_port');
+			$opts['proxy_login'] = $this->request->getParam('proxy_username');
+			$opts['proxy_password'] = $this->request->getParam('proxy_password');
+		}
+
+
+		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
+		$resp = $client->openotpStatus();
+
+		return new JSONResponse([
+			'status' => $resp['status'],
+			'message' => $resp['message']
+		]);
+	}
 }

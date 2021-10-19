@@ -21,6 +21,8 @@ export default {
 			proxyPort: this.$parent.proxyPort,
 			proxyUsername: this.$parent.proxyUsername,
 			proxyPassword: this.$parent.proxyPassword,
+			messageStatusClass: 'error',
+			serverMessage: '',
 		}
 	},
 	methods: {
@@ -51,6 +53,34 @@ export default {
 		enableSslSetting() {
 			this.sslSettingEnabled = this.serverUrl.startsWith('https://')
 		},
+		testConnection() {
+			const baseUrl = generateUrl('/apps/openotpsign')
+
+			axios.post(baseUrl + '/check_server_url', {
+				server_url: this.serverUrl,
+				ignore_ssl_errors: this.ignoreSslErrors,
+				use_proxy: this.useProxy,
+				proxy_host: this.proxyHost,
+				proxy_port: this.proxyPort,
+				proxy_username: this.proxyUsername,
+				proxy_password: this.proxyPassword,
+			})
+				.then(response => {
+					if (response.data.status === true) {
+						this.messageStatusClass = 'success'
+						this.serverMessage = response.data.message
+					} else {
+						this.messageStatusClass = 'error'
+						this.serverMessage = ''
+					}
+				})
+				.catch(error => {
+					this.messageStatusClass = 'error'
+					this.serverMessage = ''
+					// eslint-disable-next-line
+					console.log(error)
+				})
+		},
 	},
 }
 </script>
@@ -70,7 +100,12 @@ export default {
 					name="ootp_server_url"
 					placeholder="https://myserver:8443/openotp/"
 					@input="enableSslSetting">
+				<button @click="testConnection">
+					Test
+				</button>
+				<span id="message_status" :class="messageStatusClass" />
 			</p>
+			<pre v-if="serverMessage.length" id="server_message">{{ serverMessage }}</pre>
 			<p>
 				<CheckboxRadioSwitch :checked.sync="ignoreSslErrors" :disabled="!sslSettingEnabled">
 					Ignore SSL/TLS certificate errors
@@ -157,6 +192,25 @@ label {
 }
 
 input {
-	width: 400px;
+	width: 320px;
+}
+
+#message_status {
+	padding: 6px 15px;
+	border-radius: 3px;
+}
+
+.error {
+	background: var(--color-error);
+}
+
+.success {
+	background: var(--color-success);
+}
+
+#server_message {
+	border: solid var(--color-success) 1px;
+	display: inline-block;
+	padding: 5px;
 }
 </style>
