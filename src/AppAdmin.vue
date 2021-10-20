@@ -23,10 +23,14 @@ export default {
 			proxyPassword: this.$parent.proxyPassword,
 			messageStatusClass: 'error',
 			serverMessage: '',
+			success: false,
+			failure: false,
 		}
 	},
 	methods: {
 		saveSettings() {
+			this.success = false
+			this.failure = false
 			const baseUrl = generateUrl('/apps/openotpsign')
 
 			axios.post(baseUrl + '/settings', {
@@ -41,11 +45,11 @@ export default {
 				proxy_username: this.proxyUsername,
 				proxy_password: this.proxyPassword,
 			})
-				.then(function(response) {
-					// eslint-disable-next-line
-					console.log(response)
+				.then(response => {
+					this.success = true
 				})
-				.catch(function(error) {
+				.catch(error => {
+					this.failure = true
 					// eslint-disable-next-line
 					console.log(error)
 				})
@@ -178,6 +182,12 @@ export default {
 					Save
 				</button>
 			</p>
+			<p v-if="success" id="save_success">
+				{{ $t('openotpsign', 'Your settings have been saved succesfully') }}
+			</p>
+			<p v-if="failure" id="save_failure">
+				{{ $t('openotpsign', 'There was an error saving settings') }}
+			</p>
 		</div>
 	</div>
 </template>
@@ -212,5 +222,13 @@ input {
 	border: solid var(--color-success) 1px;
 	display: inline-block;
 	padding: 5px;
+}
+
+#save_success {
+	color: green;
+}
+
+#save_failure {
+	color: red;
 }
 </style>
