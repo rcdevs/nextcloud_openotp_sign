@@ -28,6 +28,9 @@ export default {
 			statusRequesting: false,
 		}
 	},
+	mounted() {
+		this.testConnection()
+	},
 	methods: {
 		saveSettings() {
 			this.success = false
