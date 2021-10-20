@@ -195,12 +195,14 @@ export default {
 					Save
 				</button>
 			</p>
-			<p v-if="success" id="save_success">
-				{{ $t('openotpsign', 'Your settings have been saved succesfully') }}
-			</p>
-			<p v-if="failure" id="save_failure">
-				{{ $t('openotpsign', 'There was an error saving settings') }}
-			</p>
+			<transition name="fade">
+				<p v-if="success" id="save_success">
+					{{ $t('openotpsign', 'Your settings have been saved succesfully') }}
+				</p>
+				<p v-if="failure" id="save_failure">
+					{{ $t('openotpsign', 'There was an error saving settings') }}
+				</p>
+			</transition>
 		</div>
 	</div>
 </template>
