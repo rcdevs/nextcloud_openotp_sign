@@ -25,6 +25,7 @@ export default {
 			serverMessage: '',
 			success: false,
 			failure: false,
+			statusRequesting: false,
 		}
 	},
 	methods: {
@@ -58,6 +59,8 @@ export default {
 			this.sslSettingEnabled = this.serverUrl.startsWith('https://')
 		},
 		testConnection() {
+			this.statusRequesting = true
+			this.serverMessage = ''
 			const baseUrl = generateUrl('/apps/openotpsign')
 
 			axios.post(baseUrl + '/check_server_url', {
@@ -70,6 +73,7 @@ export default {
 				proxy_password: this.proxyPassword,
 			})
 				.then(response => {
+					this.statusRequesting = false
 					if (response.data.status === true) {
 						this.messageStatusClass = 'success'
 						this.serverMessage = response.data.message
@@ -79,6 +83,7 @@ export default {
 					}
 				})
 				.catch(error => {
+					this.statusRequesting = false
 					this.messageStatusClass = 'error'
 					this.serverMessage = ''
 					// eslint-disable-next-line
@@ -107,9 +112,14 @@ export default {
 				<button @click="testConnection">
 					Test
 				</button>
-				<span id="message_status" :class="messageStatusClass" />
+				<transition name="fade">
+					<span v-if="!statusRequesting" id="message_status" :class="messageStatusClass" />
+				</transition>
+				<img v-if="statusRequesting" id="status_loader" src="/nextcloud/core/img/loading.gif">
 			</p>
-			<pre v-if="serverMessage.length" id="server_message">{{ serverMessage }}</pre>
+			<transition name="fade">
+				<pre v-if="serverMessage.length" id="server_message">{{ serverMessage }}</pre>
+			</transition>
 			<p>
 				<CheckboxRadioSwitch :checked.sync="ignoreSslErrors" :disabled="!sslSettingEnabled">
 					Ignore SSL/TLS certificate errors
@@ -230,5 +240,18 @@ input {
 
 #save_failure {
 	color: red;
+}
+
+#status_loader {
+	position: absolute;
+	margin-top: 4px;
+}
+
+.fade-enter-active {
+	transition: opacity .9s;
+}
+
+.fade-enter /* .fade-leave-active below version 2.1.8 */ {
+	opacity: 0;
 }
 </style>
