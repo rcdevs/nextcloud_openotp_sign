@@ -16,4 +16,5 @@ OCP\Util::addscript($appId, 'openotpsign-adminSettings');
   data-proxy-port="<?php echo $_['proxy_port'] ?>"
   data-proxy-username="<?php echo $_['proxy_username'] ?>"
   data-proxy-password="<?php echo $_['proxy_password'] ?>"
+  data-signed-file="<?php echo $_['signed_file'] ?>"
 ></div>

@@ -21,6 +21,7 @@ export default {
 			proxyPort: this.$parent.proxyPort,
 			proxyUsername: this.$parent.proxyUsername,
 			proxyPassword: this.$parent.proxyPassword,
+			signedFile: this.$parent.signedFile,
 			messageStatusClass: 'error',
 			serverMessage: '',
 			success: false,
@@ -48,6 +49,7 @@ export default {
 				proxy_port: this.proxyPort,
 				proxy_username: this.proxyUsername,
 				proxy_password: this.proxyPassword,
+				signed_file: this.signedFile,
 			})
 				.then(response => {
 					this.success = true
@@ -190,6 +192,25 @@ export default {
 					name="proxy_password"
 					:disabled="!useProxy">
 			</p>
+		</div>
+		<div id="signed_file" class="section">
+			<h2>{{ $t('openotpsign', 'Signed File') }}</h2>
+			<CheckboxRadioSwitch
+				:checked.sync="signedFile"
+				value="copy"
+				name="signed_file_radio"
+				type="radio">
+				Make a signed copy of the original file
+			</CheckboxRadioSwitch>
+			<CheckboxRadioSwitch
+				:checked.sync="signedFile"
+				value="overwrite"
+				name="signed_file_radio"
+				type="radio">
+				Overwrite the original file with its signed copy
+			</CheckboxRadioSwitch>
+		</div>
+		<div id="save" class="section">
 			<p>
 				<button @click="saveSettings">
 					{{ $t('openotpsign', 'Save') }}

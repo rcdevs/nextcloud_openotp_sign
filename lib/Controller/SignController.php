@@ -23,6 +23,7 @@ class SignController extends Controller {
 	private $proxyPort;
 	private $proxyUsername;
 	private $proxyPassword;
+	private $signedFile;
 
 	public function __construct($AppName, IRequest $request, IRootFolder $storage, IConfig $config, $UserId){
 		parent::__construct($AppName, $request);
@@ -39,6 +40,7 @@ class SignController extends Controller {
 		$this->proxyPort = $config->getAppValue('openotpsign', 'proxy_port');
 		$this->proxyUsername = $config->getAppValue('openotpsign', 'proxy_username');
 		$this->proxyPassword = $config->getAppValue('openotpsign', 'proxy_password');
+		$this->signedFile = $config->getAppValue('openotpsign', 'signed_file');
 	}
 
 	/**
@@ -88,7 +90,12 @@ class SignController extends Controller {
 		);
 
 		if ($resp['code'] === 1) {
-			$newPath = substr_replace($path, "-signed", strrpos($path, '.'), 0);
+			if ($this->signedFile == "overwrite") {
+				$newPath = $path;
+			} else {
+				$newPath = substr_replace($path, "-signed", strrpos($path, '.'), 0);
+			}
+
 			$this->saveContainer($this->userId, $resp['file'], $newPath);
 		}
 
@@ -144,7 +151,12 @@ class SignController extends Controller {
 		);
 
 		if ($resp['code'] === 1) {
-			$newPath = substr_replace($path, "-signed", strrpos($path, '.'), 0);
+			if ($this->signedFile == "overwrite") {
+				$newPath = $path;
+			} else {
+				$newPath = substr_replace($path, "-signed", strrpos($path, '.'), 0);
+			}
+
 			$this->saveContainer($this->userId, $resp['file'], $newPath);
 		}
 
