@@ -113,7 +113,7 @@ export default {
 					placeholder="https://myserver:8443/openotp/"
 					@input="enableSslSetting">
 				<button @click="testConnection">
-					Test
+					{{ $t('openotpsign', 'Test') }}
 				</button>
 				<transition name="fade">
 					<span v-if="!statusRequesting" id="message_status" :class="messageStatusClass" />
@@ -125,7 +125,7 @@ export default {
 			</transition>
 			<p>
 				<CheckboxRadioSwitch :checked.sync="ignoreSslErrors" :disabled="!sslSettingEnabled">
-					Ignore SSL/TLS certificate errors
+					{{ $t('openotpsign', 'Ignore SSL/TLS certificate errors') }}
 				</CheckboxRadioSwitch>
 			</p>
 			<p>
@@ -155,7 +155,7 @@ export default {
 			<h2>{{ $t('openotpsign', 'Proxy Settings') }}</h2>
 			<p>
 				<CheckboxRadioSwitch :checked.sync="useProxy">
-					Use a proxy
+					{{ $t('openotpsign', 'Use a proxy') }}
 				</CheckboxRadioSwitch>
 			</p>
 			<p>
@@ -192,7 +192,7 @@ export default {
 			</p>
 			<p>
 				<button @click="saveSettings">
-					Save
+					{{ $t('openotpsign', 'Save') }}
 				</button>
 			</p>
 			<transition name="fade">
