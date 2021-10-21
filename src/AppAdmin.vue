@@ -112,6 +112,7 @@ export default {
 					v-model="serverUrl"
 					type="text"
 					name="ootp_server_url"
+					maxlength="300"
 					placeholder="https://myserver:8443/openotp/"
 					@input="enableSslSetting">
 				<button @click="testConnection">
@@ -136,6 +137,7 @@ export default {
 					v-model="clientId"
 					type="text"
 					name="ootp_client_id"
+					maxlength="256"
 					placeholder="Nextcloud">
 			</p>
 			<p>
@@ -143,7 +145,8 @@ export default {
 				<input id="ootp_default_domain"
 					v-model="defaultDomain"
 					type="text"
-					name="ootp_default_domain">
+					name="ootp_default_domain"
+					maxlength="64">
 			</p>
 			<p>
 				<label for="ootp_user_settings">{{ $t('openotpsign', 'OpenOTP User settings') }}</label>
@@ -166,14 +169,17 @@ export default {
 					v-model="proxyHost"
 					type="text"
 					name="proxy_host"
+					maxlength="255"
 					:disabled="!useProxy">
 			</p>
 			<p>
 				<label for="proxy_port">{{ $t('openotpsign', 'Proxy Port') }}</label>
 				<input id="proxy_port"
 					v-model="proxyPort"
-					type="text"
+					type="number"
 					name="proxy_port"
+					min="1"
+					max="65535"
 					:disabled="!useProxy">
 			</p>
 			<p>
@@ -182,6 +188,7 @@ export default {
 					v-model="proxyUsername"
 					type="text"
 					name="proxy_username"
+					maxlength="255"
 					:disabled="!useProxy">
 			</p>
 			<p>
@@ -190,6 +197,7 @@ export default {
 					v-model="proxyPassword"
 					type="text"
 					name="proxy_password"
+					maxlength="255"
 					:disabled="!useProxy">
 			</p>
 		</div>
