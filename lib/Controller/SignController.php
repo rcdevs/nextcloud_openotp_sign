@@ -3,6 +3,8 @@ namespace OCA\OpenOTPSign\Controller;
 
 use OCA\OpenOTPSign\Commands\GetsFile;
 use OCP\IRequest;
+use OCP\IUserManager;
+use OCP\Accounts\IAccountManager;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\Files\IRootFolder;
@@ -13,6 +15,8 @@ class SignController extends Controller {
 
 	private $storage;
 	private $userId;
+	private $accountManager;
+	private $userManager;
 	private $serverUrl;
 	private $ignoreSslErrors;
 	private $clientId;
@@ -25,10 +29,12 @@ class SignController extends Controller {
 	private $proxyPassword;
 	private $signedFile;
 
-	public function __construct($AppName, IRequest $request, IRootFolder $storage, IConfig $config, $UserId){
+	public function __construct($AppName, IRequest $request, IRootFolder $storage, IConfig $config, $UserId, IUserManager $userManager, IAccountManager $accountManager){
 		parent::__construct($AppName, $request);
 		$this->storage = $storage;
 		$this->userId = $UserId;
+		$this->accountManager = $accountManager;
+		$this->userManager = $userManager;
 
 		$this->serverUrl = $config->getAppValue('openotpsign', 'server_url');
 		$this->ignoreSslErrors = $config->getAppValue('openotpsign', 'ignore_ssl_errors');
@@ -71,6 +77,9 @@ class SignController extends Controller {
 			$opts['proxy_password'] = $this->proxyPassword;
 		}
 
+		$user = $this->userManager->get($this->userId);
+		$account = $this->accountManager->getAccount($user);
+
 		ini_set('default_socket_timeout', 600);
 		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
 		$resp = $client->openotpNormalConfirm(
@@ -82,7 +91,7 @@ class SignController extends Controller {
 			null,
 			false,
 			120,
-			'',
+			$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
 			$this->clientId,
 			$_SERVER['REMOTE_ADDR'],
 			$this->userSettings,
@@ -133,6 +142,9 @@ class SignController extends Controller {
 			$opts['proxy_password'] = $this->proxyPassword;
 		}
 
+		$user = $this->userManager->get($this->userId);
+		$account = $this->accountManager->getAccount($user);
+
 		ini_set('default_socket_timeout', 600);
 		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
 		$resp = $client->openotpNormalSign(
@@ -143,7 +155,7 @@ class SignController extends Controller {
 			'',
 			false,
 			120,
-			'',
+			$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
 			$this->clientId,
 			$_SERVER['REMOTE_ADDR'],
 			$this->userSettings,
