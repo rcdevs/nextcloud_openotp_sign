@@ -99,7 +99,7 @@ class SignController extends Controller {
 			120,
 			$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
 			$this->clientId,
-			$_SERVER['REMOTE_ADDR'],
+			$this->request->getRemoteAddress(),
 			$this->userSettings,
 			null
 		);
@@ -169,7 +169,7 @@ class SignController extends Controller {
 			120,
 			$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
 			$this->clientId,
-			$_SERVER['REMOTE_ADDR'],
+			$this->request->getRemoteAddress(),
 			$this->userSettings,
 			null
 		);
