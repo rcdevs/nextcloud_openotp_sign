@@ -16,12 +16,6 @@
     <dependencies>
         <nextcloud min-version="22" max-version="22"/>
     </dependencies>
-    <navigations>
-        <navigation>
-            <name>OpenOTP Sign</name>
-            <route>openotpsign.page.index</route>
-        </navigation>
-    </navigations>
     <settings>
         <admin>OCA\OpenOTPSign\Settings\AdminSettings</admin>
         <admin-section>OCA\OpenOTPSign\Settings\AdminSection</admin-section>
