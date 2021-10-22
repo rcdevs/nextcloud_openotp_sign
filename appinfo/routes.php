@@ -15,5 +15,6 @@ return [
 	   ['name' => 'sign#qualifiedSign', 'url' => '/qualified_sign', 'verb' => 'POST'],
 	   ['name' => 'settings#saveSettings', 'url' => '/settings', 'verb' => 'POST'],
 	   ['name' => 'settings#checkServerUrl', 'url' => '/check_server_url', 'verb' => 'POST'],
+	   ['name' => 'settings#checkSettings', 'url' => '/check_settings', 'verb' => 'GET'],
     ]
 ];

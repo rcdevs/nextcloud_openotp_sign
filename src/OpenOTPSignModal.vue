@@ -6,32 +6,38 @@
 		<Modal v-if="modal" @close="closeModal">
 			<div class="modal__content">
 				<h1>OpenOTP Sign</h1>
-				<img v-if="!success" src="/nextcloud/apps/notestutorial/img/mobile-signing.png" style="max-width: 500px;">
-				<p v-else id="green-tick">
-					&#10003;
+				<p v-if="!settingsOk" id="error_settings" class="alert alert-danger">
+					You have to enter the <strong>OpenOTP server URL</strong> in the <strong>OpenOTP Sign</strong>
+					settings prior to sign any document.
 				</p>
-				<p>
-					Digital signature of file <strong>{{ filename }}</strong>
-				</p>
-				<p v-if="error" class="error">
-					{{ errorMessage }}
-				</p>
-				<br>
-				<div v-if="!requesting && !success">
-					<button type="button" @click="advancedSignature">
-						Advanced signature
-					</button>
-					<button type="button" @click="qualifiedSignature">
-						Qualified signature
-					</button>
-				</div>
-				<div v-if="requesting">
-					<img src="/nextcloud/core/img/loading.gif">
-				</div>
-				<div v-if="success">
-					<button type="button" class="primary" @click="closeModal">
-						Close
-					</button>
+				<div v-if="settingsOk">
+					<img v-if="!success" src="/nextcloud/apps/notestutorial/img/mobile-signing.png" style="max-width: 500px;">
+					<p v-else id="green-tick">
+						&#10003;
+					</p>
+					<p>
+						Digital signature of file <strong>{{ filename }}</strong>
+					</p>
+					<p v-if="error" class="error">
+						{{ errorMessage }}
+					</p>
+					<br>
+					<div v-if="!requesting && !success">
+						<button type="button" @click="advancedSignature">
+							Advanced signature
+						</button>
+						<button type="button" @click="qualifiedSignature">
+							Qualified signature
+						</button>
+					</div>
+					<div v-if="requesting">
+						<img src="/nextcloud/core/img/loading.gif">
+					</div>
+					<div v-if="success">
+						<button type="button" class="primary" @click="closeModal">
+							Close
+						</button>
+					</div>
 				</div>
 			</div>
 		</Modal>
@@ -57,6 +63,7 @@ export default {
 			error: false,
 			errorMessage: '',
 			source: null,
+			settingsOk: false,
 		}
 	},
 	mounted() {
@@ -72,6 +79,22 @@ export default {
 			this.success = false
 			this.error = false
 			this.errorMessage = ''
+
+			const baseUrl = generateUrl('/apps/openotpsign')
+
+			const CancelToken = axios.CancelToken
+			this.source = CancelToken.source()
+			axios.get(baseUrl + '/check_settings', {
+			}, {
+				cancelToken: this.source.token,
+			})
+				.then(response => {
+					this.settingsOk = response.data
+				})
+				.catch(error => {
+					// eslint-disable-next-line
+					console.log(error)
+				})
 		},
 		closeModal() {
 			if (this.source !== null) {
@@ -170,5 +193,24 @@ export default {
 
 	.error {
 		color: red;
+	}
+
+	.alert-danger {
+		color: #721c24;
+		background-color: #f8d7da;
+		border-color: #f5c6cb;
+	}
+
+	.alert {
+		display: block;
+		position: relative;
+		padding: .75rem 1.25rem;
+		margin-bottom: 1rem;
+		border: 1px solid transparent;
+		border-radius: .25rem;
+	}
+
+	#error_settings {
+		margin-top: 25px;
 	}
 </style>

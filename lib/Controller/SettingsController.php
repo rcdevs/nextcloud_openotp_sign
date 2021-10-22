@@ -67,4 +67,11 @@ class SettingsController extends Controller {
 			'message' => $resp['message']
 		]);
 	}
+
+	/**
+	 * @NoAdminRequired
+	 */
+	public function checkSettings() {
+		return new JSONResponse(!empty($this->config->getAppValue('openotpsign', 'server_url')));
+	}
 }
