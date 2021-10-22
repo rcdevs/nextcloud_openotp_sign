@@ -54,7 +54,7 @@ class SignController extends Controller {
 	 */
 	public function advancedSign() {
 		$path = $this->request->getParam('path');
-		list($mimeType, $fileContent, $fileName) = $this->getFile($path, $this->userId);
+		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $this->userId);
 
 		$opts = array('location' => $this->serverUrl);
 		if ($this->ignoreSslErrors) {
@@ -77,6 +77,12 @@ class SignController extends Controller {
 			$opts['proxy_password'] = $this->proxyPassword;
 		}
 
+		$data  = '<div style="color: white;">';
+		$data .= "<strong>Name: </strong>$fileName";
+		$data .= "<br><strong>Size: </strong>".$this->humanFileSize($fileSize);
+		$data .= "<br><strong>Modified: </strong>".date('m/d/Y H:i:s', $lastModified);
+		$data .= '</div>';
+
 		$user = $this->userManager->get($this->userId);
 		$account = $this->accountManager->getAccount($user);
 
@@ -85,7 +91,7 @@ class SignController extends Controller {
 		$resp = $client->openotpNormalConfirm(
 			$this->userId,
 			$this->defaultDomain,
-			"NextCloud signature request for " . $fileName,
+			$data,
 			$fileContent,
 			null,
 			null,
@@ -119,7 +125,7 @@ class SignController extends Controller {
 	 */
 	public function qualifiedSign() {
 		$path = $this->request->getParam('path');
-		list($mimeType, $fileContent, $fileName) = $this->getFile($path, $this->userId);
+		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $this->userId);
 
 		$opts = array('location' => $this->serverUrl);
 		if ($this->ignoreSslErrors) {
@@ -142,6 +148,12 @@ class SignController extends Controller {
 			$opts['proxy_password'] = $this->proxyPassword;
 		}
 
+		$data  = '<div style="color: white;">';
+		$data .= "<strong>Name: </strong>$fileName";
+		$data .= "<br><strong>Size: </strong>".$this->humanFileSize($fileSize);
+		$data .= "<br><strong>Modified: </strong>".date('m/d/Y H:i:s', $lastModified);
+		$data .= '</div>';
+
 		$user = $this->userManager->get($this->userId);
 		$account = $this->accountManager->getAccount($user);
 
@@ -150,7 +162,7 @@ class SignController extends Controller {
 		$resp = $client->openotpNormalSign(
 			$this->userId,
 			$this->defaultDomain,
-			"NextCloud signature request for " . $fileName,
+			$data,
 			$fileContent,
 			'',
 			false,

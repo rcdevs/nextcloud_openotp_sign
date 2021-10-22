@@ -12,7 +12,7 @@ trait GetsFile {
             $file = $userFolder->get($path);
 
             if ($file instanceof \OCP\Files\File) {
-                return [$file->getMimeType(), $file->getContent(), $file->getName()];
+                return [$file->getContent(), $file->getName(), $file->getSize(), $file->GetMTime()];
             } else {
                 throw new NotFoundException('Can not read from folder');
             }
@@ -28,4 +28,15 @@ trait GetsFile {
         $userFolder->touch($containerPath);
         $userFolder->newFile($containerPath, $contents);
     }
+
+
+    private function humanFileSize($size,$unit="") {
+        if( (!$unit && $size >= 1<<30) || $unit == "GB")
+          return number_format($size/(1<<30),2)." GB";
+        if( (!$unit && $size >= 1<<20) || $unit == "MB")
+          return number_format($size/(1<<20),2)." MB";
+        if( (!$unit && $size >= 1<<10) || $unit == "KB")
+          return number_format($size/(1<<10),2)." KB";
+        return number_format($size)." bytes";
+      }
 }
