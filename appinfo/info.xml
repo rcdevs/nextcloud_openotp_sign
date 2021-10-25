@@ -5,7 +5,7 @@
     <name>OpenOTP Sign</name>
     <summary>TODO</summary>
     <description><![CDATA[TODO]]></description>
-    <version>0.0.1</version>
+    <version>1.0.0</version>
     <licence>agpl</licence>
     <author mail="info@rcdevs.com" >RCDevs</author>
     <namespace>OpenOTPSign</namespace>
