@@ -1,105 +1,24 @@
-<script>
-import axios from '@nextcloud/axios'
-import { generateUrl } from '@nextcloud/router'
-import CheckboxRadioSwitch from '@nextcloud/vue/dist/Components/CheckboxRadioSwitch'
-
-export default {
-	name: 'AppAdmin',
-	components: {
-		CheckboxRadioSwitch,
-	},
-	data() {
-		return {
-			serverUrl: this.$parent.serverUrl,
-			ignoreSslErrors: !!this.$parent.ignoreSslErrors,
-			sslSettingEnabled: this.$parent.serverUrl.startsWith('https://'),
-			clientId: this.$parent.clientId,
-			defaultDomain: this.$parent.defaultDomain,
-			userSettings: this.$parent.userSettings,
-			useProxy: !!this.$parent.useProxy,
-			proxyHost: this.$parent.proxyHost,
-			proxyPort: this.$parent.proxyPort,
-			proxyUsername: this.$parent.proxyUsername,
-			proxyPassword: this.$parent.proxyPassword,
-			signedFile: this.$parent.signedFile,
-			messageStatusClass: 'error',
-			serverMessage: '',
-			success: false,
-			failure: false,
-			statusRequesting: false,
-		}
-	},
-	mounted() {
-		this.testConnection()
-	},
-	methods: {
-		saveSettings() {
-			this.success = false
-			this.failure = false
-			const baseUrl = generateUrl('/apps/openotpsign')
-
-			axios.post(baseUrl + '/settings', {
-				server_url: this.serverUrl,
-				ignore_ssl_errors: this.ignoreSslErrors,
-				client_id: this.clientId,
-				default_domain: this.defaultDomain,
-				user_settings: this.userSettings,
-				use_proxy: this.useProxy,
-				proxy_host: this.proxyHost,
-				proxy_port: this.proxyPort,
-				proxy_username: this.proxyUsername,
-				proxy_password: this.proxyPassword,
-				signed_file: this.signedFile,
-			})
-				.then(response => {
-					this.success = true
-				})
-				.catch(error => {
-					this.failure = true
-					// eslint-disable-next-line
-					console.log(error)
-				})
-		},
-		enableSslSetting() {
-			this.sslSettingEnabled = this.serverUrl.startsWith('https://')
-		},
-		testConnection() {
-			this.statusRequesting = true
-			this.serverMessage = ''
-			const baseUrl = generateUrl('/apps/openotpsign')
-
-			axios.post(baseUrl + '/check_server_url', {
-				server_url: this.serverUrl,
-				ignore_ssl_errors: this.ignoreSslErrors,
-				use_proxy: this.useProxy,
-				proxy_host: this.proxyHost,
-				proxy_port: this.proxyPort,
-				proxy_username: this.proxyUsername,
-				proxy_password: this.proxyPassword,
-			})
-				.then(response => {
-					this.statusRequesting = false
-					if (response.data.status === true) {
-						this.messageStatusClass = 'success'
-						this.serverMessage = response.data.message
-					} else {
-						this.messageStatusClass = 'error'
-						this.serverMessage = ''
-					}
-				})
-				.catch(error => {
-					this.statusRequesting = false
-					this.messageStatusClass = 'error'
-					this.serverMessage = ''
-					// eslint-disable-next-line
-					console.log(error)
-				})
-		},
-	},
-}
-</script>
-
 <template>
+	<!--
+	*
+	* @copyright Copyright (c) 2021, RCDevs (info@rcdevs.com)
+	*
+	* @license GNU AGPL version 3 or any later version
+	*
+	* This program is free software: you can redistribute it and/or modify
+	* it under the terms of the GNU Affero General Public License as
+	* published by the Free Software Foundation, either version 3 of the
+	* License, or (at your option) any later version.
+	*
+	* This program is distributed in the hope that it will be useful,
+	* but WITHOUT ANY WARRANTY; without even the implied warranty of
+	* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	* GNU Affero General Public License for more details.
+	*
+	* You should have received a copy of the GNU Affero General Public License
+	* along with this program.  If not, see <https://www.gnu.org/licenses/>.
+	*
+	-->
 	<div>
 		<div id="openotpsign" class="section">
 			<h2>{{ $t('openotpsign', 'OpenOTP Sign Settings') }}</h2>
@@ -235,6 +154,106 @@ export default {
 		</div>
 	</div>
 </template>
+<script>
+import axios from '@nextcloud/axios'
+import { generateUrl } from '@nextcloud/router'
+import CheckboxRadioSwitch from '@nextcloud/vue/dist/Components/CheckboxRadioSwitch'
+
+export default {
+	name: 'AppAdmin',
+	components: {
+		CheckboxRadioSwitch,
+	},
+	data() {
+		return {
+			serverUrl: this.$parent.serverUrl,
+			ignoreSslErrors: !!this.$parent.ignoreSslErrors,
+			sslSettingEnabled: this.$parent.serverUrl.startsWith('https://'),
+			clientId: this.$parent.clientId,
+			defaultDomain: this.$parent.defaultDomain,
+			userSettings: this.$parent.userSettings,
+			useProxy: !!this.$parent.useProxy,
+			proxyHost: this.$parent.proxyHost,
+			proxyPort: this.$parent.proxyPort,
+			proxyUsername: this.$parent.proxyUsername,
+			proxyPassword: this.$parent.proxyPassword,
+			signedFile: this.$parent.signedFile,
+			messageStatusClass: 'error',
+			serverMessage: '',
+			success: false,
+			failure: false,
+			statusRequesting: false,
+		}
+	},
+	mounted() {
+		this.testConnection()
+	},
+	methods: {
+		saveSettings() {
+			this.success = false
+			this.failure = false
+			const baseUrl = generateUrl('/apps/openotpsign')
+
+			axios.post(baseUrl + '/settings', {
+				server_url: this.serverUrl,
+				ignore_ssl_errors: this.ignoreSslErrors,
+				client_id: this.clientId,
+				default_domain: this.defaultDomain,
+				user_settings: this.userSettings,
+				use_proxy: this.useProxy,
+				proxy_host: this.proxyHost,
+				proxy_port: this.proxyPort,
+				proxy_username: this.proxyUsername,
+				proxy_password: this.proxyPassword,
+				signed_file: this.signedFile,
+			})
+				.then(response => {
+					this.success = true
+				})
+				.catch(error => {
+					this.failure = true
+					// eslint-disable-next-line
+					console.log(error)
+				})
+		},
+		enableSslSetting() {
+			this.sslSettingEnabled = this.serverUrl.startsWith('https://')
+		},
+		testConnection() {
+			this.statusRequesting = true
+			this.serverMessage = ''
+			const baseUrl = generateUrl('/apps/openotpsign')
+
+			axios.post(baseUrl + '/check_server_url', {
+				server_url: this.serverUrl,
+				ignore_ssl_errors: this.ignoreSslErrors,
+				use_proxy: this.useProxy,
+				proxy_host: this.proxyHost,
+				proxy_port: this.proxyPort,
+				proxy_username: this.proxyUsername,
+				proxy_password: this.proxyPassword,
+			})
+				.then(response => {
+					this.statusRequesting = false
+					if (response.data.status === true) {
+						this.messageStatusClass = 'success'
+						this.serverMessage = response.data.message
+					} else {
+						this.messageStatusClass = 'error'
+						this.serverMessage = ''
+					}
+				})
+				.catch(error => {
+					this.statusRequesting = false
+					this.messageStatusClass = 'error'
+					this.serverMessage = ''
+					// eslint-disable-next-line
+					console.log(error)
+				})
+		},
+	},
+}
+</script>
 <style scoped>
 label,
 input {
