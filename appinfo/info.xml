@@ -3,7 +3,7 @@
       xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
     <id>openotpsign</id>
     <name>OpenOTP Sign</name>
-    <summary>TODO</summary>
+    <summary>Nextcloud app to sign your documents with OpenOTP</summary>
     <description><![CDATA[TODO]]></description>
     <version>1.0.0</version>
     <licence>agpl</licence>
