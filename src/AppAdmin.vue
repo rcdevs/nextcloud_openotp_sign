@@ -127,14 +127,14 @@
 				value="copy"
 				name="signed_file_radio"
 				type="radio">
-				Make a signed copy of the original file
+				{{ $t('openotpsign', 'Make a signed copy of the original file') }}
 			</CheckboxRadioSwitch>
 			<CheckboxRadioSwitch
 				:checked.sync="signedFile"
 				value="overwrite"
 				name="signed_file_radio"
 				type="radio">
-				Overwrite the original file with its signed copy
+				{{ $t('openotpsign', 'Overwrite the original file with its signed copy') }}
 			</CheckboxRadioSwitch>
 		</div>
 		<div id="save" class="section">

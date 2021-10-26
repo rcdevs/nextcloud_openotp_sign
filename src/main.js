@@ -1,6 +1,9 @@
 import Vue from 'vue'
+import { translate } from '@nextcloud/l10n'
 import EventBus from './EventBus'
 import OpenOTPSignModal from './OpenOTPSignModal'
+
+Vue.prototype.$t = translate
 
 const modalHolderId = 'ootpsignModalHolder'
 const modalHolder = document.createElement('div')

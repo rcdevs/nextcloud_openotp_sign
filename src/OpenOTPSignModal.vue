@@ -25,29 +25,27 @@
 		</button>
 		<Modal v-if="modal" @close="closeModal">
 			<div class="modal__content">
-				<h1>OpenOTP Sign</h1>
-				<p v-if="!settingsOk" id="error_settings" class="alert alert-danger">
-					You have to enter the <strong>OpenOTP server URL</strong> in the <strong>OpenOTP Sign</strong>
-					settings prior to sign any document.
-				</p>
+				<h1>{{ $t('openotpsign', 'OpenOTP Sign') }}</h1>
+				<p v-if="!settingsOk"
+					id="error_settings"
+					class="alert alert-danger"
+					v-html="$t('openotpsign', 'You have to enter the <strong>OpenOTP server URL</strong> in the <strong>OpenOTP Sign</strong> settings prior to sign any document.')" />
 				<div v-if="settingsOk">
 					<img v-if="!success" src="/nextcloud/apps/notestutorial/img/mobile-signing.png" style="max-width: 500px;">
 					<p v-else id="green-tick">
 						&#10003;
 					</p>
-					<p>
-						Digital signature of file <strong>{{ filename }}</strong>
-					</p>
+					<p v-html="$t('openotpsign', 'Digital signature of file <strong>{filename}</strong>', {filename: filename})" />
 					<p v-if="error" class="error">
 						{{ errorMessage }}
 					</p>
 					<br>
 					<div v-if="!requesting && !success">
 						<button type="button" @click="advancedSignature">
-							Advanced signature
+							{{ $t('openotpsign', 'Advanced signature') }}
 						</button>
 						<button type="button" @click="qualifiedSignature">
-							Qualified signature
+							{{ $t('openotpsign', 'Qualified signature') }}
 						</button>
 					</div>
 					<div v-if="requesting">
@@ -55,7 +53,7 @@
 					</div>
 					<div v-if="success">
 						<button type="button" class="primary" @click="closeModal">
-							Close
+							{{ $t('openotpsign', 'Close') }}
 						</button>
 					</div>
 				</div>
