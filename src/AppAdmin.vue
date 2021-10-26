@@ -261,7 +261,7 @@ input {
 }
 
 label {
-	width: 200px;
+	width: 230px;
 }
 
 input {
@@ -306,5 +306,9 @@ input {
 
 .fade-enter /* .fade-leave-active below version 2.1.8 */ {
 	opacity: 0;
+}
+
+#ootp_server_url {
+	margin-top: 30px;
 }
 </style>
