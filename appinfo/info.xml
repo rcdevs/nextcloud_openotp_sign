@@ -5,6 +5,8 @@
     <name>OpenOTP Sign</name>
     <summary>Nextcloud app to sign your documents with OpenOTP</summary>
     <description><![CDATA[TODO]]></description>
+    <screenshot>https://raw.githubusercontent.com/rcdevs/nextcloud_openotpsign/master/img/screenshots/screenshot-modal.png</screenshot>
+    <screenshot>https://raw.githubusercontent.com/rcdevs/nextcloud_openotpsign/master/img/screenshots/screenshot-menu.png</screenshot>
     <version>1.0.0</version>
     <licence>agpl</licence>
     <author mail="info@rcdevs.com" >RCDevs</author>
