@@ -4,13 +4,13 @@
 	"version": "1.0.0",
 	"author": "RCDevs <info@rcdevs.com>",
 	"bugs": {
-		"url": "https://github.com/nextcloud/app-tutorial/issues"
+		"url": "https://github.com/rcdevs/nextcloud_openotpsign/issues"
 	},
 	"repository": {
-		"url": "https://github.com/nextcloud/app-tutorial",
+		"url": "https://github.com/rcdevs/nextcloud_openotpsign",
 		"type": "git"
 	},
-	"homepage": "https://github.com/nextcloud/app-tutorial",
+	"homepage": "https://github.com/rcdevs/nextcloud_openotpsign",
 	"license": "agpl",
 	"private": true,
 	"scripts": {
