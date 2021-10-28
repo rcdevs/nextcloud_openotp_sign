@@ -21,11 +21,16 @@ OC.L10N.register(
     "Save" : "Enregistrer",
     "Your settings have been saved succesfully" : "Vos paramètres ont été enregistrés avec succès",
     "There was an error saving settings" : "Une erreur s’est produite lors de l’enregistrement des paramètres",
+    "You have to enter the <strong>OpenOTP server URL</strong> in the <strong>OpenOTP Sign</strong> settings prior to seal any document." : "Vous devez entrer l’URL du <strong>serveur OpenOTP</strong> dans les paramètres <strong>de OpenOTP Sign</strong> avant de sceller tout document.",
+    "Digital seal of file <strong>{filename}</strong>" : "Sceau numérique du fichier <strong>{filename}</strong>",
+    "Seal" : "Sceller",
+    "Close" : "Fermer",
     "You have to enter the <strong>OpenOTP server URL</strong> in the <strong>OpenOTP Sign</strong> settings prior to sign any document." : "Vous devez entrer l’URL du <strong>serveur OpenOTP</strong> dans les paramètres <strong>de OpenOTP Sign</strong> avant de signer un document.",
     "Digital signature of file <strong>{filename}</strong>" : "Signature numérique du fichier <strong>{filename}</strong>",
     "Advanced signature" : "Signature avancée",
     "Qualified signature" : "Signature qualifiée",
-    "Close" : "Fermer",
-    "Sign with OpenOTP" : "Signer avec OpenOTP"
+    "Sign with OpenOTP" : "Signer avec OpenOTP",
+    "Seal with OpenOTP" : "Sceller avec OpenOTP",
+    "Nextcloud app to sign your documents with OpenOTP" : "Application Nextcloud pour signer vos documents avec OpenOTP"
 },
 "nplurals=2; plural=(n > 1);");

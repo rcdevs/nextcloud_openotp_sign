@@ -210,4 +210,58 @@ class SignController extends Controller {
 			'message' => $resp['message']
 		]);
 	}
+
+	/**
+	 * @NoAdminRequired
+	 */
+	public function seal() {
+		$path = $this->request->getParam('path');
+		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $this->userId);
+
+		$opts = array('location' => $this->serverUrl);
+		if ($this->ignoreSslErrors) {
+			$context = stream_context_create([
+				'ssl' => [
+					// set some SSL/TLS specific options
+					'verify_peer' => false,
+					'verify_peer_name' => false,
+					'allow_self_signed' => true
+				]
+			]);
+
+			$opts['stream_context'] = $context;
+		}
+
+		if ($this->useProxy) {
+			$opts['proxy_host'] = $this->proxyHost;
+			$opts['proxy_port'] = $this->proxyPort;
+			$opts['proxy_login'] = $this->proxyUsername;
+			$opts['proxy_password'] = $this->proxyPassword;
+		}
+
+		ini_set('default_socket_timeout', 600);
+		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
+		$resp = $client->openotpSeal(
+			$fileContent,
+			'', // mode
+			$this->clientId,
+			$this->request->getRemoteAddress(),
+			$this->userSettings
+		);
+
+		if ($resp['code'] === 1) {
+			if ($this->signedFile == "overwrite") {
+				$newPath = $path;
+			} else {
+				$newPath = substr_replace($path, "-sealed", strrpos($path, '.'), 0);
+			}
+
+			$this->saveContainer($this->userId, $resp['file'], $newPath);
+		}
+
+		return new JSONResponse([
+			'code' => $resp['code'],
+			'message' => $resp['message']
+		]);
+	}
 }
