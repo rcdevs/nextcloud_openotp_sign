@@ -243,17 +243,21 @@ class SignController extends Controller {
 		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
 		$resp = $client->openotpSeal(
 			$fileContent,
-			'', // mode
+			'',
 			$this->clientId,
 			$this->request->getRemoteAddress(),
-			$this->userSettings
+			'CaDESMode=Detached,'.$this->userSettings
 		);
 
 		if ($resp['code'] === 1) {
-			if ($this->signedFile == "overwrite") {
-				$newPath = $path;
+			if (str_ends_with(strtolower($path), ".pdf")) {
+				if ($this->signedFile == "overwrite") {
+					$newPath = $path;
+				} else {
+					$newPath = substr_replace($path, "-sealed", strrpos($path, '.'), 0);
+				}
 			} else {
-				$newPath = substr_replace($path, "-sealed", strrpos($path, '.'), 0);
+				$newPath = $path . ".p7s";
 			}
 
 			$this->saveContainer($this->userId, $resp['file'], $newPath);
