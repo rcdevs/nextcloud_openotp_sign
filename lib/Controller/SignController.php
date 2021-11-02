@@ -126,10 +126,14 @@ class SignController extends Controller {
 		);
 
 		if ($resp['code'] === 1) {
-			if ($this->signedFile == "overwrite") {
-				$newPath = $path;
+			if (str_ends_with(strtolower($path), ".pdf")) {
+				if ($this->signedFile == "overwrite") {
+					$newPath = $path;
+				} else {
+					$newPath = substr_replace($path, "-signed", strrpos($path, '.'), 0);
+				}
 			} else {
-				$newPath = substr_replace($path, "-signed", strrpos($path, '.'), 0);
+				$newPath = $path . ".p7s";
 			}
 
 			$this->saveContainer($this->userId, $resp['file'], $newPath);
@@ -196,10 +200,14 @@ class SignController extends Controller {
 		);
 
 		if ($resp['code'] === 1) {
-			if ($this->signedFile == "overwrite") {
-				$newPath = $path;
+			if (str_ends_with(strtolower($path), ".pdf")) {
+				if ($this->signedFile == "overwrite") {
+					$newPath = $path;
+				} else {
+					$newPath = substr_replace($path, "-signed", strrpos($path, '.'), 0);
+				}
 			} else {
-				$newPath = substr_replace($path, "-signed", strrpos($path, '.'), 0);
+				$newPath = $path . ".p7s";
 			}
 
 			$this->saveContainer($this->userId, $resp['file'], $newPath);
