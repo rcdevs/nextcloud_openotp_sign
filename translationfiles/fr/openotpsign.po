@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Nextcloud 3.14159\n"
 "Report-Msgid-Bugs-To: translations\\@example.com\n"
-"POT-Creation-Date: 2021-10-28 16:53+0200\n"
-"PO-Revision-Date: 2021-10-28 16:55+0200\n"
+"POT-Creation-Date: 2021-11-02 17:01+0100\n"
+"PO-Revision-Date: 2021-11-02 17:04+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -89,32 +89,32 @@ msgstr "Nom d’utilisateur du proxy"
 msgid "Proxy Password"
 msgstr "Mot de passe du proxy"
 
-#: /var/www/html/nextcloud/apps/openotpsign/js/openotpsign-adminSettings.js:19708
+#: /var/www/html/nextcloud/apps/openotpsign/js/openotpsign-adminSettings.js:19709
 #: /var/www/html/nextcloud/apps/openotpsign/specialVueFakeDummyForL10nScript.js:15
-msgid "Signed File"
-msgstr "Fichier signé"
+msgid "Signed / sealed PDF File"
+msgstr "Fichier PDF signé / scellé"
 
-#: /var/www/html/nextcloud/apps/openotpsign/js/openotpsign-adminSettings.js:19731
+#: /var/www/html/nextcloud/apps/openotpsign/js/openotpsign-adminSettings.js:19733
 #: /var/www/html/nextcloud/apps/openotpsign/specialVueFakeDummyForL10nScript.js:16
-msgid "Make a signed copy of the original file"
-msgstr "Faire une copie signée du fichier d’origine"
+msgid "Make a signed / sealed copy of the original PDF file"
+msgstr "Faire une copie signée / scellée du fichier PDF original"
 
-#: /var/www/html/nextcloud/apps/openotpsign/js/openotpsign-adminSettings.js:19760
+#: /var/www/html/nextcloud/apps/openotpsign/js/openotpsign-adminSettings.js:19762
 #: /var/www/html/nextcloud/apps/openotpsign/specialVueFakeDummyForL10nScript.js:17
-msgid "Overwrite the original file with its signed copy"
-msgstr "Remplacer le fichier d’origine par sa copie signée"
+msgid "Overwrite the original PDF file with its signed / sealed copy"
+msgstr "Écraser le fichier PDF original avec sa copie signée / scellée"
 
-#: /var/www/html/nextcloud/apps/openotpsign/js/openotpsign-adminSettings.js:19778
+#: /var/www/html/nextcloud/apps/openotpsign/js/openotpsign-adminSettings.js:19780
 #: /var/www/html/nextcloud/apps/openotpsign/specialVueFakeDummyForL10nScript.js:18
 msgid "Save"
 msgstr "Enregistrer"
 
-#: /var/www/html/nextcloud/apps/openotpsign/js/openotpsign-adminSettings.js:19791
+#: /var/www/html/nextcloud/apps/openotpsign/js/openotpsign-adminSettings.js:19793
 #: /var/www/html/nextcloud/apps/openotpsign/specialVueFakeDummyForL10nScript.js:19
 msgid "Your settings have been saved succesfully"
 msgstr "Vos paramètres ont été enregistrés avec succès"
 
-#: /var/www/html/nextcloud/apps/openotpsign/js/openotpsign-adminSettings.js:19806
+#: /var/www/html/nextcloud/apps/openotpsign/js/openotpsign-adminSettings.js:19808
 #: /var/www/html/nextcloud/apps/openotpsign/specialVueFakeDummyForL10nScript.js:20
 msgid "There was an error saving settings"
 msgstr "Une erreur s’est produite lors de l’enregistrement des paramètres"
@@ -159,8 +159,7 @@ msgid ""
 "<strong>OpenOTP Sign</strong> settings prior to seal any document."
 msgstr ""
 "Vous devez entrer l’URL du <strong>serveur OpenOTP</strong> dans les "
-"paramètres <strong>de OpenOTP Sign</strong> avant de sceller tout "
-"document."
+"paramètres <strong>de OpenOTP Sign</strong> avant de sceller tout document."
 
 #: /var/www/html/nextcloud/apps/openotpsign/js/openotpsign-main.js:32382
 #: /var/www/html/nextcloud/apps/openotpsign/specialVueFakeDummyForL10nScript.js:23

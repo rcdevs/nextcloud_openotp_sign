@@ -121,20 +121,20 @@
 			</p>
 		</div>
 		<div id="signed_file" class="section">
-			<h2>{{ $t('openotpsign', 'Signed File') }}</h2>
+			<h2>{{ $t('openotpsign', 'Signed / sealed PDF File') }}</h2>
 			<CheckboxRadioSwitch
 				:checked.sync="signedFile"
 				value="copy"
 				name="signed_file_radio"
 				type="radio">
-				{{ $t('openotpsign', 'Make a signed copy of the original file') }}
+				{{ $t('openotpsign', 'Make a signed / sealed copy of the original PDF file') }}
 			</CheckboxRadioSwitch>
 			<CheckboxRadioSwitch
 				:checked.sync="signedFile"
 				value="overwrite"
 				name="signed_file_radio"
 				type="radio">
-				{{ $t('openotpsign', 'Overwrite the original file with its signed copy') }}
+				{{ $t('openotpsign', 'Overwrite the original PDF file with its signed / sealed copy') }}
 			</CheckboxRadioSwitch>
 		</div>
 		<div id="save" class="section">
