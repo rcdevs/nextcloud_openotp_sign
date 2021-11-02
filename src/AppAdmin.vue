@@ -297,7 +297,7 @@ input {
 
 #status_loader {
 	position: absolute;
-	margin-top: 4px;
+	margin-top: 30px;
 }
 
 .fade-enter-active {
