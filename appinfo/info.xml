@@ -4,7 +4,17 @@
     <id>openotpsign</id>
     <name>OpenOTP Sign</name>
     <summary>Nextcloud app to sign your documents with OpenOTP</summary>
-    <description><![CDATA[TODO]]></description>
+    <description><![CDATA[# Electronic Signature
+Click & Sign with your Mobile with the OpenOTP Authentication Server which validates
+your identity and generates secure communication with your mobile, your signature is
+secure and compliant with the eIDAS regulation.
+
+# Features
+* Strong Authentication
+* Advanced Signature
+* Qualified Electronic Signature with our YumiSign Card Reader for IOS & Android
+* Sealing by YumiSign HSMs
+]]></description>
     <screenshot>https://raw.githubusercontent.com/rcdevs/nextcloud_openotpsign/master/img/screenshots/screenshot-modal.png</screenshot>
     <screenshot>https://raw.githubusercontent.com/rcdevs/nextcloud_openotpsign/master/img/screenshots/screenshot-menu.png</screenshot>
     <version>1.0.0</version>
