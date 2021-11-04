@@ -31,7 +31,7 @@
 					class="alert alert-danger"
 					v-html="$t('openotpsign', 'You have to enter the <strong>OpenOTP server URL</strong> in the <strong>OpenOTP Sign</strong> settings prior to seal any document.')" />
 				<div v-if="settingsOk">
-					<img v-if="!success" src="/nextcloud/apps/notestutorial/img/mobile-signing.png" style="max-width: 500px;">
+					<img v-if="!success" src="/nextcloud/apps/openotpsign/img/mobile-signing.png" style="max-width: 500px;">
 					<p v-else id="green-tick">
 						&#10003;
 					</p>
