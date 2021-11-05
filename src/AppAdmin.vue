@@ -40,7 +40,7 @@
 				<transition name="fade">
 					<span v-if="!statusRequesting" id="message_status" :class="messageStatusClass" />
 				</transition>
-				<img v-if="statusRequesting" id="status_loader" src="/nextcloud/core/img/loading.gif">
+				<img v-if="statusRequesting" id="status_loader" :src="loadingImg">
 			</p>
 			<transition name="fade">
 				<pre v-if="serverMessage.length" id="server_message">{{ serverMessage }}</pre>
@@ -156,7 +156,7 @@
 </template>
 <script>
 import axios from '@nextcloud/axios'
-import { generateUrl } from '@nextcloud/router'
+import { generateUrl, generateFilePath } from '@nextcloud/router'
 import CheckboxRadioSwitch from '@nextcloud/vue/dist/Components/CheckboxRadioSwitch'
 
 export default {
@@ -186,6 +186,7 @@ export default {
 		}
 	},
 	mounted() {
+		this.loadingImg = generateFilePath('core', '', 'img/') + 'loading.gif'
 		this.testConnection()
 	},
 	methods: {

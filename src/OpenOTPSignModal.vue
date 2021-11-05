@@ -31,7 +31,7 @@
 					class="alert alert-danger"
 					v-html="$t('openotpsign', 'You have to enter the <strong>OpenOTP server URL</strong> in the <strong>OpenOTP Sign</strong> settings prior to sign any document.')" />
 				<div v-if="settingsOk">
-					<img v-if="!success" src="/nextcloud/apps/openotpsign/img/mobile-signing.png" style="max-width: 500px;">
+					<img v-if="!success" :src="mobileSigningImg" style="max-width: 500px;">
 					<p v-else id="green-tick">
 						&#10003;
 					</p>
@@ -49,7 +49,7 @@
 						</button>
 					</div>
 					<div v-if="requesting">
-						<img src="/nextcloud/core/img/loading.gif">
+						<img :src="loadingImg">
 					</div>
 					<div v-if="success">
 						<button type="button" class="primary" @click="closeModal">
@@ -66,7 +66,7 @@ import Modal from '@nextcloud/vue/dist/Components/Modal'
 import EventBus from './EventBus'
 import queryString from 'query-string'
 import axios from '@nextcloud/axios'
-import { generateUrl } from '@nextcloud/router'
+import { generateUrl, generateFilePath } from '@nextcloud/router'
 
 export default {
 	name: 'OpenOTPSignModal',
@@ -85,6 +85,9 @@ export default {
 		}
 	},
 	mounted() {
+		this.mobileSigningImg = generateFilePath('openotpsign', '', 'img/') + 'mobile-signing.png'
+		this.loadingImg = generateFilePath('core', '', 'img/') + 'loading.gif'
+
 		EventBus.$on('ootp-sign-click', payload => {
 			this.showModal()
 			this.filename = payload.filename
