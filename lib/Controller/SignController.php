@@ -148,6 +148,69 @@ class SignController extends Controller {
 	/**
 	 * @NoAdminRequired
 	 */
+	public function asyncAdvancedSign() {
+		$path = $this->request->getParam('path');
+		$username = $this->request->getParam('username');
+
+		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $this->userId);
+
+		$opts = array('location' => $this->serverUrl);
+		if ($this->ignoreSslErrors) {
+			$context = stream_context_create([
+				'ssl' => [
+					// set some SSL/TLS specific options
+					'verify_peer' => false,
+					'verify_peer_name' => false,
+					'allow_self_signed' => true
+				]
+			]);
+
+			$opts['stream_context'] = $context;
+		}
+
+		if ($this->useProxy) {
+			$opts['proxy_host'] = $this->proxyHost;
+			$opts['proxy_port'] = $this->proxyPort;
+			$opts['proxy_login'] = $this->proxyUsername;
+			$opts['proxy_password'] = $this->proxyPassword;
+		}
+
+		$data  = '<div style="color: black; background-color: white; border-radius: 10px; padding: 5px;">';
+		$data .= "<strong>Name: </strong>$fileName";
+		$data .= "<br><strong>Size: </strong>".$this->humanFileSize($fileSize);
+		$data .= "<br><strong>Modified: </strong>".date('m/d/Y H:i:s', $lastModified);
+		$data .= '</div>';
+
+		$user = $this->userManager->get($this->userId);
+		$account = $this->accountManager->getAccount($user);
+
+		ini_set('default_socket_timeout', 600);
+		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
+		$resp = $client->openotpNormalConfirm(
+			$username,
+			$this->defaultDomain,
+			$data,
+			$fileContent,
+			null,
+			null,
+			true,
+			3600,
+			$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
+			$this->clientId,
+			$this->request->getRemoteAddress(),
+			$this->userSettings,
+			null
+		);
+
+		return new JSONResponse([
+			'code' => $resp['code'],
+			'message' => $resp['message'],
+		]);
+	}
+
+	/**
+	 * @NoAdminRequired
+	 */
 	public function qualifiedSign() {
 		$path = $this->request->getParam('path');
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $this->userId);
@@ -212,6 +275,68 @@ class SignController extends Controller {
 
 			$this->saveContainer($this->userId, $resp['file'], $newPath);
 		}
+
+		return new JSONResponse([
+			'code' => $resp['code'],
+			'message' => $resp['message']
+		]);
+	}
+
+	/**
+	 * @NoAdminRequired
+	 */
+	public function asyncQualifiedSign() {
+		$path = $this->request->getParam('path');
+		$username = $this->request->getParam('username');
+
+		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $this->userId);
+
+		$opts = array('location' => $this->serverUrl);
+		if ($this->ignoreSslErrors) {
+			$context = stream_context_create([
+				'ssl' => [
+					// set some SSL/TLS specific options
+					'verify_peer' => false,
+					'verify_peer_name' => false,
+					'allow_self_signed' => true
+				]
+			]);
+
+			$opts['stream_context'] = $context;
+		}
+
+		if ($this->useProxy) {
+			$opts['proxy_host'] = $this->proxyHost;
+			$opts['proxy_port'] = $this->proxyPort;
+			$opts['proxy_login'] = $this->proxyUsername;
+			$opts['proxy_password'] = $this->proxyPassword;
+		}
+
+		$data  = '<div style="color: black; background-color: white; border-radius: 10px; padding: 5px;">';
+		$data .= "<strong>Name: </strong>$fileName";
+		$data .= "<br><strong>Size: </strong>".$this->humanFileSize($fileSize);
+		$data .= "<br><strong>Modified: </strong>".date('m/d/Y H:i:s', $lastModified);
+		$data .= '</div>';
+
+		$user = $this->userManager->get($this->userId);
+		$account = $this->accountManager->getAccount($user);
+
+		ini_set('default_socket_timeout', 600);
+		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
+		$resp = $client->openotpNormalSign(
+			$username,
+			$this->defaultDomain,
+			$data,
+			$fileContent,
+			'',
+			true,
+			3600,
+			$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
+			$this->clientId,
+			$this->request->getRemoteAddress(),
+			$this->userSettings,
+			null
+		);
 
 		return new JSONResponse([
 			'code' => $resp['code'],

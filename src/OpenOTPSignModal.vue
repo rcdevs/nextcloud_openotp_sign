@@ -41,6 +41,26 @@
 					</p>
 					<br>
 					<div v-if="!requesting && !success">
+						<CheckboxRadioSwitch
+							:checked.sync="recipientType"
+							value="self"
+							name="recipient_radio"
+							type="radio">
+							{{ $t('openotpsign', 'Self-signature') }}
+						</CheckboxRadioSwitch>
+						<div class="flex-container">
+							<CheckboxRadioSwitch
+								:checked.sync="recipientType"
+								value="nextcloud"
+								name="recipient_radio"
+								type="radio">
+								{{ $t('openotpsign', 'Signature by a nextcloud user:') }}
+							</CheckboxRadioSwitch>
+							<input
+								v-model="localUser"
+								type="text"
+								@input="checkNextcloudRadio">
+						</div>
 						<button type="button" @click="advancedSignature">
 							{{ $t('openotpsign', 'Advanced signature') }}
 						</button>
@@ -63,6 +83,7 @@
 </template>
 <script>
 import Modal from '@nextcloud/vue/dist/Components/Modal'
+import CheckboxRadioSwitch from '@nextcloud/vue/dist/Components/CheckboxRadioSwitch'
 import EventBus from './EventBus'
 import queryString from 'query-string'
 import axios from '@nextcloud/axios'
@@ -72,6 +93,7 @@ export default {
 	name: 'OpenOTPSignModal',
 	components: {
 		Modal,
+		CheckboxRadioSwitch,
 	},
 	data() {
 		return {
@@ -82,6 +104,8 @@ export default {
 			errorMessage: '',
 			source: null,
 			settingsOk: false,
+			recipientType: 'self',
+			localUser: '',
 		}
 	},
 	mounted() {
@@ -117,6 +141,11 @@ export default {
 					console.log(error)
 				})
 		},
+		checkNextcloudRadio() {
+			if (this.localUser.length > 0) {
+				this.recipientType = 'nextcloud'
+			}
+		},
 		closeModal() {
 			if (this.source !== null) {
 				this.source.cancel('Operation canceled by the user.')
@@ -130,6 +159,13 @@ export default {
 			this.modal = false
 		},
 		advancedSignature() {
+			if (this.recipientType === 'self') {
+				this.syncAdvancedSignature()
+			} else {
+				this.asyncAdvancedSignature()
+			}
+		},
+		syncAdvancedSignature() {
 			this.error = false
 			this.requesting = true
 			const baseUrl = generateUrl('/apps/openotpsign')
@@ -156,7 +192,42 @@ export default {
 					this.errorMessage = error
 				})
 		},
+		asyncAdvancedSignature() {
+			this.error = false
+			this.requesting = true
+			const baseUrl = generateUrl('/apps/openotpsign')
+
+			const CancelToken = axios.CancelToken
+			this.source = CancelToken.source()
+			axios.post(baseUrl + '/async_advanced_sign', {
+				path: this.getFilePath(),
+				username: this.localUser,
+			}, {
+				cancelToken: this.source.token,
+			})
+				.then(response => {
+					this.requesting = false
+					if (response.data.code === 2) {
+						this.success = true
+					} else {
+						this.error = true
+						this.errorMessage = 'Error: ' + response.data.message
+					}
+				})
+				.catch(error => {
+					this.requesting = false
+					this.error = true
+					this.errorMessage = error
+				})
+		},
 		qualifiedSignature() {
+			if (this.recipientType === 'self') {
+				this.syncQualifiedSignature()
+			} else {
+				this.asyncQualifiedSignature()
+			}
+		},
+		syncQualifiedSignature() {
 			this.error = false
 			this.requesting = true
 			const baseUrl = generateUrl('/apps/openotpsign')
@@ -171,6 +242,34 @@ export default {
 				.then(response => {
 					this.requesting = false
 					if (response.data.code === 1) {
+						this.success = true
+					} else {
+						this.error = true
+						this.errorMessage = 'Error: ' + response.data.message
+					}
+				})
+				.catch(error => {
+					this.requesting = false
+					this.error = true
+					this.errorMessage = error
+				})
+		},
+		asyncQualifiedSignature() {
+			this.error = false
+			this.requesting = true
+			const baseUrl = generateUrl('/apps/openotpsign')
+
+			const CancelToken = axios.CancelToken
+			this.source = CancelToken.source()
+			axios.post(baseUrl + '/async_qualified_sign', {
+				path: this.getFilePath(),
+				username: this.localUser,
+			}, {
+				cancelToken: this.source.token,
+			})
+				.then(response => {
+					this.requesting = false
+					if (response.data.code === 2) {
 						this.success = true
 					} else {
 						this.error = true
@@ -233,5 +332,16 @@ export default {
 
 	#error_settings {
 		margin-top: 25px;
+	}
+
+	.flex-container {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin-bottom: 8px;
+	}
+
+	input {
+		flex: 1 1 auto;
 	}
 </style>
