@@ -31,9 +31,13 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\Files\IRootFolder;
 use OCP\IConfig;
 
+use OCA\OpenOTPSign\Db\SignSession;
+use OCA\OpenOTPSign\Db\SignSessionMapper;
+
 class SignController extends Controller {
 	use GetsFile;
 
+	private $mapper;
 	private $storage;
 	private $userId;
 	private $accountManager;
@@ -50,8 +54,18 @@ class SignController extends Controller {
 	private $proxyPassword;
 	private $signedFile;
 
-	public function __construct($AppName, IRequest $request, IRootFolder $storage, IConfig $config, $UserId, IUserManager $userManager, IAccountManager $accountManager){
+	public function __construct(
+		$AppName,
+		IRequest $request,
+		IRootFolder $storage,
+		IConfig $config,
+		$UserId,
+		IUserManager $userManager,
+		IAccountManager $accountManager,
+		SignSessionMapper $mapper)
+	{
 		parent::__construct($AppName, $request);
+		$this->mapper = $mapper;
 		$this->storage = $storage;
 		$this->userId = $UserId;
 		$this->accountManager = $accountManager;
@@ -202,6 +216,20 @@ class SignController extends Controller {
 			null
 		);
 
+		if ($resp['code'] === 2) {
+			$signSession = new SignSession();
+			$signSession->setUid($this->userId);
+			$signSession->setPath($path);
+			$signSession->setIsQualified(false);
+			$signSession->setRecipient($username);
+
+			$now = new \DateTime();
+			$signSession->setCreated($now->format('Y-m-d H:i:s'));
+
+			$signSession->setSession($resp['session']);
+			$this->mapper->insert($signSession);
+		}
+
 		return new JSONResponse([
 			'code' => $resp['code'],
 			'message' => $resp['message'],
@@ -337,6 +365,20 @@ class SignController extends Controller {
 			$this->userSettings,
 			null
 		);
+
+		if ($resp['code'] === 2) {
+			$signSession = new SignSession();
+			$signSession->setUid($this->userId);
+			$signSession->setPath($path);
+			$signSession->setIsQualified(true);
+			$signSession->setRecipient($username);
+
+			$now = new \DateTime();
+			$signSession->setCreated($now->format('Y-m-d H:i:s'));
+
+			$signSession->setSession($resp['session']);
+			$this->mapper->insert($signSession);
+		}
 
 		return new JSONResponse([
 			'code' => $resp['code'],
