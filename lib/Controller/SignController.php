@@ -22,136 +22,28 @@
 
 namespace OCA\OpenOTPSign\Controller;
 
-use OCA\OpenOTPSign\Commands\GetsFile;
 use OCP\IRequest;
-use OCP\IUserManager;
-use OCP\Accounts\IAccountManager;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\Files\IRootFolder;
-use OCP\IConfig;
 
-use OCA\OpenOTPSign\Db\SignSession;
-use OCA\OpenOTPSign\Db\SignSessionMapper;
+use OCA\OpenOTPSign\Service\SignService;
 
 class SignController extends Controller {
-	use GetsFile;
-
-	private $mapper;
-	private $storage;
 	private $userId;
-	private $accountManager;
-	private $userManager;
-	private $serverUrl;
-	private $ignoreSslErrors;
-	private $clientId;
-	private $defaultDomain;
-	private $userSettings;
-	private $useProxy;
-	private $proxyHost;
-	private $proxyPort;
-	private $proxyUsername;
-	private $proxyPassword;
-	private $signedFile;
+	private $signService;
 
-	public function __construct(
-		$AppName,
-		IRequest $request,
-		IRootFolder $storage,
-		IConfig $config,
-		$UserId,
-		IUserManager $userManager,
-		IAccountManager $accountManager,
-		SignSessionMapper $mapper)
+	public function __construct($AppName, IRequest $request, SignService $signService, $UserId)
 	{
 		parent::__construct($AppName, $request);
-		$this->mapper = $mapper;
-		$this->storage = $storage;
 		$this->userId = $UserId;
-		$this->accountManager = $accountManager;
-		$this->userManager = $userManager;
-
-		$this->serverUrl = $config->getAppValue('openotpsign', 'server_url');
-		$this->ignoreSslErrors = $config->getAppValue('openotpsign', 'ignore_ssl_errors');
-		$this->clientId = $config->getAppValue('openotpsign', 'client_id');
-		$this->defaultDomain = $config->getAppValue('openotpsign', 'default_domain');
-		$this->userSettings = $config->getAppValue('openotpsign', 'user_settings');
-		$this->useProxy = $config->getAppValue('openotpsign', 'use_proxy');
-		$this->proxyHost = $config->getAppValue('openotpsign', 'proxy_host');
-		$this->proxyPort = $config->getAppValue('openotpsign', 'proxy_port');
-		$this->proxyUsername = $config->getAppValue('openotpsign', 'proxy_username');
-		$this->proxyPassword = $config->getAppValue('openotpsign', 'proxy_password');
-		$this->signedFile = $config->getAppValue('openotpsign', 'signed_file');
+		$this->signService = $signService;
 	}
 
 	/**
 	 * @NoAdminRequired
 	 */
 	public function advancedSign() {
-		$path = $this->request->getParam('path');
-		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $this->userId);
-
-		$opts = array('location' => $this->serverUrl);
-		if ($this->ignoreSslErrors) {
-			$context = stream_context_create([
-				'ssl' => [
-					// set some SSL/TLS specific options
-					'verify_peer' => false,
-					'verify_peer_name' => false,
-					'allow_self_signed' => true
-				]
-			]);
-
-			$opts['stream_context'] = $context;
-		}
-
-		if ($this->useProxy) {
-			$opts['proxy_host'] = $this->proxyHost;
-			$opts['proxy_port'] = $this->proxyPort;
-			$opts['proxy_login'] = $this->proxyUsername;
-			$opts['proxy_password'] = $this->proxyPassword;
-		}
-
-		$data  = '<div style="color: black; background-color: white; border-radius: 10px; padding: 5px;">';
-		$data .= "<strong>Name: </strong>$fileName";
-		$data .= "<br><strong>Size: </strong>".$this->humanFileSize($fileSize);
-		$data .= "<br><strong>Modified: </strong>".date('m/d/Y H:i:s', $lastModified);
-		$data .= '</div>';
-
-		$user = $this->userManager->get($this->userId);
-		$account = $this->accountManager->getAccount($user);
-
-		ini_set('default_socket_timeout', 600);
-		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
-		$resp = $client->openotpNormalConfirm(
-			$this->userId,
-			$this->defaultDomain,
-			$data,
-			$fileContent,
-			null,
-			null,
-			false,
-			120,
-			$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
-			$this->clientId,
-			$this->request->getRemoteAddress(),
-			$this->userSettings,
-			null
-		);
-
-		if ($resp['code'] === 1) {
-			if (str_ends_with(strtolower($path), ".pdf")) {
-				if ($this->signedFile == "overwrite") {
-					$newPath = $path;
-				} else {
-					$newPath = substr_replace($path, "-signed", strrpos($path, '.'), 0);
-				}
-			} else {
-				$newPath = $path . ".p7s";
-			}
-
-			$this->saveContainer($this->userId, $resp['file'], $newPath);
-		}
+		$resp = $this->signService->advancedSign($this->request->getParam('path'), $this->userId, $this->request->getRemoteAddress());
 
 		return new JSONResponse([
 			'code' => $resp['code'],
@@ -163,67 +55,7 @@ class SignController extends Controller {
 	 * @NoAdminRequired
 	 */
 	public function asyncAdvancedSign() {
-		$path = $this->request->getParam('path');
-		$username = $this->request->getParam('username');
-
-		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $this->userId);
-
-		$opts = array('location' => $this->serverUrl);
-		if ($this->ignoreSslErrors) {
-			$context = stream_context_create([
-				'ssl' => [
-					// set some SSL/TLS specific options
-					'verify_peer' => false,
-					'verify_peer_name' => false,
-					'allow_self_signed' => true
-				]
-			]);
-
-			$opts['stream_context'] = $context;
-		}
-
-		if ($this->useProxy) {
-			$opts['proxy_host'] = $this->proxyHost;
-			$opts['proxy_port'] = $this->proxyPort;
-			$opts['proxy_login'] = $this->proxyUsername;
-			$opts['proxy_password'] = $this->proxyPassword;
-		}
-
-		$data  = '<div style="color: black; background-color: white; border-radius: 10px; padding: 5px;">';
-		$data .= "<strong>Name: </strong>$fileName";
-		$data .= "<br><strong>Size: </strong>".$this->humanFileSize($fileSize);
-		$data .= "<br><strong>Modified: </strong>".date('m/d/Y H:i:s', $lastModified);
-		$data .= '</div>';
-
-		$user = $this->userManager->get($this->userId);
-		$account = $this->accountManager->getAccount($user);
-
-		ini_set('default_socket_timeout', 600);
-		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
-		$resp = $client->openotpNormalConfirm(
-			$username,
-			$this->defaultDomain,
-			$data,
-			$fileContent,
-			null,
-			null,
-			true,
-			3600,
-			$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
-			$this->clientId,
-			$this->request->getRemoteAddress(),
-			$this->userSettings,
-			null
-		);
-
-		if ($resp['code'] === 2) {
-			$signSession = new SignSession();
-			$signSession->setUid($this->userId);
-			$signSession->setPath($path);
-			$signSession->setRecipient($username);
-			$signSession->setSession($resp['session']);
-			$this->mapper->insert($signSession);
-		}
+		$resp = $this->signService->asyncAdvancedSign($this->request->getParam('path'), $this->request->getParam('username'), $this->userId, $this->request->getRemoteAddress());
 
 		return new JSONResponse([
 			'code' => $resp['code'],
@@ -235,69 +67,7 @@ class SignController extends Controller {
 	 * @NoAdminRequired
 	 */
 	public function qualifiedSign() {
-		$path = $this->request->getParam('path');
-		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $this->userId);
-
-		$opts = array('location' => $this->serverUrl);
-		if ($this->ignoreSslErrors) {
-			$context = stream_context_create([
-				'ssl' => [
-					// set some SSL/TLS specific options
-					'verify_peer' => false,
-					'verify_peer_name' => false,
-					'allow_self_signed' => true
-				]
-			]);
-
-			$opts['stream_context'] = $context;
-		}
-
-		if ($this->useProxy) {
-			$opts['proxy_host'] = $this->proxyHost;
-			$opts['proxy_port'] = $this->proxyPort;
-			$opts['proxy_login'] = $this->proxyUsername;
-			$opts['proxy_password'] = $this->proxyPassword;
-		}
-
-		$data  = '<div style="color: black; background-color: white; border-radius: 10px; padding: 5px;">';
-		$data .= "<strong>Name: </strong>$fileName";
-		$data .= "<br><strong>Size: </strong>".$this->humanFileSize($fileSize);
-		$data .= "<br><strong>Modified: </strong>".date('m/d/Y H:i:s', $lastModified);
-		$data .= '</div>';
-
-		$user = $this->userManager->get($this->userId);
-		$account = $this->accountManager->getAccount($user);
-
-		ini_set('default_socket_timeout', 600);
-		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
-		$resp = $client->openotpNormalSign(
-			$this->userId,
-			$this->defaultDomain,
-			$data,
-			$fileContent,
-			'',
-			false,
-			120,
-			$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
-			$this->clientId,
-			$this->request->getRemoteAddress(),
-			$this->userSettings,
-			null
-		);
-
-		if ($resp['code'] === 1) {
-			if (str_ends_with(strtolower($path), ".pdf")) {
-				if ($this->signedFile == "overwrite") {
-					$newPath = $path;
-				} else {
-					$newPath = substr_replace($path, "-signed", strrpos($path, '.'), 0);
-				}
-			} else {
-				$newPath = $path . ".p7s";
-			}
-
-			$this->saveContainer($this->userId, $resp['file'], $newPath);
-		}
+		$resp = $this->signService->qualifiedSign($this->request->getParam('path'), $this->userId, $this->request->getRemoteAddress());
 
 		return new JSONResponse([
 			'code' => $resp['code'],
@@ -309,67 +79,7 @@ class SignController extends Controller {
 	 * @NoAdminRequired
 	 */
 	public function asyncQualifiedSign() {
-		$path = $this->request->getParam('path');
-		$username = $this->request->getParam('username');
-
-		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $this->userId);
-
-		$opts = array('location' => $this->serverUrl);
-		if ($this->ignoreSslErrors) {
-			$context = stream_context_create([
-				'ssl' => [
-					// set some SSL/TLS specific options
-					'verify_peer' => false,
-					'verify_peer_name' => false,
-					'allow_self_signed' => true
-				]
-			]);
-
-			$opts['stream_context'] = $context;
-		}
-
-		if ($this->useProxy) {
-			$opts['proxy_host'] = $this->proxyHost;
-			$opts['proxy_port'] = $this->proxyPort;
-			$opts['proxy_login'] = $this->proxyUsername;
-			$opts['proxy_password'] = $this->proxyPassword;
-		}
-
-		$data  = '<div style="color: black; background-color: white; border-radius: 10px; padding: 5px;">';
-		$data .= "<strong>Name: </strong>$fileName";
-		$data .= "<br><strong>Size: </strong>".$this->humanFileSize($fileSize);
-		$data .= "<br><strong>Modified: </strong>".date('m/d/Y H:i:s', $lastModified);
-		$data .= '</div>';
-
-		$user = $this->userManager->get($this->userId);
-		$account = $this->accountManager->getAccount($user);
-
-		ini_set('default_socket_timeout', 600);
-		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
-		$resp = $client->openotpNormalSign(
-			$username,
-			$this->defaultDomain,
-			$data,
-			$fileContent,
-			'',
-			true,
-			3600,
-			$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
-			$this->clientId,
-			$this->request->getRemoteAddress(),
-			$this->userSettings,
-			null
-		);
-
-		if ($resp['code'] === 2) {
-			$signSession = new SignSession();
-			$signSession->setUid($this->userId);
-			$signSession->setPath($path);
-			$signSession->setIsQualified(true);
-			$signSession->setRecipient($username);
-			$signSession->setSession($resp['session']);
-			$this->mapper->insert($signSession);
-		}
+		$resp = $this->signService->asyncQualifiedSign($this->request->getParam('path'), $this->request->getParam('username'), $this->userId, $this->request->getRemoteAddress());
 
 		return new JSONResponse([
 			'code' => $resp['code'],
@@ -381,53 +91,7 @@ class SignController extends Controller {
 	 * @NoAdminRequired
 	 */
 	public function seal() {
-		$path = $this->request->getParam('path');
-		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $this->userId);
-
-		$opts = array('location' => $this->serverUrl);
-		if ($this->ignoreSslErrors) {
-			$context = stream_context_create([
-				'ssl' => [
-					// set some SSL/TLS specific options
-					'verify_peer' => false,
-					'verify_peer_name' => false,
-					'allow_self_signed' => true
-				]
-			]);
-
-			$opts['stream_context'] = $context;
-		}
-
-		if ($this->useProxy) {
-			$opts['proxy_host'] = $this->proxyHost;
-			$opts['proxy_port'] = $this->proxyPort;
-			$opts['proxy_login'] = $this->proxyUsername;
-			$opts['proxy_password'] = $this->proxyPassword;
-		}
-
-		ini_set('default_socket_timeout', 600);
-		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
-		$resp = $client->openotpSeal(
-			$fileContent,
-			'',
-			$this->clientId,
-			$this->request->getRemoteAddress(),
-			'CaDESMode=Detached,'.$this->userSettings
-		);
-
-		if ($resp['code'] === 1) {
-			if (str_ends_with(strtolower($path), ".pdf")) {
-				if ($this->signedFile == "overwrite") {
-					$newPath = $path;
-				} else {
-					$newPath = substr_replace($path, "-sealed", strrpos($path, '.'), 0);
-				}
-			} else {
-				$newPath = $path . ".p7s";
-			}
-
-			$this->saveContainer($this->userId, $resp['file'], $newPath);
-		}
+		$resp = $this->signService->seal($this->request->getParam('path'), $this->userId, $this->request->getRemoteAddress());
 
 		return new JSONResponse([
 			'code' => $resp['code'],
