@@ -34,4 +34,7 @@ secure and compliant with the eIDAS regulation.
         <admin>OCA\OpenOTPSign\Settings\AdminSettings</admin>
         <admin-section>OCA\OpenOTPSign\Settings\AdminSection</admin-section>
     </settings>
+    <background-jobs>
+                <job>OCA\OpenOTPSign\Cron\CheckAsyncSignatureTask</job>
+    </background-jobs>
 </info>

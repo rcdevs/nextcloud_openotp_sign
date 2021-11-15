@@ -9,4 +9,14 @@ class SignSessionMapper extends QBMapper {
     public function __construct(IDBConnection $db) {
         parent::__construct($db, 'openotpsign_sessions', SignSession::class);
     }
+
+    public function findAllPending() {
+        $qb = $this->db->getQueryBuilder();
+
+        $qb->select('*')
+           ->from($this->getTableName())
+           ->where('is_pending=true');
+
+        return $this->findEntities($qb);
+    }
 }
