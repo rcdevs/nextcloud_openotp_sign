@@ -408,7 +408,7 @@ class SignService {
 					if ($this->signedFile == "overwrite") {
 						$newPath = $path;
 					} else {
-						$newPath = substr_replace($path, "-signed", strrpos($path, '.'), 0);
+						$newPath = substr_replace($path, "-{$signSession->getRecipient()}-signed", strrpos($path, '.'), 0);
 					}
 				} else {
 					$newPath = $path . ".p7s";
