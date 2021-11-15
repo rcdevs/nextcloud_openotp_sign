@@ -220,12 +220,7 @@ class SignController extends Controller {
 			$signSession = new SignSession();
 			$signSession->setUid($this->userId);
 			$signSession->setPath($path);
-			$signSession->setIsQualified(false);
 			$signSession->setRecipient($username);
-
-			$now = new \DateTime();
-			$signSession->setCreated($now->format('Y-m-d H:i:s'));
-
 			$signSession->setSession($resp['session']);
 			$this->mapper->insert($signSession);
 		}
@@ -372,10 +367,6 @@ class SignController extends Controller {
 			$signSession->setPath($path);
 			$signSession->setIsQualified(true);
 			$signSession->setRecipient($username);
-
-			$now = new \DateTime();
-			$signSession->setCreated($now->format('Y-m-d H:i:s'));
-
 			$signSession->setSession($resp['session']);
 			$this->mapper->insert($signSession);
 		}

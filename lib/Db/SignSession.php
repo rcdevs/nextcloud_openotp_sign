@@ -9,19 +9,25 @@ class SignSession extends Entity implements JsonSerializable {
 
     protected $uid;
     protected $path;
-
-    /**
-     * @var boolean
-     */
     protected $isQualified;
-
     protected $recipient;
     protected $created;
     protected $session;
+    protected $isPending;
+    protected $isError;
+    protected $message;
 
     public function __construct() {
         $this->addType('id','bigint');
-        $this->isQualified = false;
+        $this->addType('isQualified', 'boolean');
+        $this->addType('created', 'datetime');
+        $this->addType('isPending', 'boolean');
+        $this->addType('isError', 'boolean');
+
+        $this->setIsQualified(false);
+        $this->setCreated(new \DateTime());
+        $this->setIsPending(true);
+        $this->setIsError(false);
     }
 
     public function jsonSerialize() {

@@ -48,6 +48,16 @@
                 'notnull' => true,
                 'length' => 16,
             ]);
+            $table->addColumn('is_pending', 'boolean', [
+                'notnull' => false
+            ]);
+            $table->addColumn('is_error', 'boolean', [
+                'notnull' => false
+            ]);
+            $table->addColumn('message', 'string', [
+                'notnull' => false,
+                'length' => 255,
+            ]);
 
             $table->setPrimaryKey(['id']);
             $table->addIndex(['uid'], 'openotpsign_uid_index');
