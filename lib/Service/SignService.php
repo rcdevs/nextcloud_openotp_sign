@@ -161,21 +161,36 @@ class SignService {
 
 		ini_set('default_socket_timeout', 600);
 		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
-		$resp = $client->openotpNormalConfirm(
-			$username,
-			$this->defaultDomain,
-			$data,
-			$fileContent,
-			null,
-			null,
-			true,
-			3600,
-			$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
-			$this->clientId,
-			$remoteAddress,
-			$this->userSettings,
-			null
-		);
+
+		if (str_contains($username, '@')) {
+			$resp = $client->openotpExternConfirm(
+				$username,
+				$fileContent,
+				false,
+				true,
+				3600,
+				$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
+				$this->clientId,
+				$remoteAddress,
+				$this->userSettings
+			);
+		} else {
+			$resp = $client->openotpNormalConfirm(
+				$username,
+				$this->defaultDomain,
+				$data,
+				$fileContent,
+				null,
+				null,
+				true,
+				3600,
+				$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
+				$this->clientId,
+				$remoteAddress,
+				$this->userSettings,
+				null
+			);
+		}
 
 		if ($resp['code'] === 2) {
 			$signSession = new SignSession();
@@ -291,20 +306,35 @@ class SignService {
 
 		ini_set('default_socket_timeout', 600);
 		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
-		$resp = $client->openotpNormalSign(
-			$username,
-			$this->defaultDomain,
-			$data,
-			$fileContent,
-			'',
-			true,
-			3600,
-			$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
-			$this->clientId,
-			$remoteAddress,
-			$this->userSettings,
-			null
-		);
+
+		if (str_contains($username, '@')) {
+			$resp = $client->openotpExternSign(
+				$username,
+				$fileContent,
+				'',
+				true,
+				3600,
+				$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
+				$this->clientId,
+				$remoteAddress,
+				$this->userSettings
+			);
+		} else {
+			$resp = $client->openotpNormalSign(
+				$username,
+				$this->defaultDomain,
+				$data,
+				$fileContent,
+				'',
+				true,
+				3600,
+				$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
+				$this->clientId,
+				$remoteAddress,
+				$this->userSettings,
+				null
+			);
+		}
 
 		if ($resp['code'] === 2) {
 			$signSession = new SignSession();

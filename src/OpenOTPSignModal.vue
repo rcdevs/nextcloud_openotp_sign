@@ -31,7 +31,7 @@
 					class="alert alert-danger"
 					v-html="$t('openotpsign', 'You have to enter the <strong>OpenOTP server URL</strong> in the <strong>OpenOTP Sign</strong> settings prior to sign any document.')" />
 				<div v-if="settingsOk">
-					<img v-if="!success" :src="mobileSigningImg" style="max-width: 500px;">
+					<img v-if="!success" :src="mobileSigningImg" style="max-height: 300px;">
 					<p v-else id="green-tick">
 						&#10003;
 					</p>
@@ -60,6 +60,20 @@
 								v-model="localUser"
 								type="text"
 								@input="checkNextcloudRadio">
+						</div>
+						<div class="flex-container">
+							<CheckboxRadioSwitch
+								:checked.sync="recipientType"
+								value="extern"
+								name="recipient_radio"
+								type="radio">
+								{{ $t('openotpsign', 'Signature by an extern user:') }}
+							</CheckboxRadioSwitch>
+							<input
+								v-model="externUser"
+								type="text"
+								placeholder="email_address@domain.tld"
+								@input="checkExternRadio">
 						</div>
 						<button type="button" @click="advancedSignature">
 							{{ $t('openotpsign', 'Advanced signature') }}
@@ -106,6 +120,7 @@ export default {
 			settingsOk: false,
 			recipientType: 'self',
 			localUser: '',
+			externUser: '',
 		}
 	},
 	mounted() {
@@ -144,6 +159,11 @@ export default {
 		checkNextcloudRadio() {
 			if (this.localUser.length > 0) {
 				this.recipientType = 'nextcloud'
+			}
+		},
+		checkExternRadio() {
+			if (this.externUser.length > 0) {
+				this.recipientType = 'extern'
 			}
 		},
 		closeModal() {
@@ -201,7 +221,7 @@ export default {
 			this.source = CancelToken.source()
 			axios.post(baseUrl + '/async_advanced_sign', {
 				path: this.getFilePath(),
-				username: this.localUser,
+				username: (this.recipientType === 'nextcloud') ? this.localUser : this.externUser,
 			}, {
 				cancelToken: this.source.token,
 			})
@@ -263,7 +283,7 @@ export default {
 			this.source = CancelToken.source()
 			axios.post(baseUrl + '/async_qualified_sign', {
 				path: this.getFilePath(),
-				username: this.localUser,
+				username: (this.recipientType === 'nextcloud') ? this.localUser : this.externUser,
 			}, {
 				cancelToken: this.source.token,
 			})
@@ -338,7 +358,10 @@ export default {
 		display: flex;
 		align-items: center;
 		gap: 8px;
-		margin-bottom: 8px;
+	}
+
+	.flex-container:last-of-type {
+		margin-bottom: 32px;
 	}
 
 	input {
