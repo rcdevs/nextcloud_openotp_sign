@@ -25,18 +25,21 @@ namespace OCA\OpenOTPSign\Controller;
 use OCP\IRequest;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\JSONResponse;
+use Psr\Log\LoggerInterface;
 
 use OCA\OpenOTPSign\Service\SignService;
 
 class SignController extends Controller {
 	private $userId;
 	private $signService;
+	private $logger;
 
-	public function __construct($AppName, IRequest $request, SignService $signService, $UserId)
+	public function __construct($AppName, IRequest $request, SignService $signService, $UserId, LoggerInterface $logger)
 	{
 		parent::__construct($AppName, $request);
 		$this->userId = $UserId;
 		$this->signService = $signService;
+		$this->logger = $logger;
 	}
 
 	/**
@@ -97,5 +100,35 @@ class SignController extends Controller {
 			'code' => $resp['code'],
 			'message' => $resp['message']
 		]);
+	}
+
+	/**
+	 * @NoAdminRequired
+	 */
+	public function getLocalUsers() {
+		$cm = \OC::$server->getContactsManager();
+
+		// The API is not active -> nothing to do
+		if (!$cm->isEnabled()) {
+			$this->logger->error('Contact Manager not enabled');
+			return new JSONResponse();
+		}
+
+		$result = $cm->search('', array('FN', 'EMAIL'));
+
+		$contacts = array();
+		foreach ($result as $raw_contact){
+			$contact = array();
+			$contact['uid'] = $raw_contact['UID'];
+			$contact['display_name'] = $raw_contact['FN'];
+
+			if (array_key_exists('EMAIL', $raw_contact)) {
+				$contact['email'] = $raw_contact['EMAIL'][0];
+			}
+
+			array_push($contacts, $contact);
+		}
+
+		return new JSONResponse($contacts);
 	}
 }

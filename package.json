@@ -29,6 +29,8 @@
 		"@nextcloud/l10n": "^1.4.1",
 		"@nextcloud/router": "^1.2.0",
 		"@nextcloud/vue": "^4.1.0",
+		"linkify-string": "^3.0.3",
+		"linkifyjs": "^3.0.3",
 		"node-polyfill-webpack-plugin": "^1.1.4",
 		"query-string": "^7.0.1",
 		"vue": "^2.6.14",

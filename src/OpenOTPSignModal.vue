@@ -56,10 +56,23 @@
 								type="radio">
 								{{ $t('openotpsign', 'Signature by a nextcloud user:') }}
 							</CheckboxRadioSwitch>
-							<input
+							<Multiselect
 								v-model="localUser"
-								type="text"
-								@input="checkNextcloudRadio">
+								:options="formattedOptions"
+								label="displayName"
+								track-by="uid"
+								:user-select="true"
+								style="width: 400px"
+								@change="checkNextcloudRadio">
+								<template #singleLabel="{ option }">
+									<ListItemIcon
+										v-bind="option"
+										:title="option.displayName"
+										:avatar-size="24"
+										:no-margin="true"
+										style="width: 380px;" />
+								</template>
+							</Multiselect>
 						</div>
 						<div class="flex-container">
 							<CheckboxRadioSwitch
@@ -98,6 +111,8 @@
 <script>
 import Modal from '@nextcloud/vue/dist/Components/Modal'
 import CheckboxRadioSwitch from '@nextcloud/vue/dist/Components/CheckboxRadioSwitch'
+import Multiselect from '@nextcloud/vue/dist/Components/Multiselect'
+import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
 import EventBus from './EventBus'
 import queryString from 'query-string'
 import axios from '@nextcloud/axios'
@@ -108,6 +123,8 @@ export default {
 	components: {
 		Modal,
 		CheckboxRadioSwitch,
+		Multiselect,
+		ListItemIcon,
 	},
 	data() {
 		return {
@@ -121,6 +138,7 @@ export default {
 			recipientType: 'self',
 			localUser: '',
 			externUser: '',
+			formattedOptions: [],
 		}
 	},
 	mounted() {
@@ -155,11 +173,29 @@ export default {
 					// eslint-disable-next-line
 					console.log(error)
 				})
+
+			axios.get(baseUrl + '/get_local_users', {
+			}, {
+				cancelToken: this.source.token,
+			})
+				.then(response => {
+					this.formattedOptions = response.data.map(item => {
+						return {
+							uid: item.uid,
+							displayName: item.display_name,
+							subtitle: item.email,
+							icon: 'icon-user',
+							isNoUser: false,
+						}
+					})
+				})
+				.catch(error => {
+					// eslint-disable-next-line
+					console.log(error)
+				})
 		},
 		checkNextcloudRadio() {
-			if (this.localUser.length > 0) {
-				this.recipientType = 'nextcloud'
-			}
+			this.recipientType = 'nextcloud'
 		},
 		checkExternRadio() {
 			if (this.externUser.length > 0) {
@@ -221,7 +257,7 @@ export default {
 			this.source = CancelToken.source()
 			axios.post(baseUrl + '/async_advanced_sign', {
 				path: this.getFilePath(),
-				username: (this.recipientType === 'nextcloud') ? this.localUser : this.externUser,
+				username: (this.recipientType === 'nextcloud') ? this.localUser.uid : this.externUser,
 			}, {
 				cancelToken: this.source.token,
 			})
@@ -283,7 +319,7 @@ export default {
 			this.source = CancelToken.source()
 			axios.post(baseUrl + '/async_qualified_sign', {
 				path: this.getFilePath(),
-				username: (this.recipientType === 'nextcloud') ? this.localUser : this.externUser,
+				username: (this.recipientType === 'nextcloud') ? this.localUser.uid : this.externUser,
 			}, {
 				cancelToken: this.source.token,
 			})
