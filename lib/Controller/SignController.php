@@ -58,7 +58,7 @@ class SignController extends Controller {
 	 * @NoAdminRequired
 	 */
 	public function asyncAdvancedSign() {
-		$resp = $this->signService->asyncAdvancedSign($this->request->getParam('path'), $this->request->getParam('username'), $this->userId, $this->request->getRemoteAddress());
+		$resp = $this->signService->asyncAdvancedSign($this->request->getParam('path'), $this->request->getParam('username'), $this->userId, $this->request->getRemoteAddress(), $this->request->getParam('email'));
 
 		return new JSONResponse([
 			'code' => $resp['code'],
@@ -82,7 +82,7 @@ class SignController extends Controller {
 	 * @NoAdminRequired
 	 */
 	public function asyncQualifiedSign() {
-		$resp = $this->signService->asyncQualifiedSign($this->request->getParam('path'), $this->request->getParam('username'), $this->userId, $this->request->getRemoteAddress());
+		$resp = $this->signService->asyncQualifiedSign($this->request->getParam('path'), $this->request->getParam('username'), $this->userId, $this->request->getRemoteAddress(), $this->request->getParam('email'));
 
 		return new JSONResponse([
 			'code' => $resp['code'],

@@ -271,6 +271,7 @@ export default {
 			axios.post(baseUrl + '/async_advanced_sign', {
 				path: this.getFilePath(),
 				username: (this.recipientType === 'nextcloud') ? this.localUser.uid : this.externUser,
+				email: (this.recipientType === 'nextcloud') ? this.localUser.subtitle : null,
 			}, {
 				cancelToken: this.source.token,
 			})
@@ -337,6 +338,7 @@ export default {
 			axios.post(baseUrl + '/async_qualified_sign', {
 				path: this.getFilePath(),
 				username: (this.recipientType === 'nextcloud') ? this.localUser.uid : this.externUser,
+				email: (this.recipientType === 'nextcloud') ? this.localUser.subtitle : null,
 			}, {
 				cancelToken: this.source.token,
 			})

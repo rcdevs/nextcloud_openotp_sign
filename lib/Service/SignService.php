@@ -15,6 +15,8 @@ use OCA\OpenOTPSign\Db\SignSessionMapper;
 class SignService {
     use GetsFile;
 
+	const ASYNC_SIGN_TIME_OUT = 3600;
+
 	private $mapper;
 	private $storage;
 	private $accountManager;
@@ -126,7 +128,7 @@ class SignService {
         return $resp;
     }
 
-    public function asyncAdvancedSign($path, $username, $userId, $remoteAddress) {
+    public function asyncAdvancedSign($path, $username, $userId, $remoteAddress, $email) {
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
 		$opts = array('location' => $this->serverUrl);
@@ -158,6 +160,7 @@ class SignService {
 
 		$user = $this->userManager->get($userId);
 		$account = $this->accountManager->getAccount($user);
+		$sender = $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue();
 
 		ini_set('default_socket_timeout', 600);
 		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
@@ -168,8 +171,8 @@ class SignService {
 				$fileContent,
 				false,
 				true,
-				3600,
-				$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
+				self::ASYNC_SIGN_TIME_OUT,
+				$sender,
 				$this->clientId,
 				$remoteAddress,
 				$this->userSettings
@@ -183,8 +186,8 @@ class SignService {
 				null,
 				null,
 				true,
-				3600,
-				$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
+				self::ASYNC_SIGN_TIME_OUT,
+				$sender,
 				$this->clientId,
 				$remoteAddress,
 				$this->userSettings,
@@ -199,6 +202,12 @@ class SignService {
 			$signSession->setRecipient($username);
 			$signSession->setSession($resp['session']);
 			$this->mapper->insert($signSession);
+
+			// Generate and send QR Code
+			if (!empty($email)) {
+				$resp2 = $client->openotpTouchConfirm($resp['session'], false, "PNG", 5, 3);
+				$this->sendQRCodeByEmail('advanced', $sender, $email, $resp2['qrImage']);
+			}
 		}
 
         return $resp;
@@ -271,7 +280,7 @@ class SignService {
         return $resp;
     }
 
-    public function asyncQualifiedSign($path, $username, $userId, $remoteAddress) {
+    public function asyncQualifiedSign($path, $username, $userId, $remoteAddress, $email) {
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
 		$opts = array('location' => $this->serverUrl);
@@ -303,6 +312,7 @@ class SignService {
 
 		$user = $this->userManager->get($userId);
 		$account = $this->accountManager->getAccount($user);
+		$sender = $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue();
 
 		ini_set('default_socket_timeout', 600);
 		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
@@ -313,8 +323,8 @@ class SignService {
 				$fileContent,
 				'',
 				true,
-				3600,
-				$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
+				self::ASYNC_SIGN_TIME_OUT,
+				$sender,
 				$this->clientId,
 				$remoteAddress,
 				$this->userSettings
@@ -327,8 +337,8 @@ class SignService {
 				$fileContent,
 				'',
 				true,
-				3600,
-				$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
+				self::ASYNC_SIGN_TIME_OUT,
+				$sender,
 				$this->clientId,
 				$remoteAddress,
 				$this->userSettings,
@@ -344,6 +354,12 @@ class SignService {
 			$signSession->setRecipient($username);
 			$signSession->setSession($resp['session']);
 			$this->mapper->insert($signSession);
+
+			// Generate and send QR Code
+			if (!empty($email)) {
+				$resp2 = $client->openotpTouchSign($resp['session'], false, "PNG", 5, 3);
+				$this->sendQRCodeByEmail('qualified', $sender, $email, $resp2['qrImage']);
+			}
 		}
 
         return $resp;
@@ -482,5 +498,19 @@ class SignService {
 
 		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
 		return $client->openotpStatus();
+	}
+
+	private function sendQRCodeByEmail($signType, $sender, $recipient, $qrCode) {
+		$html = "A new QuickSign $signType signature request has been sent to your mobile phone.<br>";
+		$html .= "The sender is <b>$sender</b>.<br>";
+		$html .= "The signature request will expire in ".round(self::ASYNC_SIGN_TIME_OUT / 60)." minutes (".date("Y-m-d H:i", time() + self::ASYNC_SIGN_TIME_OUT).").<br><br>";
+		$html .= "If you did not receive the mobile push notification, you can scan the following QRCode:<br><br>";
+		$html .= "<img src=\"data:image/gif;base64,".base64_encode($qrCode)."\">";
+
+		$headers = "From: OpenOTP Sign Nextcloud <no-reply>\r\n";
+		$headers .= "MIME-Version: 1.0\r\n";
+		$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+
+		mail($recipient, "Signature request invitation", $html, $headers);
 	}
 }
