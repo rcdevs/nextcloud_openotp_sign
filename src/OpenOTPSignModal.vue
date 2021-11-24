@@ -63,7 +63,7 @@
 								track-by="uid"
 								:user-select="true"
 								style="width: 400px"
-								@change="checkNextcloudRadio"
+								@select="checkNextcloudRadio"
 								@search-change="localUserSearchChanged">
 								<template #singleLabel="{ option }">
 									<ListItemIcon
