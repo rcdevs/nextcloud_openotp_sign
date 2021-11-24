@@ -258,6 +258,10 @@ export default {
 				})
 		},
 		asyncAdvancedSignature() {
+			if (this.recipientType === 'nextcloud' && !this.localUser) {
+				return
+			}
+
 			this.error = false
 			this.requesting = true
 			const baseUrl = generateUrl('/apps/openotpsign')
@@ -320,6 +324,10 @@ export default {
 				})
 		},
 		asyncQualifiedSignature() {
+			if (this.recipientType === 'nextcloud' && !this.localUser) {
+				return
+			}
+
 			this.error = false
 			this.requesting = true
 			const baseUrl = generateUrl('/apps/openotpsign')
