@@ -63,7 +63,8 @@
 								track-by="uid"
 								:user-select="true"
 								style="width: 400px"
-								@change="checkNextcloudRadio">
+								@change="checkNextcloudRadio"
+								@search-change="localUserSearchChanged">
 								<template #singleLabel="{ option }">
 									<ListItemIcon
 										v-bind="option"
@@ -173,29 +174,37 @@ export default {
 					// eslint-disable-next-line
 					console.log(error)
 				})
-
-			axios.get(baseUrl + '/get_local_users', {
-			}, {
-				cancelToken: this.source.token,
-			})
-				.then(response => {
-					this.formattedOptions = response.data.map(item => {
-						return {
-							uid: item.uid,
-							displayName: item.display_name,
-							subtitle: item.email,
-							icon: 'icon-user',
-							isNoUser: false,
-						}
-					})
-				})
-				.catch(error => {
-					// eslint-disable-next-line
-					console.log(error)
-				})
 		},
 		checkNextcloudRadio() {
 			this.recipientType = 'nextcloud'
+		},
+		localUserSearchChanged(searchQuery, id) {
+			if (searchQuery.length >= 3) {
+				const baseUrl = generateUrl('/apps/openotpsign')
+				const CancelToken = axios.CancelToken
+				this.source = CancelToken.source()
+				axios.get(baseUrl + '/get_local_users?searchQuery=' + searchQuery, {
+				}, {
+					cancelToken: this.source.token,
+				})
+					.then(response => {
+						this.formattedOptions = response.data.map(item => {
+							return {
+								uid: item.uid,
+								displayName: item.display_name,
+								subtitle: item.email,
+								icon: 'icon-user',
+								isNoUser: false,
+							}
+						})
+					})
+					.catch(error => {
+						// eslint-disable-next-line
+						console.log(error)
+					})
+			} else {
+				this.formattedOptions = []
+			}
 		},
 		checkExternRadio() {
 			if (this.externUser.length > 0) {

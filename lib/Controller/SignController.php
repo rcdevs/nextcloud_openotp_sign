@@ -114,7 +114,7 @@ class SignController extends Controller {
 			return new JSONResponse();
 		}
 
-		$result = $cm->search('', array('FN', 'EMAIL'));
+		$result = $cm->search($this->request->getParam('searchQuery'), array('FN', 'EMAIL'));
 
 		$contacts = array();
 		foreach ($result as $raw_contact){
