@@ -81,7 +81,7 @@
 								value="extern"
 								name="recipient_radio"
 								type="radio">
-								{{ $t('openotpsign', 'Signature by an extern user:') }}
+								{{ $t('openotpsign', 'Signature by an external user:') }}
 							</CheckboxRadioSwitch>
 							<input
 								v-model="externUser"
