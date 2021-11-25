@@ -501,16 +501,36 @@ class SignService {
 	}
 
 	private function sendQRCodeByEmail($signType, $sender, $recipient, $qrCode) {
-		$html = "A new QuickSign $signType signature request has been sent to your mobile phone.<br>";
-		$html .= "The sender is <b>$sender</b>.<br>";
-		$html .= "The signature request will expire in ".round(self::ASYNC_SIGN_TIME_OUT / 60)." minutes (".date("Y-m-d H:i", time() + self::ASYNC_SIGN_TIME_OUT).").<br><br>";
-		$html .= "If you did not receive the mobile push notification, you can scan the following QRCode:<br><br>";
-		$html .= "<img src=\"data:image/gif;base64,".base64_encode($qrCode)."\">";
+		$boundary = "-----=".md5(uniqid(rand()));
 
 		$headers = "From: OpenOTP Sign Nextcloud <no-reply>\r\n";
 		$headers .= "MIME-Version: 1.0\r\n";
-		$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+		$headers .= "Content-Type: multipart/mixed; boundary=\"$boundary\"\r\n";
+		$headers .= "\r\n";
 
-		mail($recipient, "Signature request invitation", $html, $headers);
+		$msg = "This message is in MIME 1.0 multipart/mixed format.\r\n";
+
+		$msg .= "--$boundary\r\n";
+		$msg .= "Content-Type: text/html; charset=\"utf-8\"\r\n";
+		$msg .= "Content-Transfer-Encoding:8bit\r\n";
+		$msg .= "\r\n";
+		$msg .= "<html><body>A new QuickSign $signType signature request has been sent to your mobile phone.<br>";
+		$msg .= "The sender is <b>$sender</b>.<br>";
+		$msg .= "The signature request will expire in ".round(self::ASYNC_SIGN_TIME_OUT / 60)." minutes (".date("Y-m-d H:i", time() + self::ASYNC_SIGN_TIME_OUT).").<br><br>";
+		$msg .= "If you did not receive the mobile push notification, you can scan the following QRCode:<br><br>";
+		$msg .= "<img src=\"cid:image1\">";
+		$msg .= "</body></html>\r\n\r\n";
+
+		$msg .= "--$boundary\r\n";
+		$msg .= "Content-Type: application/octet-stream; name=\"qrcode.png\"\r\n";
+		$msg .= "Content-Transfer-Encoding: base64\r\n";
+		$msg .= "Content-ID: <image1>\r\n";
+		$msg .= "\r\n";
+		$msg .= base64_encode($qrCode) . "\r\n";
+		$msg .= "\r\n\r\n";
+
+		$msg .= "--$boundary\r\n";
+
+		mail($recipient, "Signature request invitation", $msg, $headers);
 	}
 }
