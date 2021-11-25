@@ -206,7 +206,7 @@ class SignService {
 			// Generate and send QR Code
 			if (!empty($email)) {
 				$resp2 = $client->openotpTouchConfirm($resp['session'], false, "PNG", 5, 3);
-				$this->sendQRCodeByEmail('advanced', $sender, $email, $resp2['qrImage']);
+				$this->sendQRCodeByEmail('advanced', $sender, $email, $resp2['qrImage'], $resp2['message']);
 			}
 		}
 
@@ -358,7 +358,7 @@ class SignService {
 			// Generate and send QR Code
 			if (!empty($email)) {
 				$resp2 = $client->openotpTouchSign($resp['session'], false, "PNG", 5, 3);
-				$this->sendQRCodeByEmail('qualified', $sender, $email, $resp2['qrImage']);
+				$this->sendQRCodeByEmail('qualified', $sender, $email, $resp2['qrImage'], $resp2['message']);
 			}
 		}
 
@@ -500,36 +500,54 @@ class SignService {
 		return $client->openotpStatus();
 	}
 
-	private function sendQRCodeByEmail($signType, $sender, $recipient, $qrCode) {
+	private function sendQRCodeByEmail($signType, $sender, $recipient, $qrCode, $uri) {
 		$boundary = "-----=".md5(uniqid(rand()));
+		$boundary2 = "-----=".md5(uniqid(rand()));
 
-		$headers = "From: OpenOTP Sign Nextcloud <no-reply>\r\n";
-		$headers .= "MIME-Version: 1.0\r\n";
-		$headers .= "Content-Type: multipart/mixed; boundary=\"$boundary\"\r\n";
-		$headers .= "\r\n";
-
-		$msg = "This message is in MIME 1.0 multipart/mixed format.\r\n";
+		$headers  = "From: OpenOTP Sign Nextcloud <no-reply>\r\n";
+		$headers .= "Content-Type: multipart/alternative; boundary=\"$boundary\"\r\n";
+		$headers .= "Mime-Version: 1.0\r\n";
 
 		$msg .= "--$boundary\r\n";
-		$msg .= "Content-Type: text/html; charset=\"utf-8\"\r\n";
-		$msg .= "Content-Transfer-Encoding:8bit\r\n";
+		$msg .= "Content-Transfer-Encoding: 8bit\r\n";
+		$msg .= "Content-Type: text/plain; charset=utf-8\r\n";
 		$msg .= "\r\n";
+
+		$msg .= "A new QuickSign $signType signature request has been sent to your mobile phone.\r\n";
+		$msg .= "The sender is $sender.\r\n";
+		$msg .= "The signature request will expire in ".round(self::ASYNC_SIGN_TIME_OUT / 60)." minutes (".date("Y-m-d H:i", time() + self::ASYNC_SIGN_TIME_OUT).").\r\n\r\n";
+		$msg .= "If you did not receive the mobile push notification, you can scan the attached QRCode.\r\n";
+		$msg .= "\r\n";
+
+		$msg .= "--$boundary\r\n";
+		$msg .= "Content-Type: multipart/related; type=\"text/html\"; boundary=\"$boundary2\"\r\n";
+		$msg .= "\r\n";
+
+		$msg .= "--$boundary2\r\n";
+		$msg .= "Content-Transfer-Encoding: 8bit\r\n";
+		$msg .= "Content-Type: text/html; charset=utf-8\r\n";
+		$msg .= "\r\n";
+
 		$msg .= "<html><body>A new QuickSign $signType signature request has been sent to your mobile phone.<br>";
 		$msg .= "The sender is <b>$sender</b>.<br>";
 		$msg .= "The signature request will expire in ".round(self::ASYNC_SIGN_TIME_OUT / 60)." minutes (".date("Y-m-d H:i", time() + self::ASYNC_SIGN_TIME_OUT).").<br><br>";
-		$msg .= "If you did not receive the mobile push notification, you can scan the following QRCode:<br><br>";
-		$msg .= "<img src=\"cid:image1\">";
-		$msg .= "</body></html>\r\n\r\n";
+		$msg .= "If you did not receive the mobile push notification, you can scan the following QRCode (or directly tap on it from your phone where the <em>OpenOTP Token</em> app is installed):<br><br>";
+		$msg .= "<a href=\"$uri\"><img src=\"cid:image1\"></a>";
+		$msg .= "</body></html>\r\n";
+		$msg .= "\r\n";
 
-		$msg .= "--$boundary\r\n";
-		$msg .= "Content-Type: application/octet-stream; name=\"qrcode.png\"\r\n";
+		$msg .= "--$boundary2\r\n";
 		$msg .= "Content-Transfer-Encoding: base64\r\n";
+		$msg .= "Content-Disposition: inline; filename=qrcode.png\r\n";
+		$msg .= "Content-Type: image/png; name=\"qrcode.png\"\r\n";
 		$msg .= "Content-ID: <image1>\r\n";
 		$msg .= "\r\n";
 		$msg .= base64_encode($qrCode) . "\r\n";
-		$msg .= "\r\n\r\n";
 
-		$msg .= "--$boundary\r\n";
+		$msg .= "--$boundary2--\r\n";
+		$msg .= "\r\n";
+
+		$msg .= "--$boundary--\r\n";
 
 		mail($recipient, "Signature request invitation", $msg, $headers);
 	}
