@@ -25,26 +25,28 @@
 			<p>
 				{{ $t('openotpsign', 'Enter your OpenOTP server settings in the fields below.') }}
 			</p>
-			<p>
-				<label for="ootp_server_url">{{ $t('openotpsign', 'OpenOTP server URL') }}</label>
-				<input id="ootp_server_url"
-					v-model="serverUrl"
-					type="text"
-					name="ootp_server_url"
-					maxlength="300"
-					placeholder="https://myserver:8443/openotp/"
-					@input="enableSslSetting">
-				<button @click="testConnection">
-					{{ $t('openotpsign', 'Test') }}
-				</button>
+			<div v-for="(item, index) in statusesRequesting" :key="index">
+				<p>
+					<label :for="'ootp_server_url' + index">{{ $t('openotpsign', 'OpenOTP server URL #' + (parseInt(index) + 1)) }}</label>
+					<input :id="'ootp_server_url' + index"
+						v-model="serverUrls[index]"
+						type="text"
+						:name="'ootp_server_url' + index"
+						maxlength="300"
+						:placeholder="'https://myserver' + (parseInt(index) + 1) + ':8443/openotp/'"
+						@input="enableSslSetting">
+					<button @click="testConnection(index, serverUrls[index])">
+						{{ $t('openotpsign', 'Test') }}
+					</button>
+					<transition name="fade">
+						<span v-if="!statusesRequesting[index]" class="message_status" :class="messageStatusClasses[index]" />
+					</transition>
+					<img v-if="statusesRequesting[index]" class="status_loader" :src="loadingImg">
+				</p>
 				<transition name="fade">
-					<span v-if="!statusRequesting" id="message_status" :class="messageStatusClass" />
+					<pre v-if="serverMessages[index].length" class="server_message">{{ serverMessages[index] }}</pre>
 				</transition>
-				<img v-if="statusRequesting" id="status_loader" :src="loadingImg">
-			</p>
-			<transition name="fade">
-				<pre v-if="serverMessage.length" id="server_message">{{ serverMessage }}</pre>
-			</transition>
+			</div>
 			<p>
 				<CheckboxRadioSwitch :checked.sync="ignoreSslErrors" :disabled="!sslSettingEnabled">
 					{{ $t('openotpsign', 'Ignore SSL/TLS certificate errors') }}
@@ -159,16 +161,40 @@ import axios from '@nextcloud/axios'
 import { generateUrl, generateFilePath } from '@nextcloud/router'
 import CheckboxRadioSwitch from '@nextcloud/vue/dist/Components/CheckboxRadioSwitch'
 
+const NB_SERVERS = 2
+const statusesRequesting = {}
+const messageStatusClasses = {}
+const serverMessages = {}
+
+for (let i = 0; i < NB_SERVERS; ++i) {
+	statusesRequesting[i] = false
+	messageStatusClasses[i] = 'error'
+	serverMessages[i] = ''
+}
+
 export default {
 	name: 'AppAdmin',
 	components: {
 		CheckboxRadioSwitch,
 	},
 	data() {
+		const serverUrls = JSON.parse(this.$parent.serverUrls)
+
 		return {
-			serverUrl: this.$parent.serverUrl,
+			serverUrls,
+			statusesRequesting,
+			messageStatusClasses,
+			serverMessages,
 			ignoreSslErrors: !!this.$parent.ignoreSslErrors,
-			sslSettingEnabled: this.$parent.serverUrl.startsWith('https://'),
+			sslSettingEnabled: (function(serverUrls) {
+				for (let i = 0; i < serverUrls.length; ++i) {
+					if (serverUrls[i].startsWith('https://')) {
+						return true
+					}
+				}
+
+				return false
+			}(serverUrls)),
 			clientId: this.$parent.clientId,
 			defaultDomain: this.$parent.defaultDomain,
 			userSettings: this.$parent.userSettings,
@@ -178,16 +204,16 @@ export default {
 			proxyUsername: this.$parent.proxyUsername,
 			proxyPassword: this.$parent.proxyPassword,
 			signedFile: this.$parent.signedFile,
-			messageStatusClass: 'error',
-			serverMessage: '',
 			success: false,
 			failure: false,
-			statusRequesting: false,
 		}
 	},
 	mounted() {
 		this.loadingImg = generateFilePath('core', '', 'img/') + 'loading.gif'
-		this.testConnection()
+
+		for (let i = 0; i < this.serverUrls.length; ++i) {
+			this.testConnection(i, this.serverUrls[i])
+		}
 	},
 	methods: {
 		saveSettings() {
@@ -196,7 +222,7 @@ export default {
 			const baseUrl = generateUrl('/apps/openotpsign')
 
 			axios.post(baseUrl + '/settings', {
-				server_url: this.serverUrl,
+				server_urls: this.serverUrls,
 				ignore_ssl_errors: this.ignoreSslErrors,
 				client_id: this.clientId,
 				default_domain: this.defaultDomain,
@@ -218,15 +244,23 @@ export default {
 				})
 		},
 		enableSslSetting() {
-			this.sslSettingEnabled = this.serverUrl.startsWith('https://')
+			let enable = false
+			for (let i = 0; i < this.serverUrls.length; ++i) {
+				if (this.serverUrls[i].startsWith('https://')) {
+					enable = true
+					break
+				}
+			}
+
+			this.sslSettingEnabled = enable
 		},
-		testConnection() {
-			this.statusRequesting = true
-			this.serverMessage = ''
+		testConnection(serverNum, serverUrl) {
+			this.statusesRequesting[serverNum] = true
+			this.serverMessages[serverNum] = ''
 			const baseUrl = generateUrl('/apps/openotpsign')
 
 			axios.post(baseUrl + '/check_server_url', {
-				server_url: this.serverUrl,
+				server_url: serverUrl,
 				ignore_ssl_errors: this.ignoreSslErrors,
 				use_proxy: this.useProxy,
 				proxy_host: this.proxyHost,
@@ -235,19 +269,19 @@ export default {
 				proxy_password: this.proxyPassword,
 			})
 				.then(response => {
-					this.statusRequesting = false
+					this.statusesRequesting[serverNum] = false
 					if (response.data.status === true) {
-						this.messageStatusClass = 'success'
-						this.serverMessage = response.data.message
+						this.messageStatusClasses[serverNum] = 'success'
+						this.serverMessages[serverNum] = response.data.message
 					} else {
-						this.messageStatusClass = 'error'
-						this.serverMessage = ''
+						this.messageStatusClasses[serverNum] = 'error'
+						this.serverMessages[serverNum] = ''
 					}
 				})
 				.catch(error => {
-					this.statusRequesting = false
-					this.messageStatusClass = 'error'
-					this.serverMessage = ''
+					this.statusesRequesting[serverNum] = false
+					this.messageStatusClasses[serverNum] = 'error'
+					this.serverMessages[serverNum] = ''
 					// eslint-disable-next-line
 					console.log(error)
 				})
@@ -269,7 +303,7 @@ input {
 	width: 320px;
 }
 
-#message_status {
+.message_status {
 	padding: 6px 15px;
 	border-radius: 3px;
 }
@@ -282,7 +316,7 @@ input {
 	background: var(--color-success);
 }
 
-#server_message {
+.server_message {
 	border: solid var(--color-success) 1px;
 	display: inline-block;
 	padding: 5px;
@@ -296,9 +330,9 @@ input {
 	color: red;
 }
 
-#status_loader {
+.status_loader {
 	position: absolute;
-	margin-top: 30px;
+	margin-top: 3px;
 }
 
 .fade-enter-active {
@@ -309,7 +343,7 @@ input {
 	opacity: 0;
 }
 
-#ootp_server_url {
+#ootp_server_url0 {
 	margin-top: 30px;
 }
 </style>

@@ -27,7 +27,7 @@ OCP\Util::addscript($appId, 'openotpsign-adminSettings');
 ?>
 <div
   id="openotpsign-admin-root"
-  data-server-url="<?php echo $_['server_url'] ?>"
+  data-server-urls="<?php echo htmlspecialchars($_['server_urls']) ?>"
   data-ignore-ssl-errors="<?php echo $_['ignore_ssl_errors'] ?>"
   data-client-id="<?php echo $_['client_id'] ?>"
   data-default-domain="<?php echo $_['default_domain'] ?>"

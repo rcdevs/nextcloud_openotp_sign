@@ -43,7 +43,7 @@ class AdminSettings implements ISettings {
      */
     public function getForm() {
         return new TemplateResponse('openotpsign', 'settings/admin', [
-            'server_url' => $this->config->getAppValue('openotpsign', 'server_url'),
+            'server_urls' => $this->config->getAppValue('openotpsign', 'server_urls', '[]'),
             'ignore_ssl_errors' => $this->config->getAppValue('openotpsign', 'ignore_ssl_errors'),
             'client_id' => $this->config->getAppValue('openotpsign', 'client_id'),
             'default_domain' => $this->config->getAppValue('openotpsign', 'default_domain'),

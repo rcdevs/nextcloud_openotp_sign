@@ -41,7 +41,7 @@ class SettingsController extends Controller {
 	}
 
 	public function saveSettings() {
-		$this->config->setAppValue('openotpsign', 'server_url', $this->request->getParam('server_url'));
+		$this->config->setAppValue('openotpsign', 'server_urls', json_encode($this->request->getParam('server_urls')));
 		$this->config->setAppValue('openotpsign', 'ignore_ssl_errors', $this->request->getParam('ignore_ssl_errors'));
 		$this->config->setAppValue('openotpsign', 'client_id', $this->request->getParam('client_id'));
 		$this->config->setAppValue('openotpsign', 'default_domain', $this->request->getParam('default_domain'));
@@ -71,6 +71,16 @@ class SettingsController extends Controller {
 	 * @NoAdminRequired
 	 */
 	public function checkSettings() {
-		return new JSONResponse(!empty($this->config->getAppValue('openotpsign', 'server_url')));
+		$serverUrls = json_decode($this->config->getAppValue('openotpsign', 'server_urls', '[]'));
+		$empty = true;
+
+		foreach ($serverUrls as &$serverUrl) {
+			if (!empty($serverUrl)) {
+				$empty = false;
+				break;
+			}
+		}
+
+		return new JSONResponse(!$empty);
 	}
 }
