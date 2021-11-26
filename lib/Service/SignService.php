@@ -23,7 +23,7 @@ class SignService {
 	private $userManager;
 
     // Settings
-	private $serverUrl;
+	private $serverUrls;
 	private $ignoreSslErrors;
 	private $clientId;
 	private $defaultDomain;
@@ -47,7 +47,7 @@ class SignService {
 		$this->accountManager = $accountManager;
 		$this->userManager = $userManager;
 
-		$this->serverUrl = $config->getAppValue('openotpsign', 'server_url');
+		$this->serverUrls = json_decode($config->getAppValue('openotpsign', 'server_urls', '[]'));
 		$this->ignoreSslErrors = $config->getAppValue('openotpsign', 'ignore_ssl_errors');
 		$this->clientId = $config->getAppValue('openotpsign', 'client_id');
 		$this->defaultDomain = $config->getAppValue('openotpsign', 'default_domain');
@@ -63,7 +63,7 @@ class SignService {
     public function advancedSign($path, $userId, $remoteAddress) {
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
-		$opts = array('location' => $this->serverUrl);
+		$opts = array('location' => $this->serverUrls[0]);
 		if ($this->ignoreSslErrors) {
 			$context = stream_context_create([
 				'ssl' => [
@@ -131,7 +131,7 @@ class SignService {
     public function asyncAdvancedSign($path, $username, $userId, $remoteAddress, $email) {
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
-		$opts = array('location' => $this->serverUrl);
+		$opts = array('location' => $this->serverUrls[0]);
 		if ($this->ignoreSslErrors) {
 			$context = stream_context_create([
 				'ssl' => [
@@ -216,7 +216,7 @@ class SignService {
     public function qualifiedSign($path, $userId, $remoteAddress) {
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
-		$opts = array('location' => $this->serverUrl);
+		$opts = array('location' => $this->serverUrls[0]);
 		if ($this->ignoreSslErrors) {
 			$context = stream_context_create([
 				'ssl' => [
@@ -283,7 +283,7 @@ class SignService {
     public function asyncQualifiedSign($path, $username, $userId, $remoteAddress, $email) {
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
-		$opts = array('location' => $this->serverUrl);
+		$opts = array('location' => $this->serverUrls[0]);
 		if ($this->ignoreSslErrors) {
 			$context = stream_context_create([
 				'ssl' => [
@@ -368,7 +368,7 @@ class SignService {
     public function seal($path, $userId, $remoteAddress) {
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
-		$opts = array('location' => $this->serverUrl);
+		$opts = array('location' => $this->serverUrls[0]);
 		if ($this->ignoreSslErrors) {
 			$context = stream_context_create([
 				'ssl' => [
@@ -417,7 +417,7 @@ class SignService {
     }
 
     public function checkAsyncSignature() {
-		$opts = array('location' => $this->serverUrl);
+		$opts = array('location' => $this->serverUrls[0]);
 		if ($this->ignoreSslErrors) {
 			$context = stream_context_create([
 				'ssl' => [
