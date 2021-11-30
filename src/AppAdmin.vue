@@ -331,8 +331,8 @@ input {
 }
 
 .status_loader {
-	position: absolute;
-	margin-top: 3px;
+	margin-bottom: -12px;
+	margin-left: -4px;
 }
 
 .fade-enter-active {
