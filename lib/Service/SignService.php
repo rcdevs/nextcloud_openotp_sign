@@ -16,6 +16,7 @@ class SignService {
     use GetsFile;
 
 	const ASYNC_SIGN_TIME_OUT = 3600;
+	const CNX_TIME_OUT = 1;
 
 	private $mapper;
 	private $storage;
@@ -63,7 +64,8 @@ class SignService {
     public function advancedSign($path, $userId, $remoteAddress) {
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
-		$opts = array('location' => $this->serverUrls[0]);
+		$opts = array('connection_timeout' => self::CNX_TIME_OUT);
+
 		if ($this->ignoreSslErrors) {
 			$context = stream_context_create([
 				'ssl' => [
@@ -94,22 +96,41 @@ class SignService {
 		$account = $this->accountManager->getAccount($user);
 
 		ini_set('default_socket_timeout', 600);
-		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
-		$resp = $client->openotpNormalConfirm(
-			$userId,
-			$this->defaultDomain,
-			$data,
-			$fileContent,
-			null,
-			null,
-			false,
-			120,
-			$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
-			$this->clientId,
-			$remoteAddress,
-			$this->userSettings,
-			null
-		);
+
+		$nbServers = count($this->serverUrls);
+		for ($i = 0; $i < $nbServers; ++$i) {
+			$opts['location'] = $this->serverUrls[$i];
+			$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
+
+			try {
+				$resp = $client->openotpNormalConfirm(
+					$userId,
+					$this->defaultDomain,
+					$data,
+					$fileContent,
+					null,
+					null,
+					false,
+					120,
+					$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
+					$this->clientId,
+					$remoteAddress,
+					$this->userSettings,
+					null
+				);
+
+				if ($resp === null) {
+					$resp['code'] = 0;
+					$resp['message'] = "File too big. Set the PHP directive post_max_size to 20M on the OpenOTP server.";
+					return $resp;
+				}
+
+				break;
+			} catch (\Throwable $e) {
+				$resp['code'] = 0;
+				$resp['message'] = $e->getMessage();
+			}
+		}
 
 		if ($resp['code'] === 1) {
 			if (str_ends_with(strtolower($path), ".pdf")) {
@@ -131,7 +152,7 @@ class SignService {
     public function asyncAdvancedSign($path, $username, $userId, $remoteAddress, $email) {
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
-		$opts = array('location' => $this->serverUrls[0]);
+		$opts = array('connection_timeout' => self::CNX_TIME_OUT);
 		if ($this->ignoreSslErrors) {
 			$context = stream_context_create([
 				'ssl' => [
@@ -163,36 +184,54 @@ class SignService {
 		$sender = $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue();
 
 		ini_set('default_socket_timeout', 600);
-		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
 
-		if (str_contains($username, '@')) {
-			$resp = $client->openotpExternConfirm(
-				$username,
-				$fileContent,
-				false,
-				true,
-				self::ASYNC_SIGN_TIME_OUT,
-				$sender,
-				$this->clientId,
-				$remoteAddress,
-				$this->userSettings
-			);
-		} else {
-			$resp = $client->openotpNormalConfirm(
-				$username,
-				$this->defaultDomain,
-				$data,
-				$fileContent,
-				null,
-				null,
-				true,
-				self::ASYNC_SIGN_TIME_OUT,
-				$sender,
-				$this->clientId,
-				$remoteAddress,
-				$this->userSettings,
-				null
-			);
+		$nbServers = count($this->serverUrls);
+		for ($i = 0; $i < $nbServers; ++$i) {
+			$opts['location'] = $this->serverUrls[$i];
+			$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
+
+			try {
+				if (str_contains($username, '@')) {
+					$resp = $client->openotpExternConfirm(
+						$username,
+						$fileContent,
+						false,
+						true,
+						self::ASYNC_SIGN_TIME_OUT,
+						$sender,
+						$this->clientId,
+						$remoteAddress,
+						$this->userSettings
+					);
+				} else {
+					$resp = $client->openotpNormalConfirm(
+						$username,
+						$this->defaultDomain,
+						$data,
+						$fileContent,
+						null,
+						null,
+						true,
+						self::ASYNC_SIGN_TIME_OUT,
+						$sender,
+						$this->clientId,
+						$remoteAddress,
+						$this->userSettings,
+						null
+					);
+				}
+
+				if ($resp === null) {
+					$resp['code'] = 0;
+					$resp['message'] = "File too big. Set the PHP directive post_max_size to 20M on the OpenOTP server.";
+					return $resp;
+				}
+
+				break;
+			} catch (\Throwable $e) {
+				$resp['code'] = 0;
+				$resp['message'] = $e->getMessage();
+			}
 		}
 
 		if ($resp['code'] === 2) {
@@ -216,7 +255,8 @@ class SignService {
     public function qualifiedSign($path, $userId, $remoteAddress) {
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
-		$opts = array('location' => $this->serverUrls[0]);
+		$opts = array('connection_timeout' => self::CNX_TIME_OUT);
+
 		if ($this->ignoreSslErrors) {
 			$context = stream_context_create([
 				'ssl' => [
@@ -247,21 +287,40 @@ class SignService {
 		$account = $this->accountManager->getAccount($user);
 
 		ini_set('default_socket_timeout', 600);
-		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
-		$resp = $client->openotpNormalSign(
-			$userId,
-			$this->defaultDomain,
-			$data,
-			$fileContent,
-			'',
-			false,
-			120,
-			$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
-			$this->clientId,
-			$remoteAddress,
-			$this->userSettings,
-			null
-		);
+
+		$nbServers = count($this->serverUrls);
+		for ($i = 0; $i < $nbServers; ++$i) {
+			$opts['location'] = $this->serverUrls[$i];
+			$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
+
+			try {
+				$resp = $client->openotpNormalSign(
+					$userId,
+					$this->defaultDomain,
+					$data,
+					$fileContent,
+					'',
+					false,
+					120,
+					$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
+					$this->clientId,
+					$remoteAddress,
+					$this->userSettings,
+					null
+				);
+
+				if ($resp === null) {
+					$resp['code'] = 0;
+					$resp['message'] = "File too big. Set the PHP directive post_max_size to 20M on the OpenOTP server.";
+					return $resp;
+				}
+
+				break;
+			} catch (\Throwable $e) {
+				$resp['code'] = 0;
+				$resp['message'] = $e->getMessage();
+			}
+		}
 
 		if ($resp['code'] === 1) {
 			if (str_ends_with(strtolower($path), ".pdf")) {
@@ -283,7 +342,8 @@ class SignService {
     public function asyncQualifiedSign($path, $username, $userId, $remoteAddress, $email) {
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
-		$opts = array('location' => $this->serverUrls[0]);
+		$opts = array('connection_timeout' => self::CNX_TIME_OUT);
+
 		if ($this->ignoreSslErrors) {
 			$context = stream_context_create([
 				'ssl' => [
@@ -315,35 +375,53 @@ class SignService {
 		$sender = $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue();
 
 		ini_set('default_socket_timeout', 600);
-		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
 
-		if (str_contains($username, '@')) {
-			$resp = $client->openotpExternSign(
-				$username,
-				$fileContent,
-				'',
-				true,
-				self::ASYNC_SIGN_TIME_OUT,
-				$sender,
-				$this->clientId,
-				$remoteAddress,
-				$this->userSettings
-			);
-		} else {
-			$resp = $client->openotpNormalSign(
-				$username,
-				$this->defaultDomain,
-				$data,
-				$fileContent,
-				'',
-				true,
-				self::ASYNC_SIGN_TIME_OUT,
-				$sender,
-				$this->clientId,
-				$remoteAddress,
-				$this->userSettings,
-				null
-			);
+		$nbServers = count($this->serverUrls);
+		for ($i = 0; $i < $nbServers; ++$i) {
+			$opts['location'] = $this->serverUrls[$i];
+			$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
+
+			try {
+				if (str_contains($username, '@')) {
+					$resp = $client->openotpExternSign(
+						$username,
+						$fileContent,
+						'',
+						true,
+						self::ASYNC_SIGN_TIME_OUT,
+						$sender,
+						$this->clientId,
+						$remoteAddress,
+						$this->userSettings
+					);
+				} else {
+					$resp = $client->openotpNormalSign(
+						$username,
+						$this->defaultDomain,
+						$data,
+						$fileContent,
+						'',
+						true,
+						self::ASYNC_SIGN_TIME_OUT,
+						$sender,
+						$this->clientId,
+						$remoteAddress,
+						$this->userSettings,
+						null
+					);
+				}
+
+				if ($resp === null) {
+					$resp['code'] = 0;
+					$resp['message'] = "File too big. Set the PHP directive post_max_size to 20M on the OpenOTP server.";
+					return $resp;
+				}
+
+				break;
+			} catch (\Throwable $e) {
+				$resp['code'] = 0;
+				$resp['message'] = $e->getMessage();
+			}
 		}
 
 		if ($resp['code'] === 2) {
@@ -368,7 +446,8 @@ class SignService {
     public function seal($path, $userId, $remoteAddress) {
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
-		$opts = array('location' => $this->serverUrls[0]);
+		$opts = array('connection_timeout' => self::CNX_TIME_OUT);
+
 		if ($this->ignoreSslErrors) {
 			$context = stream_context_create([
 				'ssl' => [
@@ -390,14 +469,33 @@ class SignService {
 		}
 
 		ini_set('default_socket_timeout', 600);
-		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
-		$resp = $client->openotpSeal(
-			$fileContent,
-			'',
-			$this->clientId,
-			$remoteAddress,
-			'CaDESMode=Detached,'.$this->userSettings
-		);
+
+		$nbServers = count($this->serverUrls);
+		for ($i = 0; $i < $nbServers; ++$i) {
+			$opts['location'] = $this->serverUrls[$i];
+			$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
+
+			try {
+				$resp = $client->openotpSeal(
+					$fileContent,
+					'',
+					$this->clientId,
+					$remoteAddress,
+					'CaDESMode=Detached,'.$this->userSettings
+				);
+
+				if ($resp === null) {
+					$resp['code'] = 0;
+					$resp['message'] = "File too big. Set the PHP directive post_max_size to 20M on the OpenOTP server.";
+					return $resp;
+				}
+
+				break;
+			} catch (\Throwable $e) {
+				$resp['code'] = 0;
+				$resp['message'] = $e->getMessage();
+			}
+		}
 
 		if ($resp['code'] === 1) {
 			if (str_ends_with(strtolower($path), ".pdf")) {
@@ -417,7 +515,8 @@ class SignService {
     }
 
     public function checkAsyncSignature() {
-		$opts = array('location' => $this->serverUrls[0]);
+		$opts = array('connection_timeout' => self::CNX_TIME_OUT);
+
 		if ($this->ignoreSslErrors) {
 			$context = stream_context_create([
 				'ssl' => [
@@ -438,43 +537,51 @@ class SignService {
 			$opts['proxy_password'] = $this->proxyPassword;
 		}
 
-        $client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
+		$nbServers = count($this->serverUrls);
+		for ($i = 0; $i < $nbServers; ++$i) {
+			$opts['location'] = $this->serverUrls[$i];
+			$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
 
-        $signSessions = $this->mapper->findAllPending();
-        foreach ($signSessions as $signSession) {
-			if (!$signSession->getIsQualified()) {
-				$resp = $client->openotpCheckConfirm($signSession->getSession());
-			} else {
-				$resp = $client->openotpCheckSign($signSession->getSession());
-			}
-
-            if ($resp['code'] === 1) {
-				$path = $signSession->getPath();
-				if (str_ends_with(strtolower($path), ".pdf")) {
-					if ($this->signedFile == "overwrite") {
-						$newPath = $path;
+			try {
+				$signSessions = $this->mapper->findAllPending();
+				foreach ($signSessions as $signSession) {
+					if (!$signSession->getIsQualified()) {
+						$resp = $client->openotpCheckConfirm($signSession->getSession());
 					} else {
-						$newPath = substr_replace($path, "-{$signSession->getRecipient()}-signed", strrpos($path, '.'), 0);
+						$resp = $client->openotpCheckSign($signSession->getSession());
 					}
-				} else {
-					$newPath = $path . ".p7s";
+
+					if ($resp['code'] === 1) {
+						$path = $signSession->getPath();
+						if (str_ends_with(strtolower($path), ".pdf")) {
+							if ($this->signedFile == "overwrite") {
+								$newPath = $path;
+							} else {
+								$newPath = substr_replace($path, "-{$signSession->getRecipient()}-signed", strrpos($path, '.'), 0);
+							}
+						} else {
+							$newPath = $path . ".p7s";
+						}
+
+						$this->saveContainer($signSession->getUid(), $resp['file'], $newPath);
+
+						$signSession->setIsPending(false);
+						$this->mapper->update($signSession);
+					} else if ($resp['code'] === 0) {
+						$signSession->setIsPending(false);
+						$signSession->setIsError(true);
+						$signSession->setMessage($resp['message']);
+						$this->mapper->update($signSession);
+					}
 				}
-
-				$this->saveContainer($signSession->getUid(), $resp['file'], $newPath);
-
-                $signSession->setIsPending(false);
-                $this->mapper->update($signSession);
-            } else if ($resp['code'] === 0) {
-                $signSession->setIsPending(false);
-                $signSession->setIsError(true);
-                $signSession->setMessage($resp['message']);
-                $this->mapper->update($signSession);
-            }
-        }
+			} catch (\Throwable $e) {
+			}
+		}
     }
 
 	public function openotpStatus(IRequest $request) {
 		$opts = array('location' => $request->getParam('server_url'));
+		$opts['connection_timeout'] = self::CNX_TIME_OUT;
 
 		if ($request->getParam('ignore_ssl_errors')) {
 			$context = stream_context_create([
