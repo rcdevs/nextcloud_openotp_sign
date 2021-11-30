@@ -10,9 +10,11 @@
 return [
     'routes' => [
 	   ['name' => 'sign#advancedSign', 'url' => '/advanced_sign', 'verb' => 'POST'],
-	   ['name' => 'sign#asyncAdvancedSign', 'url' => '/async_advanced_sign', 'verb' => 'POST'],
+	   ['name' => 'sign#asyncLocalAdvancedSign', 'url' => '/async_local_advanced_sign', 'verb' => 'POST'],
+	   ['name' => 'sign#asyncExternalAdvancedSign', 'url' => '/async_external_advanced_sign', 'verb' => 'POST'],
 	   ['name' => 'sign#qualifiedSign', 'url' => '/qualified_sign', 'verb' => 'POST'],
-	   ['name' => 'sign#asyncQualifiedSign', 'url' => '/async_qualified_sign', 'verb' => 'POST'],
+	   ['name' => 'sign#asyncLocalQualifiedSign', 'url' => '/async_local_qualified_sign', 'verb' => 'POST'],
+	   ['name' => 'sign#asyncExternalQualifiedSign', 'url' => '/async_external_qualified_sign', 'verb' => 'POST'],
 	   ['name' => 'sign#seal', 'url' => '/seal', 'verb' => 'POST'],
 	   ['name' => 'sign#getLocalUsers', 'url' => '/get_local_users', 'verb' => 'GET'],
 	   ['name' => 'settings#saveSettings', 'url' => '/settings', 'verb' => 'POST'],

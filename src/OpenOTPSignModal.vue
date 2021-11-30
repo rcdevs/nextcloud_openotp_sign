@@ -78,16 +78,16 @@
 						<div class="flex-container">
 							<CheckboxRadioSwitch
 								:checked.sync="recipientType"
-								value="extern"
+								value="external"
 								name="recipient_radio"
 								type="radio">
 								{{ $t('openotpsign', 'Signature by an external user:') }}
 							</CheckboxRadioSwitch>
 							<input
-								v-model="externUser"
+								v-model="externalUserEmail"
 								type="text"
 								placeholder="email_address@domain.tld"
-								@input="checkExternRadio">
+								@input="checkExternalRadio">
 						</div>
 						<button type="button" @click="advancedSignature">
 							{{ $t('openotpsign', 'Advanced signature') }}
@@ -138,7 +138,7 @@ export default {
 			settingsOk: false,
 			recipientType: 'self',
 			localUser: '',
-			externUser: '',
+			externalUserEmail: '',
 			formattedOptions: [],
 		}
 	},
@@ -206,9 +206,9 @@ export default {
 				this.formattedOptions = []
 			}
 		},
-		checkExternRadio() {
-			if (this.externUser.length > 0) {
-				this.recipientType = 'extern'
+		checkExternalRadio() {
+			if (this.externalUserEmail.length > 0) {
+				this.recipientType = 'external'
 			}
 		},
 		closeModal() {
@@ -226,8 +226,10 @@ export default {
 		advancedSignature() {
 			if (this.recipientType === 'self') {
 				this.syncAdvancedSignature()
+			} else if (this.recipientType === 'nextcloud') {
+				this.asyncLocalAdvancedSignature()
 			} else {
-				this.asyncAdvancedSignature()
+				this.asyncExternalAdvancedSignature()
 			}
 		},
 		syncAdvancedSignature() {
@@ -257,7 +259,7 @@ export default {
 					this.errorMessage = error
 				})
 		},
-		asyncAdvancedSignature() {
+		asyncLocalAdvancedSignature() {
 			if (this.recipientType === 'nextcloud' && !this.localUser) {
 				return
 			}
@@ -268,10 +270,42 @@ export default {
 
 			const CancelToken = axios.CancelToken
 			this.source = CancelToken.source()
-			axios.post(baseUrl + '/async_advanced_sign', {
+			axios.post(baseUrl + '/async_local_advanced_sign', {
 				path: this.getFilePath(),
-				username: (this.recipientType === 'nextcloud') ? this.localUser.uid : this.externUser,
-				email: (this.recipientType === 'nextcloud') ? this.localUser.subtitle : null,
+				username: this.localUser.uid,
+				email: this.localUser.subtitle,
+			}, {
+				cancelToken: this.source.token,
+			})
+				.then(response => {
+					this.requesting = false
+					if (response.data.code === 2) {
+						this.success = true
+					} else {
+						this.error = true
+						this.errorMessage = 'Error: ' + response.data.message
+					}
+				})
+				.catch(error => {
+					this.requesting = false
+					this.error = true
+					this.errorMessage = error
+				})
+		},
+		asyncExternalAdvancedSignature() {
+			if (this.recipientType === 'external' && !this.externalUserEmail) {
+				return
+			}
+
+			this.error = false
+			this.requesting = true
+			const baseUrl = generateUrl('/apps/openotpsign')
+
+			const CancelToken = axios.CancelToken
+			this.source = CancelToken.source()
+			axios.post(baseUrl + '/async_external_advanced_sign', {
+				path: this.getFilePath(),
+				email: this.externalUserEmail,
 			}, {
 				cancelToken: this.source.token,
 			})
@@ -293,8 +327,10 @@ export default {
 		qualifiedSignature() {
 			if (this.recipientType === 'self') {
 				this.syncQualifiedSignature()
+			} else if (this.recipientType === 'nextcloud') {
+				this.asyncLocalQualifiedSignature()
 			} else {
-				this.asyncQualifiedSignature()
+				this.asyncExternalQualifiedSignature()
 			}
 		},
 		syncQualifiedSignature() {
@@ -324,7 +360,7 @@ export default {
 					this.errorMessage = error
 				})
 		},
-		asyncQualifiedSignature() {
+		asyncLocalQualifiedSignature() {
 			if (this.recipientType === 'nextcloud' && !this.localUser) {
 				return
 			}
@@ -335,10 +371,42 @@ export default {
 
 			const CancelToken = axios.CancelToken
 			this.source = CancelToken.source()
-			axios.post(baseUrl + '/async_qualified_sign', {
+			axios.post(baseUrl + '/async_local_qualified_sign', {
 				path: this.getFilePath(),
-				username: (this.recipientType === 'nextcloud') ? this.localUser.uid : this.externUser,
-				email: (this.recipientType === 'nextcloud') ? this.localUser.subtitle : null,
+				username: this.localUser.uid,
+				email: this.localUser.subtitle,
+			}, {
+				cancelToken: this.source.token,
+			})
+				.then(response => {
+					this.requesting = false
+					if (response.data.code === 2) {
+						this.success = true
+					} else {
+						this.error = true
+						this.errorMessage = 'Error: ' + response.data.message
+					}
+				})
+				.catch(error => {
+					this.requesting = false
+					this.error = true
+					this.errorMessage = error
+				})
+		},
+		asyncExternalQualifiedSignature() {
+			if (this.recipientType === 'external' && !this.externalUserEmail) {
+				return
+			}
+
+			this.error = false
+			this.requesting = true
+			const baseUrl = generateUrl('/apps/openotpsign')
+
+			const CancelToken = axios.CancelToken
+			this.source = CancelToken.source()
+			axios.post(baseUrl + '/async_external_qualified_sign', {
+				path: this.getFilePath(),
+				email: this.externalUserEmail,
 			}, {
 				cancelToken: this.source.token,
 			})

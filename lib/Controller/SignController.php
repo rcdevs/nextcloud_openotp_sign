@@ -57,8 +57,20 @@ class SignController extends Controller {
 	/**
 	 * @NoAdminRequired
 	 */
-	public function asyncAdvancedSign() {
-		$resp = $this->signService->asyncAdvancedSign($this->request->getParam('path'), $this->request->getParam('username'), $this->userId, $this->request->getRemoteAddress(), $this->request->getParam('email'));
+	public function asyncLocalAdvancedSign() {
+		$resp = $this->signService->asyncLocalAdvancedSign($this->request->getParam('path'), $this->request->getParam('username'), $this->userId, $this->request->getRemoteAddress(), $this->request->getParam('email'));
+
+		return new JSONResponse([
+			'code' => $resp['code'],
+			'message' => $resp['message'],
+		]);
+	}
+
+	/**
+	 * @NoAdminRequired
+	 */
+	public function asyncExternalAdvancedSign() {
+		$resp = $this->signService->asyncExternalAdvancedSign($this->request->getParam('path'), $this->request->getParam('email'), $this->userId, $this->request->getRemoteAddress());
 
 		return new JSONResponse([
 			'code' => $resp['code'],
@@ -81,8 +93,20 @@ class SignController extends Controller {
 	/**
 	 * @NoAdminRequired
 	 */
-	public function asyncQualifiedSign() {
-		$resp = $this->signService->asyncQualifiedSign($this->request->getParam('path'), $this->request->getParam('username'), $this->userId, $this->request->getRemoteAddress(), $this->request->getParam('email'));
+	public function asyncLocalQualifiedSign() {
+		$resp = $this->signService->asyncLocalQualifiedSign($this->request->getParam('path'), $this->request->getParam('username'), $this->userId, $this->request->getRemoteAddress(), $this->request->getParam('email'));
+
+		return new JSONResponse([
+			'code' => $resp['code'],
+			'message' => $resp['message']
+		]);
+	}
+
+	/**
+	 * @NoAdminRequired
+	 */
+	public function asyncExternalQualifiedSign() {
+		$resp = $this->signService->asyncExternalQualifiedSign($this->request->getParam('path'), $this->request->getParam('email'), $this->userId, $this->request->getRemoteAddress());
 
 		return new JSONResponse([
 			'code' => $resp['code'],
