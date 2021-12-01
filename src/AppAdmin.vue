@@ -139,6 +139,18 @@
 				{{ $t('openotpsign', 'Overwrite the original PDF file with its signed / sealed copy') }}
 			</CheckboxRadioSwitch>
 		</div>
+		<div id="timeout" class="section">
+			<h2>{{ $t('openotpsign', 'Asynchronous signature requests timeout') }}</h2>
+			<p>
+				<label for="async_timeout">{{ $t('openotpsign', 'Timeout (1 - 72 hours)') }}</label>
+				<input id="async_timeout"
+					v-model="asyncTimeout"
+					type="number"
+					name="async_timeout"
+					min="1"
+					max="72">
+			</p>
+		</div>
 		<div id="save" class="section">
 			<p>
 				<button @click="saveSettings">
@@ -204,6 +216,7 @@ export default {
 			proxyUsername: this.$parent.proxyUsername,
 			proxyPassword: this.$parent.proxyPassword,
 			signedFile: this.$parent.signedFile,
+			asyncTimeout: this.$parent.asyncTimeout,
 			success: false,
 			failure: false,
 		}
@@ -233,6 +246,7 @@ export default {
 				proxy_username: this.proxyUsername,
 				proxy_password: this.proxyPassword,
 				signed_file: this.signedFile,
+				async_timeout: this.asyncTimeout,
 			})
 				.then(response => {
 					this.success = true

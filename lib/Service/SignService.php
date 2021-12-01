@@ -15,7 +15,6 @@ use OCA\OpenOTPSign\Db\SignSessionMapper;
 class SignService {
     use GetsFile;
 
-	const ASYNC_SIGN_TIME_OUT = 3600;
 	const CNX_TIME_OUT = 1;
 
 	private $mapper;
@@ -59,6 +58,7 @@ class SignService {
 		$this->proxyUsername = $config->getAppValue('openotpsign', 'proxy_username');
 		$this->proxyPassword = $config->getAppValue('openotpsign', 'proxy_password');
 		$this->signedFile = $config->getAppValue('openotpsign', 'signed_file');
+		$this->asyncTimeout = $config->getAppValue('openotpsign', 'async_timeout') * 3600;
     }
 
     public function advancedSign($path, $userId, $remoteAddress) {
@@ -199,7 +199,7 @@ class SignService {
 					null,
 					null,
 					true,
-					self::ASYNC_SIGN_TIME_OUT,
+					$this->asyncTimeout,
 					$sender,
 					$this->clientId,
 					$remoteAddress,
@@ -279,7 +279,7 @@ class SignService {
 					$fileContent,
 					false,
 					true,
-					self::ASYNC_SIGN_TIME_OUT,
+					$this->asyncTimeout,
 					$sender,
 					$this->clientId,
 					$remoteAddress,
@@ -448,7 +448,7 @@ class SignService {
 					$fileContent,
 					'',
 					true,
-					self::ASYNC_SIGN_TIME_OUT,
+					$this->asyncTimeout,
 					$sender,
 					$this->clientId,
 					$remoteAddress,
@@ -530,7 +530,7 @@ class SignService {
 					$fileContent,
 					'',
 					true,
-					self::ASYNC_SIGN_TIME_OUT,
+					$this->asyncTimeout,
 					$sender,
 					$this->clientId,
 					$remoteAddress,
@@ -742,7 +742,7 @@ class SignService {
 
 		$msg .= "A new QuickSign $signType signature request has been sent to your mobile phone.\r\n";
 		$msg .= "The sender is $sender.\r\n";
-		$msg .= "The signature request will expire in ".round(self::ASYNC_SIGN_TIME_OUT / 60)." minutes (".date("Y-m-d H:i", time() + self::ASYNC_SIGN_TIME_OUT).").\r\n\r\n";
+		$msg .= "The signature request will expire in ".round($this->asyncTimeout / 3600)." hour(s) (".date("Y-m-d H:i", time() + $this->asyncTimeout).").\r\n\r\n";
 		$msg .= "If you did not receive the mobile push notification, you can scan the attached QRCode.\r\n";
 		$msg .= "\r\n";
 
@@ -757,7 +757,7 @@ class SignService {
 
 		$msg .= "<html><body>A new QuickSign $signType signature request has been sent to your mobile phone.<br>";
 		$msg .= "The sender is <b>$sender</b>.<br>";
-		$msg .= "The signature request will expire in ".round(self::ASYNC_SIGN_TIME_OUT / 60)." minutes (".date("Y-m-d H:i", time() + self::ASYNC_SIGN_TIME_OUT).").<br><br>";
+		$msg .= "The signature request will expire in ".round($this->asyncTimeout / 3600)." hour(s) (".date("Y-m-d H:i", time() + $this->asyncTimeout).").<br><br>";
 		$msg .= "If you did not receive the mobile push notification, you can scan the following QRCode (or directly tap on it from your phone where the <em>OpenOTP Token</em> app is installed):<br><br>";
 		$msg .= "<a href=\"$uri\"><img src=\"cid:image1\"></a>";
 		$msg .= "</body></html>\r\n";
