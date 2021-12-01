@@ -23,7 +23,7 @@
 		<button @click="showModal">
 			Show Modal
 		</button>
-		<Modal v-if="modal" @close="closeModal">
+		<Modal v-if="modal" size="large" @close="closeModal">
 			<div class="modal__content">
 				<h1>{{ $t('openotpsign', 'OpenOTP Sign') }}</h1>
 				<p v-if="!settingsOk"
@@ -31,7 +31,7 @@
 					class="alert alert-danger"
 					v-html="$t('openotpsign', 'You have to enter the <strong>OpenOTP server URL</strong> in the <strong>OpenOTP Sign</strong> settings prior to sign any document.')" />
 				<div v-if="settingsOk">
-					<img v-if="!success" :src="mobileSigningImg" style="max-height: 300px;">
+					<img v-if="!success" :src="mobileSigningImg" style="max-height: 200px;">
 					<p v-else id="green-tick">
 						&#10003;
 					</p>
