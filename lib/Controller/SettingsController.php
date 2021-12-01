@@ -52,6 +52,7 @@ class SettingsController extends Controller {
 		$this->config->setAppValue('openotpsign', 'proxy_username', $this->request->getParam('proxy_username'));
 		$this->config->setAppValue('openotpsign', 'proxy_password', $this->request->getParam('proxy_password'));
 		$this->config->setAppValue('openotpsign', 'signed_file', $this->request->getParam('signed_file'));
+		$this->config->setAppValue('openotpsign', 'sync_timeout', $this->request->getParam('sync_timeout'));
 		$this->config->setAppValue('openotpsign', 'async_timeout', $this->request->getParam('async_timeout'));
 
 		return new JSONResponse([

@@ -38,5 +38,6 @@ OCP\Util::addscript($appId, 'openotpsign-adminSettings');
   data-proxy-username="<?php echo $_['proxy_username'] ?>"
   data-proxy-password="<?php echo $_['proxy_password'] ?>"
   data-signed-file="<?php echo $_['signed_file'] ?>"
+  data-sync-timeout="<?php echo $_['sync_timeout'] ?>"
   data-async-timeout="<?php echo $_['async_timeout'] ?>"
 ></div>

@@ -140,9 +140,18 @@
 			</CheckboxRadioSwitch>
 		</div>
 		<div id="timeout" class="section">
-			<h2>{{ $t('openotpsign', 'Asynchronous signature requests timeout') }}</h2>
+			<h2>{{ $t('openotpsign', 'Signature requests time out') }}</h2>
 			<p>
-				<label for="async_timeout">{{ $t('openotpsign', 'Timeout (1 - 72 hours)') }}</label>
+				<label for="sync_timeout">{{ $t('openotpsign', 'Self-signature (1 - 5 minutes)') }}</label>
+				<input id="sync_timeout"
+					v-model="syncTimeout"
+					type="number"
+					name="sync_timeout"
+					min="1"
+					max="5">
+			</p>
+			<p>
+				<label for="async_timeout">{{ $t('openotpsign', 'Nextcloud / YumiSign user signature (1 - 72 hours)') }}</label>
 				<input id="async_timeout"
 					v-model="asyncTimeout"
 					type="number"
@@ -216,6 +225,7 @@ export default {
 			proxyUsername: this.$parent.proxyUsername,
 			proxyPassword: this.$parent.proxyPassword,
 			signedFile: this.$parent.signedFile,
+			syncTimeout: this.$parent.syncTimeout,
 			asyncTimeout: this.$parent.asyncTimeout,
 			success: false,
 			failure: false,
@@ -246,6 +256,7 @@ export default {
 				proxy_username: this.proxyUsername,
 				proxy_password: this.proxyPassword,
 				signed_file: this.signedFile,
+				sync_timeout: this.syncTimeout,
 				async_timeout: this.asyncTimeout,
 			})
 				.then(response => {

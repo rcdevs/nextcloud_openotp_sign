@@ -58,6 +58,7 @@ class SignService {
 		$this->proxyUsername = $config->getAppValue('openotpsign', 'proxy_username');
 		$this->proxyPassword = $config->getAppValue('openotpsign', 'proxy_password');
 		$this->signedFile = $config->getAppValue('openotpsign', 'signed_file');
+		$this->syncTimeout = $config->getAppValue('openotpsign', 'sync_timeout') * 60;
 		$this->asyncTimeout = $config->getAppValue('openotpsign', 'async_timeout') * 3600;
     }
 
@@ -111,7 +112,7 @@ class SignService {
 					null,
 					null,
 					false,
-					120,
+					$this->syncTimeout,
 					$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
 					$this->clientId,
 					$remoteAddress,
@@ -360,7 +361,7 @@ class SignService {
 					$fileContent,
 					'',
 					false,
-					120,
+					$this->syncTimeout,
 					$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
 					$this->clientId,
 					$remoteAddress,
