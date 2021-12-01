@@ -54,7 +54,7 @@
 								value="nextcloud"
 								name="recipient_radio"
 								type="radio">
-								{{ $t('openotpsign', 'Internal signature by OpenOTP:') }}
+								{{ $t('openotpsign', 'Signature by a Nextcloud user:') }}
 							</CheckboxRadioSwitch>
 							<Multiselect
 								v-model="localUser"
@@ -81,7 +81,7 @@
 								value="external"
 								name="recipient_radio"
 								type="radio">
-								{{ $t('openotpsign', 'External signature by YumiSign:') }}
+								{{ $t('openotpsign', 'Signature by a YumiSign user:') }}
 							</CheckboxRadioSwitch>
 							<input
 								v-model="externalUserEmail"
