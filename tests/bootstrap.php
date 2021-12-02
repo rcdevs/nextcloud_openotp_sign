@@ -9,8 +9,8 @@ require_once __DIR__.'/../../../lib/base.php';
 // Fix for "Autoload path not allowed: .../tests/lib/testcase.php"
 \OC::$loader->addValidRoot(OC::$SERVERROOT . '/tests');
 
-// Fix for "Autoload path not allowed: .../openotpsign/tests/testcase.php"
-\OC_App::loadApp('openotpsign');
+// Fix for "Autoload path not allowed: .../openotp_sign/tests/testcase.php"
+\OC_App::loadApp('openotp_sign');
 
 if(!class_exists('PHPUnit_Framework_TestCase')) {
     require_once('PHPUnit/Autoload.php');

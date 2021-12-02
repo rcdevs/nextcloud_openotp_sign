@@ -1,5 +1,5 @@
 {
-	"name": "openotpsign",
+	"name": "openotp_sign",
 	"description": "Nextcloud app to sign your documents with OpenOTP",
 	"version": "1.0.0",
 	"author": "RCDevs <info@rcdevs.com>",

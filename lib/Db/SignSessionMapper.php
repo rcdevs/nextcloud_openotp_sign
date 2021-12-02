@@ -7,7 +7,7 @@ use OCP\AppFramework\Db\QBMapper;
 class SignSessionMapper extends QBMapper {
 
     public function __construct(IDBConnection $db) {
-        parent::__construct($db, 'openotpsign_sessions', SignSession::class);
+        parent::__construct($db, 'openotp_sign_sessions', SignSession::class);
     }
 
     public function findAllPending() {

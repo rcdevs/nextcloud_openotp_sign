@@ -47,19 +47,19 @@ class SignService {
 		$this->accountManager = $accountManager;
 		$this->userManager = $userManager;
 
-		$this->serverUrls = json_decode($config->getAppValue('openotpsign', 'server_urls', '[]'));
-		$this->ignoreSslErrors = $config->getAppValue('openotpsign', 'ignore_ssl_errors');
-		$this->clientId = $config->getAppValue('openotpsign', 'client_id');
-		$this->defaultDomain = $config->getAppValue('openotpsign', 'default_domain');
-		$this->userSettings = $config->getAppValue('openotpsign', 'user_settings');
-		$this->useProxy = $config->getAppValue('openotpsign', 'use_proxy');
-		$this->proxyHost = $config->getAppValue('openotpsign', 'proxy_host');
-		$this->proxyPort = $config->getAppValue('openotpsign', 'proxy_port');
-		$this->proxyUsername = $config->getAppValue('openotpsign', 'proxy_username');
-		$this->proxyPassword = $config->getAppValue('openotpsign', 'proxy_password');
-		$this->signedFile = $config->getAppValue('openotpsign', 'signed_file');
-		$this->syncTimeout = $config->getAppValue('openotpsign', 'sync_timeout') * 60;
-		$this->asyncTimeout = $config->getAppValue('openotpsign', 'async_timeout') * 3600;
+		$this->serverUrls = json_decode($config->getAppValue('openotp_sign', 'server_urls', '[]'));
+		$this->ignoreSslErrors = $config->getAppValue('openotp_sign', 'ignore_ssl_errors');
+		$this->clientId = $config->getAppValue('openotp_sign', 'client_id');
+		$this->defaultDomain = $config->getAppValue('openotp_sign', 'default_domain');
+		$this->userSettings = $config->getAppValue('openotp_sign', 'user_settings');
+		$this->useProxy = $config->getAppValue('openotp_sign', 'use_proxy');
+		$this->proxyHost = $config->getAppValue('openotp_sign', 'proxy_host');
+		$this->proxyPort = $config->getAppValue('openotp_sign', 'proxy_port');
+		$this->proxyUsername = $config->getAppValue('openotp_sign', 'proxy_username');
+		$this->proxyPassword = $config->getAppValue('openotp_sign', 'proxy_password');
+		$this->signedFile = $config->getAppValue('openotp_sign', 'signed_file');
+		$this->syncTimeout = $config->getAppValue('openotp_sign', 'sync_timeout') * 60;
+		$this->asyncTimeout = $config->getAppValue('openotp_sign', 'async_timeout') * 3600;
     }
 
     public function advancedSign($path, $userId, $remoteAddress) {

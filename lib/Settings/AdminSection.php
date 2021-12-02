@@ -51,7 +51,7 @@ class AdminSection implements IIconSection {
      * @since 12
      */
     public function getIcon() {
-        return $this->url->imagePath('openotpsign', 'signature.svg');
+        return $this->url->imagePath('openotp_sign', 'signature.svg');
     }
 
     /**
@@ -62,7 +62,7 @@ class AdminSection implements IIconSection {
      * @since 9.1
      */
     public function getID() {
-        return 'openotpsign';
+        return 'openotp_sign';
     }
 
     /**

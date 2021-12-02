@@ -25,24 +25,24 @@
 		</button> -->
 		<Modal v-if="modal" size="large" @close="closeModal">
 			<div class="modal__content">
-				<h1>{{ $t('openotpsign', 'OpenOTP Sign') }}</h1>
+				<h1>{{ $t('openotp_sign', 'OpenOTP Sign') }}</h1>
 				<p v-if="!settingsOk"
 					id="error_settings"
 					class="alert alert-danger"
-					v-html="$t('openotpsign', 'You have to enter the <strong>OpenOTP server URL</strong> in the <strong>OpenOTP Sign</strong> settings prior to seal any document.')" />
+					v-html="$t('openotp_sign', 'You have to enter the <strong>OpenOTP server URL</strong> in the <strong>OpenOTP Sign</strong> settings prior to seal any document.')" />
 				<div v-if="settingsOk">
 					<img v-if="!success" :src="mobileSigningImg" style="max-width: 200px;">
 					<p v-else id="green-tick">
 						&#10003;
 					</p>
-					<p v-html="$t('openotpsign', 'Digital seal of file <strong>{filename}</strong>', {filename: filename})" />
+					<p v-html="$t('openotp_sign', 'Digital seal of file <strong>{filename}</strong>', {filename: filename})" />
 					<p v-if="error" class="error">
 						{{ errorMessage }}
 					</p>
 					<br>
 					<div v-if="!requesting && !success">
 						<button type="button" @click="seal">
-							{{ $t('openotpsign', 'Seal') }}
+							{{ $t('openotp_sign', 'Seal') }}
 						</button>
 					</div>
 					<div v-if="requesting">
@@ -50,7 +50,7 @@
 					</div>
 					<div v-if="success">
 						<button type="button" class="primary" @click="closeModal">
-							{{ $t('openotpsign', 'Close') }}
+							{{ $t('openotp_sign', 'Close') }}
 						</button>
 					</div>
 				</div>
@@ -82,7 +82,7 @@ export default {
 		}
 	},
 	mounted() {
-		this.mobileSigningImg = generateFilePath('openotpsign', '', 'img/') + 'mobile-signing.png'
+		this.mobileSigningImg = generateFilePath('openotp_sign', '', 'img/') + 'mobile-signing.png'
 		this.loadingImg = generateFilePath('core', '', 'img/') + 'loading.gif'
 
 		EventBus.$on('ootp-seal-click', payload => {
@@ -98,7 +98,7 @@ export default {
 			this.error = false
 			this.errorMessage = ''
 
-			const baseUrl = generateUrl('/apps/openotpsign')
+			const baseUrl = generateUrl('/apps/openotp_sign')
 
 			const CancelToken = axios.CancelToken
 			this.source = CancelToken.source()
@@ -129,7 +129,7 @@ export default {
 		seal() {
 			this.error = false
 			this.requesting = true
-			const baseUrl = generateUrl('/apps/openotpsign')
+			const baseUrl = generateUrl('/apps/openotp_sign')
 
 			const CancelToken = axios.CancelToken
 			this.source = CancelToken.source()

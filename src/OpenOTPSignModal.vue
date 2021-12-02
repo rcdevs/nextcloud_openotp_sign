@@ -25,17 +25,17 @@
 		</button>
 		<Modal v-if="modal" size="large" @close="closeModal">
 			<div class="modal__content">
-				<h1>{{ $t('openotpsign', 'OpenOTP Sign') }}</h1>
+				<h1>{{ $t('openotp_sign', 'OpenOTP Sign') }}</h1>
 				<p v-if="!settingsOk"
 					id="error_settings"
 					class="alert alert-danger"
-					v-html="$t('openotpsign', 'You have to enter the <strong>OpenOTP server URL</strong> in the <strong>OpenOTP Sign</strong> settings prior to sign any document.')" />
+					v-html="$t('openotp_sign', 'You have to enter the <strong>OpenOTP server URL</strong> in the <strong>OpenOTP Sign</strong> settings prior to sign any document.')" />
 				<div v-if="settingsOk">
 					<img v-if="!success" :src="mobileSigningImg" style="max-height: 200px;">
 					<p v-else id="green-tick">
 						&#10003;
 					</p>
-					<p v-html="$t('openotpsign', 'Digital signature of file <strong>{filename}</strong>', {filename: filename})" />
+					<p v-html="$t('openotp_sign', 'Digital signature of file <strong>{filename}</strong>', {filename: filename})" />
 					<p v-if="error" class="error">
 						{{ errorMessage }}
 					</p>
@@ -46,7 +46,7 @@
 							value="self"
 							name="recipient_radio"
 							type="radio">
-							{{ $t('openotpsign', 'Self-signature') }}
+							{{ $t('openotp_sign', 'Self-signature') }}
 						</CheckboxRadioSwitch>
 						<div class="flex-container">
 							<CheckboxRadioSwitch
@@ -54,7 +54,7 @@
 								value="nextcloud"
 								name="recipient_radio"
 								type="radio">
-								{{ $t('openotpsign', 'Signature by a Nextcloud user:') }}
+								{{ $t('openotp_sign', 'Signature by a Nextcloud user:') }}
 							</CheckboxRadioSwitch>
 							<Multiselect
 								v-model="localUser"
@@ -81,7 +81,7 @@
 								value="external"
 								name="recipient_radio"
 								type="radio">
-								{{ $t('openotpsign', 'Signature by a YumiSign user:') }}
+								{{ $t('openotp_sign', 'Signature by a YumiSign user:') }}
 							</CheckboxRadioSwitch>
 							<input
 								v-model="externalUserEmail"
@@ -90,10 +90,10 @@
 								@input="checkExternalRadio">
 						</div>
 						<button type="button" @click="advancedSignature">
-							{{ $t('openotpsign', 'Advanced signature') }}
+							{{ $t('openotp_sign', 'Advanced signature') }}
 						</button>
 						<button type="button" @click="qualifiedSignature">
-							{{ $t('openotpsign', 'Qualified signature') }}
+							{{ $t('openotp_sign', 'Qualified signature') }}
 						</button>
 					</div>
 					<div v-if="requesting">
@@ -101,7 +101,7 @@
 					</div>
 					<div v-if="success">
 						<button type="button" class="primary" @click="closeModal">
-							{{ $t('openotpsign', 'Close') }}
+							{{ $t('openotp_sign', 'Close') }}
 						</button>
 					</div>
 				</div>
@@ -143,7 +143,7 @@ export default {
 		}
 	},
 	mounted() {
-		this.mobileSigningImg = generateFilePath('openotpsign', '', 'img/') + 'mobile-signing.png'
+		this.mobileSigningImg = generateFilePath('openotp_sign', '', 'img/') + 'mobile-signing.png'
 		this.loadingImg = generateFilePath('core', '', 'img/') + 'loading.gif'
 
 		EventBus.$on('ootp-sign-click', payload => {
@@ -159,7 +159,7 @@ export default {
 			this.error = false
 			this.errorMessage = ''
 
-			const baseUrl = generateUrl('/apps/openotpsign')
+			const baseUrl = generateUrl('/apps/openotp_sign')
 
 			const CancelToken = axios.CancelToken
 			this.source = CancelToken.source()
@@ -180,7 +180,7 @@ export default {
 		},
 		localUserSearchChanged(searchQuery, id) {
 			if (searchQuery.length >= 3) {
-				const baseUrl = generateUrl('/apps/openotpsign')
+				const baseUrl = generateUrl('/apps/openotp_sign')
 				const CancelToken = axios.CancelToken
 				this.source = CancelToken.source()
 				axios.get(baseUrl + '/get_local_users?searchQuery=' + searchQuery, {
@@ -235,7 +235,7 @@ export default {
 		syncAdvancedSignature() {
 			this.error = false
 			this.requesting = true
-			const baseUrl = generateUrl('/apps/openotpsign')
+			const baseUrl = generateUrl('/apps/openotp_sign')
 
 			const CancelToken = axios.CancelToken
 			this.source = CancelToken.source()
@@ -266,7 +266,7 @@ export default {
 
 			this.error = false
 			this.requesting = true
-			const baseUrl = generateUrl('/apps/openotpsign')
+			const baseUrl = generateUrl('/apps/openotp_sign')
 
 			const CancelToken = axios.CancelToken
 			this.source = CancelToken.source()
@@ -299,7 +299,7 @@ export default {
 
 			this.error = false
 			this.requesting = true
-			const baseUrl = generateUrl('/apps/openotpsign')
+			const baseUrl = generateUrl('/apps/openotp_sign')
 
 			const CancelToken = axios.CancelToken
 			this.source = CancelToken.source()
@@ -336,7 +336,7 @@ export default {
 		syncQualifiedSignature() {
 			this.error = false
 			this.requesting = true
-			const baseUrl = generateUrl('/apps/openotpsign')
+			const baseUrl = generateUrl('/apps/openotp_sign')
 
 			const CancelToken = axios.CancelToken
 			this.source = CancelToken.source()
@@ -367,7 +367,7 @@ export default {
 
 			this.error = false
 			this.requesting = true
-			const baseUrl = generateUrl('/apps/openotpsign')
+			const baseUrl = generateUrl('/apps/openotp_sign')
 
 			const CancelToken = axios.CancelToken
 			this.source = CancelToken.source()
@@ -400,7 +400,7 @@ export default {
 
 			this.error = false
 			this.requesting = true
-			const baseUrl = generateUrl('/apps/openotpsign')
+			const baseUrl = generateUrl('/apps/openotp_sign')
 
 			const CancelToken = axios.CancelToken
 			this.source = CancelToken.source()

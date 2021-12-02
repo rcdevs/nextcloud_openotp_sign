@@ -21,12 +21,12 @@
  */
 
 $appId = OCA\OpenOTPSign\AppInfo\Application::APP_ID;
-OCP\Util::addscript($appId, 'openotpsign-adminSettings');
+OCP\Util::addscript($appId, 'openotp_sign-adminSettings');
 /** @var array $_ */
 /** @var OCP\IL10N $l */
 ?>
 <div
-  id="openotpsign-admin-root"
+  id="openotp_sign-admin-root"
   data-server-urls="<?php echo htmlspecialchars($_['server_urls']) ?>"
   data-ignore-ssl-errors="<?php echo $_['ignore_ssl_errors'] ?>"
   data-client-id="<?php echo $_['client_id'] ?>"

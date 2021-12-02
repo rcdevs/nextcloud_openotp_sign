@@ -41,19 +41,19 @@ class SettingsController extends Controller {
 	}
 
 	public function saveSettings() {
-		$this->config->setAppValue('openotpsign', 'server_urls', json_encode($this->request->getParam('server_urls')));
-		$this->config->setAppValue('openotpsign', 'ignore_ssl_errors', $this->request->getParam('ignore_ssl_errors'));
-		$this->config->setAppValue('openotpsign', 'client_id', $this->request->getParam('client_id'));
-		$this->config->setAppValue('openotpsign', 'default_domain', $this->request->getParam('default_domain'));
-		$this->config->setAppValue('openotpsign', 'user_settings', $this->request->getParam('user_settings'));
-		$this->config->setAppValue('openotpsign', 'use_proxy', $this->request->getParam('use_proxy'));
-		$this->config->setAppValue('openotpsign', 'proxy_host', $this->request->getParam('proxy_host'));
-		$this->config->setAppValue('openotpsign', 'proxy_port', $this->request->getParam('proxy_port'));
-		$this->config->setAppValue('openotpsign', 'proxy_username', $this->request->getParam('proxy_username'));
-		$this->config->setAppValue('openotpsign', 'proxy_password', $this->request->getParam('proxy_password'));
-		$this->config->setAppValue('openotpsign', 'signed_file', $this->request->getParam('signed_file'));
-		$this->config->setAppValue('openotpsign', 'sync_timeout', $this->request->getParam('sync_timeout'));
-		$this->config->setAppValue('openotpsign', 'async_timeout', $this->request->getParam('async_timeout'));
+		$this->config->setAppValue('openotp_sign', 'server_urls', json_encode($this->request->getParam('server_urls')));
+		$this->config->setAppValue('openotp_sign', 'ignore_ssl_errors', $this->request->getParam('ignore_ssl_errors'));
+		$this->config->setAppValue('openotp_sign', 'client_id', $this->request->getParam('client_id'));
+		$this->config->setAppValue('openotp_sign', 'default_domain', $this->request->getParam('default_domain'));
+		$this->config->setAppValue('openotp_sign', 'user_settings', $this->request->getParam('user_settings'));
+		$this->config->setAppValue('openotp_sign', 'use_proxy', $this->request->getParam('use_proxy'));
+		$this->config->setAppValue('openotp_sign', 'proxy_host', $this->request->getParam('proxy_host'));
+		$this->config->setAppValue('openotp_sign', 'proxy_port', $this->request->getParam('proxy_port'));
+		$this->config->setAppValue('openotp_sign', 'proxy_username', $this->request->getParam('proxy_username'));
+		$this->config->setAppValue('openotp_sign', 'proxy_password', $this->request->getParam('proxy_password'));
+		$this->config->setAppValue('openotp_sign', 'signed_file', $this->request->getParam('signed_file'));
+		$this->config->setAppValue('openotp_sign', 'sync_timeout', $this->request->getParam('sync_timeout'));
+		$this->config->setAppValue('openotp_sign', 'async_timeout', $this->request->getParam('async_timeout'));
 
 		return new JSONResponse([
 			'code' => 1,
@@ -73,7 +73,7 @@ class SettingsController extends Controller {
 	 * @NoAdminRequired
 	 */
 	public function checkSettings() {
-		$serverUrls = json_decode($this->config->getAppValue('openotpsign', 'server_urls', '[]'));
+		$serverUrls = json_decode($this->config->getAppValue('openotp_sign', 'server_urls', '[]'));
 		$empty = true;
 
 		foreach ($serverUrls as &$serverUrl) {

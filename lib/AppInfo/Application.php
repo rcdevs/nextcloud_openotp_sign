@@ -34,7 +34,7 @@ use OCP\Util;
 
 class Application extends App implements IBootstrap {
 
-    public const APP_ID = 'openotpsign';
+    public const APP_ID = 'openotp_sign';
 
     public function __construct(array $urlParams = []) {
         parent::__construct(self::APP_ID, $urlParams);
@@ -42,7 +42,7 @@ class Application extends App implements IBootstrap {
         $container = $this->getContainer();
         $eventDispatcher = $container->get(IEventDispatcher::class);
         $eventDispatcher->addListener(LoadAdditionalScriptsEvent::class, function() {
-            Util::addScript(self::APP_ID, 'openotpsign-main');
+            Util::addScript(self::APP_ID, 'openotp_sign-main');
             Util::addStyle(self::APP_ID, 'style');
         });
     }

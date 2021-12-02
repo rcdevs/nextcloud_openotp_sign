@@ -19,8 +19,8 @@
         /** @var ISchemaWrapper $schema */
         $schema = $schemaClosure();
 
-        if (!$schema->hasTable('openotpsign_sessions')) {
-            $table = $schema->createTable('openotpsign_sessions');
+        if (!$schema->hasTable('openotp_sign_sessions')) {
+            $table = $schema->createTable('openotp_sign_sessions');
             $table->addColumn('id', 'bigint', [
                 'autoincrement' => true,
                 'unsigned' => true,
@@ -60,7 +60,7 @@
             ]);
 
             $table->setPrimaryKey(['id']);
-            $table->addIndex(['uid'], 'openotpsign_uid_index');
+            $table->addIndex(['uid'], 'openotp_sign_uid_index');
         }
         return $schema;
     }

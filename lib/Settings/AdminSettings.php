@@ -42,20 +42,20 @@ class AdminSettings implements ISettings {
      * @return TemplateResponse
      */
     public function getForm() {
-        return new TemplateResponse('openotpsign', 'settings/admin', [
-            'server_urls' => $this->config->getAppValue('openotpsign', 'server_urls', '[]'),
-            'ignore_ssl_errors' => $this->config->getAppValue('openotpsign', 'ignore_ssl_errors'),
-            'client_id' => $this->config->getAppValue('openotpsign', 'client_id'),
-            'default_domain' => $this->config->getAppValue('openotpsign', 'default_domain'),
-            'user_settings' => $this->config->getAppValue('openotpsign', 'user_settings'),
-            'use_proxy' => $this->config->getAppValue('openotpsign', 'use_proxy'),
-            'proxy_host' => $this->config->getAppValue('openotpsign', 'proxy_host'),
-            'proxy_port' => $this->config->getAppValue('openotpsign', 'proxy_port'),
-            'proxy_username' => $this->config->getAppValue('openotpsign', 'proxy_username'),
-            'proxy_password' => $this->config->getAppValue('openotpsign', 'proxy_password'),
-            'signed_file' => $this->config->getAppValue('openotpsign', 'signed_file', 'copy'),
-            'sync_timeout' => $this->config->getAppValue('openotpsign', 'sync_timeout', 2),
-            'async_timeout' => $this->config->getAppValue('openotpsign', 'async_timeout', 1),
+        return new TemplateResponse('openotp_sign', 'settings/admin', [
+            'server_urls' => $this->config->getAppValue('openotp_sign', 'server_urls', '[]'),
+            'ignore_ssl_errors' => $this->config->getAppValue('openotp_sign', 'ignore_ssl_errors'),
+            'client_id' => $this->config->getAppValue('openotp_sign', 'client_id'),
+            'default_domain' => $this->config->getAppValue('openotp_sign', 'default_domain'),
+            'user_settings' => $this->config->getAppValue('openotp_sign', 'user_settings'),
+            'use_proxy' => $this->config->getAppValue('openotp_sign', 'use_proxy'),
+            'proxy_host' => $this->config->getAppValue('openotp_sign', 'proxy_host'),
+            'proxy_port' => $this->config->getAppValue('openotp_sign', 'proxy_port'),
+            'proxy_username' => $this->config->getAppValue('openotp_sign', 'proxy_username'),
+            'proxy_password' => $this->config->getAppValue('openotp_sign', 'proxy_password'),
+            'signed_file' => $this->config->getAppValue('openotp_sign', 'signed_file', 'copy'),
+            'sync_timeout' => $this->config->getAppValue('openotp_sign', 'sync_timeout', 2),
+            'async_timeout' => $this->config->getAppValue('openotp_sign', 'async_timeout', 1),
         ], 'blank');
     }
 
@@ -63,7 +63,7 @@ class AdminSettings implements ISettings {
      * @return string the section ID, e.g. 'sharing'
      */
     public function getSection() {
-        return 'openotpsign';
+        return 'openotp_sign';
     }
 
     /**

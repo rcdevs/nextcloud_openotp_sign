@@ -40,7 +40,7 @@ OCA.Files.fileActions.registerAction({
 	actionHandler: (filename, context) => {
 		EventBus.$emit('ootp-sign-click', { filename })
 	},
-	displayName: t('openotpsign', 'Sign with OpenOTP'),
+	displayName: t('openotp_sign', 'Sign with OpenOTP'),
 	order: -100,
 })
 
@@ -52,6 +52,6 @@ OCA.Files.fileActions.registerAction({
 	actionHandler: (filename, context) => {
 		EventBus.$emit('ootp-seal-click', { filename })
 	},
-	displayName: t('openotpsign', 'Seal with OpenOTP'),
+	displayName: t('openotp_sign', 'Seal with OpenOTP'),
 	order: -99,
 })

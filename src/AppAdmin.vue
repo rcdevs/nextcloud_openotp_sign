@@ -20,14 +20,14 @@
 	*
 	-->
 	<div>
-		<div id="openotpsign" class="section">
-			<h2>{{ $t('openotpsign', 'OpenOTP Sign Settings') }}</h2>
+		<div id="openotp_sign" class="section">
+			<h2>{{ $t('openotp_sign', 'OpenOTP Sign Settings') }}</h2>
 			<p>
-				{{ $t('openotpsign', 'Enter your OpenOTP server settings in the fields below.') }}
+				{{ $t('openotp_sign', 'Enter your OpenOTP server settings in the fields below.') }}
 			</p>
 			<div v-for="(item, index) in statusesRequesting" :key="index">
 				<p>
-					<label :for="'ootp_server_url' + index">{{ $t('openotpsign', 'OpenOTP server URL #' + (parseInt(index) + 1)) }}</label>
+					<label :for="'ootp_server_url' + index">{{ $t('openotp_sign', 'OpenOTP server URL #' + (parseInt(index) + 1)) }}</label>
 					<input :id="'ootp_server_url' + index"
 						v-model="serverUrls[index]"
 						type="text"
@@ -36,7 +36,7 @@
 						:placeholder="'https://myserver' + (parseInt(index) + 1) + ':8443/openotp/'"
 						@input="enableSslSetting">
 					<button @click="testConnection(index, serverUrls[index])">
-						{{ $t('openotpsign', 'Test') }}
+						{{ $t('openotp_sign', 'Test') }}
 					</button>
 					<transition name="fade">
 						<span v-if="!statusesRequesting[index]" class="message_status" :class="messageStatusClasses[index]" />
@@ -49,11 +49,11 @@
 			</div>
 			<p>
 				<CheckboxRadioSwitch :checked.sync="ignoreSslErrors" :disabled="!sslSettingEnabled">
-					{{ $t('openotpsign', 'Ignore SSL/TLS certificate errors') }}
+					{{ $t('openotp_sign', 'Ignore SSL/TLS certificate errors') }}
 				</CheckboxRadioSwitch>
 			</p>
 			<p>
-				<label for="ootp_client_id">{{ $t('openotpsign', 'OpenOTP client id') }}</label>
+				<label for="ootp_client_id">{{ $t('openotp_sign', 'OpenOTP client id') }}</label>
 				<input id="ootp_client_id"
 					v-model="clientId"
 					type="text"
@@ -62,7 +62,7 @@
 					placeholder="Nextcloud">
 			</p>
 			<p>
-				<label for="ootp_default_domain">{{ $t('openotpsign', 'OpenOTP Default Domain') }}</label>
+				<label for="ootp_default_domain">{{ $t('openotp_sign', 'OpenOTP Default Domain') }}</label>
 				<input id="ootp_default_domain"
 					v-model="defaultDomain"
 					type="text"
@@ -70,7 +70,7 @@
 					maxlength="64">
 			</p>
 			<p>
-				<label for="ootp_user_settings">{{ $t('openotpsign', 'OpenOTP User settings') }}</label>
+				<label for="ootp_user_settings">{{ $t('openotp_sign', 'OpenOTP User settings') }}</label>
 				<input id="ootp_user_settings"
 					v-model="userSettings"
 					type="text"
@@ -78,14 +78,14 @@
 			</p>
 		</div>
 		<div id="proxy" class="section">
-			<h2>{{ $t('openotpsign', 'Proxy Settings') }}</h2>
+			<h2>{{ $t('openotp_sign', 'Proxy Settings') }}</h2>
 			<p>
 				<CheckboxRadioSwitch :checked.sync="useProxy">
-					{{ $t('openotpsign', 'Use a proxy') }}
+					{{ $t('openotp_sign', 'Use a proxy') }}
 				</CheckboxRadioSwitch>
 			</p>
 			<p>
-				<label for="proxy_host">{{ $t('openotpsign', 'Proxy Host') }}</label>
+				<label for="proxy_host">{{ $t('openotp_sign', 'Proxy Host') }}</label>
 				<input id="proxy_host"
 					v-model="proxyHost"
 					type="text"
@@ -94,7 +94,7 @@
 					:disabled="!useProxy">
 			</p>
 			<p>
-				<label for="proxy_port">{{ $t('openotpsign', 'Proxy Port') }}</label>
+				<label for="proxy_port">{{ $t('openotp_sign', 'Proxy Port') }}</label>
 				<input id="proxy_port"
 					v-model="proxyPort"
 					type="number"
@@ -104,7 +104,7 @@
 					:disabled="!useProxy">
 			</p>
 			<p>
-				<label for="proxy_username">{{ $t('openotpsign', 'Proxy Username') }}</label>
+				<label for="proxy_username">{{ $t('openotp_sign', 'Proxy Username') }}</label>
 				<input id="proxy_username"
 					v-model="proxyUsername"
 					type="text"
@@ -113,7 +113,7 @@
 					:disabled="!useProxy">
 			</p>
 			<p>
-				<label for="proxy_password">{{ $t('openotpsign', 'Proxy Password') }}</label>
+				<label for="proxy_password">{{ $t('openotp_sign', 'Proxy Password') }}</label>
 				<input id="proxy_password"
 					v-model="proxyPassword"
 					type="text"
@@ -123,26 +123,26 @@
 			</p>
 		</div>
 		<div id="signed_file" class="section">
-			<h2>{{ $t('openotpsign', 'Signed / sealed PDF File') }}</h2>
+			<h2>{{ $t('openotp_sign', 'Signed / sealed PDF File') }}</h2>
 			<CheckboxRadioSwitch
 				:checked.sync="signedFile"
 				value="copy"
 				name="signed_file_radio"
 				type="radio">
-				{{ $t('openotpsign', 'Make a signed / sealed copy of the original PDF file') }}
+				{{ $t('openotp_sign', 'Make a signed / sealed copy of the original PDF file') }}
 			</CheckboxRadioSwitch>
 			<CheckboxRadioSwitch
 				:checked.sync="signedFile"
 				value="overwrite"
 				name="signed_file_radio"
 				type="radio">
-				{{ $t('openotpsign', 'Overwrite the original PDF file with its signed / sealed copy') }}
+				{{ $t('openotp_sign', 'Overwrite the original PDF file with its signed / sealed copy') }}
 			</CheckboxRadioSwitch>
 		</div>
 		<div id="timeout" class="section">
-			<h2>{{ $t('openotpsign', 'Signature requests time out') }}</h2>
+			<h2>{{ $t('openotp_sign', 'Signature requests time out') }}</h2>
 			<p>
-				<label for="sync_timeout">{{ $t('openotpsign', 'Self-signature (1 - 5 minutes)') }}</label>
+				<label for="sync_timeout">{{ $t('openotp_sign', 'Self-signature (1 - 5 minutes)') }}</label>
 				<input id="sync_timeout"
 					v-model="syncTimeout"
 					type="number"
@@ -151,7 +151,7 @@
 					max="5">
 			</p>
 			<p>
-				<label for="async_timeout">{{ $t('openotpsign', 'Nextcloud / YumiSign user signature (1 - 72 hours)') }}</label>
+				<label for="async_timeout">{{ $t('openotp_sign', 'Nextcloud / YumiSign user signature (1 - 72 hours)') }}</label>
 				<input id="async_timeout"
 					v-model="asyncTimeout"
 					type="number"
@@ -163,15 +163,15 @@
 		<div id="save" class="section">
 			<p>
 				<button @click="saveSettings">
-					{{ $t('openotpsign', 'Save') }}
+					{{ $t('openotp_sign', 'Save') }}
 				</button>
 			</p>
 			<transition name="fade">
 				<p v-if="success" id="save_success">
-					{{ $t('openotpsign', 'Your settings have been saved succesfully') }}
+					{{ $t('openotp_sign', 'Your settings have been saved succesfully') }}
 				</p>
 				<p v-if="failure" id="save_failure">
-					{{ $t('openotpsign', 'There was an error saving settings') }}
+					{{ $t('openotp_sign', 'There was an error saving settings') }}
 				</p>
 			</transition>
 		</div>
@@ -242,7 +242,7 @@ export default {
 		saveSettings() {
 			this.success = false
 			this.failure = false
-			const baseUrl = generateUrl('/apps/openotpsign')
+			const baseUrl = generateUrl('/apps/openotp_sign')
 
 			axios.post(baseUrl + '/settings', {
 				server_urls: this.serverUrls,
@@ -282,7 +282,7 @@ export default {
 		testConnection(serverNum, serverUrl) {
 			this.statusesRequesting[serverNum] = true
 			this.serverMessages[serverNum] = ''
-			const baseUrl = generateUrl('/apps/openotpsign')
+			const baseUrl = generateUrl('/apps/openotp_sign')
 
 			axios.post(baseUrl + '/check_server_url', {
 				server_url: serverUrl,

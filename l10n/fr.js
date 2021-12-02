@@ -1,5 +1,5 @@
 OC.L10N.register(
-    "openotpsign",
+    "openotp_sign",
     {
     "OpenOTP Sign Settings" : "Paramètres de OpenOTP Sign",
     "Enter your OpenOTP server settings in the fields below." : "Entrez les paramètres de votre serveur OpenOTP dans les champs ci-dessous.",
