@@ -15,8 +15,8 @@ secure and compliant with the eIDAS regulation.
 * Qualified Electronic Signature with our YumiSign Card Reader for IOS & Android
 * Sealing by YumiSign HSMs
 ]]></description>
-    <screenshot>https://raw.githubusercontent.com/rcdevs/nextcloud_openotpsign/master/img/screenshots/screenshot-modal.png</screenshot>
-    <screenshot>https://raw.githubusercontent.com/rcdevs/nextcloud_openotpsign/master/img/screenshots/screenshot-menu.png</screenshot>
+    <screenshot>https://raw.githubusercontent.com/rcdevs/nextcloud_openotp_sign/master/img/screenshots/screenshot-modal.png</screenshot>
+    <screenshot>https://raw.githubusercontent.com/rcdevs/nextcloud_openotp_sign/master/img/screenshots/screenshot-menu.png</screenshot>
     <version>1.0.0</version>
     <licence>agpl</licence>
     <author mail="info@rcdevs.com" >RCDevs</author>
@@ -24,7 +24,7 @@ secure and compliant with the eIDAS regulation.
     <category>files</category>
     <category>office</category>
     <category>tools</category>
-    <bugs>https://github.com/rcdevs/nextcloud_openotpsign/issues</bugs>
+    <bugs>https://github.com/rcdevs/nextcloud_openotp_sign/issues</bugs>
     <dependencies>
         <php min-version="7.3"/>
         <nextcloud min-version="22" max-version="22"/>
