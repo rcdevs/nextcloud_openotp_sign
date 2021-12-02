@@ -173,6 +173,7 @@ export default {
 	h1 {
 		font-size: 2em;
 		font-weight: bold;
+		margin-bottom: 10px;
 	}
 
 	#green-tick {
