@@ -25,7 +25,7 @@
 			<p>
 				{{ $t('openotp_sign', 'Enter your OpenOTP server settings in the fields below.') }}
 			</p>
-			<div v-for="(item, index) in statusesRequesting" :key="index">
+			<div v-for="(statusRequesting, index) in statusesRequesting" :key="index">
 				<p>
 					<label :for="'ootp_server_url' + index">{{ $t('openotp_sign', 'OpenOTP server URL #' + (parseInt(index) + 1)) }}</label>
 					<input :id="'ootp_server_url' + index"
@@ -39,9 +39,9 @@
 						{{ $t('openotp_sign', 'Test') }}
 					</button>
 					<transition name="fade">
-						<span v-if="!statusesRequesting[index]" class="message_status" :class="[serverMessages[index].length ? 'success' : 'error']" />
+						<span v-if="!statusRequesting" class="message_status" :class="[serverMessages[index].length ? 'success' : 'error']" />
 					</transition>
-					<img v-if="statusesRequesting[index]" class="status_loader" :src="loadingImg">
+					<img v-if="statusRequesting" class="status_loader" :src="loadingImg">
 				</p>
 				<transition name="fade">
 					<pre v-if="serverMessages[index].length" class="server_message">{{ serverMessages[index] }}</pre>
