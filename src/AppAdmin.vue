@@ -39,7 +39,7 @@
 						{{ $t('openotp_sign', 'Test') }}
 					</button>
 					<transition name="fade">
-						<span v-if="!statusesRequesting[index]" class="message_status" :class="messageStatusClasses[index]" />
+						<span v-if="!statusesRequesting[index]" class="message_status" :class="[serverMessages[index].length ? 'success' : 'error']" />
 					</transition>
 					<img v-if="statusesRequesting[index]" class="status_loader" :src="loadingImg">
 				</p>
@@ -184,12 +184,10 @@ import CheckboxRadioSwitch from '@nextcloud/vue/dist/Components/CheckboxRadioSwi
 
 const NB_SERVERS = 2
 const statusesRequesting = {}
-const messageStatusClasses = {}
 const serverMessages = {}
 
 for (let i = 0; i < NB_SERVERS; ++i) {
 	statusesRequesting[i] = false
-	messageStatusClasses[i] = 'error'
 	serverMessages[i] = ''
 }
 
@@ -204,7 +202,6 @@ export default {
 		return {
 			serverUrls,
 			statusesRequesting,
-			messageStatusClasses,
 			serverMessages,
 			ignoreSslErrors: !!this.$parent.ignoreSslErrors,
 			sslSettingEnabled: (function(serverUrls) {
@@ -296,16 +293,13 @@ export default {
 				.then(response => {
 					this.statusesRequesting[serverNum] = false
 					if (response.data.status === true) {
-						this.messageStatusClasses[serverNum] = 'success'
 						this.serverMessages[serverNum] = response.data.message
 					} else {
-						this.messageStatusClasses[serverNum] = 'error'
 						this.serverMessages[serverNum] = ''
 					}
 				})
 				.catch(error => {
 					this.statusesRequesting[serverNum] = false
-					this.messageStatusClasses[serverNum] = 'error'
 					this.serverMessages[serverNum] = ''
 					// eslint-disable-next-line
 					console.log(error)
