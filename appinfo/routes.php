@@ -21,5 +21,8 @@ return [
 	   ['name' => 'settings#saveSettings', 'url' => '/settings', 'verb' => 'POST'],
 	   ['name' => 'settings#checkServerUrl', 'url' => '/check_server_url', 'verb' => 'POST'],
 	   ['name' => 'settings#checkSettings', 'url' => '/check_settings', 'verb' => 'GET'],
+	   ['name' => 'requests#getPendingRequests', 'url' => '/pending_requests', 'verb' => 'GET'],
+	   ['name' => 'requests#getCompletedRequests', 'url' => '/completed_requests', 'verb' => 'GET'],
+	   ['name' => 'requests#getFailedRequests', 'url' => '/failed_requests', 'verb' => 'GET'],
     ]
 ];

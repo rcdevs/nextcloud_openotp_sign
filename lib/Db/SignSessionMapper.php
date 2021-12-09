@@ -10,12 +10,37 @@ class SignSessionMapper extends QBMapper {
         parent::__construct($db, 'openotp_sign_sessions', SignSession::class);
     }
 
-    public function findAllPending() {
+    public function findPendingsByUid(string $uid) {
         $qb = $this->db->getQueryBuilder();
 
         $qb->select('*')
            ->from($this->getTableName())
-           ->where('is_pending=true');
+           ->where('is_pending=true')
+           ->andWhere($qb->expr()->eq('uid', $qb->createNamedParameter($uid)));
+
+        return $this->findEntities($qb);
+    }
+
+    public function findCompletedByUid(string $uid) {
+        $qb = $this->db->getQueryBuilder();
+
+        $qb->select('*')
+           ->from($this->getTableName())
+           ->where('is_pending=false')
+           ->andWhere('is_error=false')
+           ->andWhere($qb->expr()->eq('uid', $qb->createNamedParameter($uid)));
+
+        return $this->findEntities($qb);
+    }
+
+    public function findFailedByUid(string $uid) {
+        $qb = $this->db->getQueryBuilder();
+
+        $qb->select('*')
+           ->from($this->getTableName())
+           ->where('is_pending=false')
+           ->andWhere('is_error=true')
+           ->andWhere($qb->expr()->eq('uid', $qb->createNamedParameter($uid)));
 
         return $this->findEntities($qb);
     }
