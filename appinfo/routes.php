@@ -9,6 +9,7 @@
  */
 return [
     'routes' => [
+	   ['name' => 'sign#index', 'url' => '/', 'verb' => 'GET'],
 	   ['name' => 'sign#advancedSign', 'url' => '/advanced_sign', 'verb' => 'POST'],
 	   ['name' => 'sign#asyncLocalAdvancedSign', 'url' => '/async_local_advanced_sign', 'verb' => 'POST'],
 	   ['name' => 'sign#asyncExternalAdvancedSign', 'url' => '/async_external_advanced_sign', 'verb' => 'POST'],

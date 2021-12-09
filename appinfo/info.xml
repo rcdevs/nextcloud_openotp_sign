@@ -30,6 +30,12 @@ secure and compliant with the eIDAS regulation.
         <nextcloud min-version="22" max-version="22"/>
         <lib>soap</lib>
     </dependencies>
+    <navigations>
+        <navigation>
+            <name>OpenOTP Sign</name>
+            <route>openotp_sign.sign.index</route>
+        </navigation>
+    </navigations>
     <settings>
         <admin>OCA\OpenOTPSign\Settings\AdminSettings</admin>
         <admin-section>OCA\OpenOTPSign\Settings\AdminSection</admin-section>

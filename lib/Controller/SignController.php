@@ -25,7 +25,9 @@ namespace OCA\OpenOTPSign\Controller;
 use OCP\IRequest;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\Http\TemplateResponse;
 use Psr\Log\LoggerInterface;
+use OCP\Util;
 
 use OCA\OpenOTPSign\Service\SignService;
 
@@ -154,5 +156,20 @@ class SignController extends Controller {
 		}
 
 		return new JSONResponse($contacts);
+	}
+
+	/**
+	 * CAUTION: the @Stuff turns off security checks; for this page no admin is
+	 *          required and no CSRF check. If you don't know what CSRF is, read
+	 *          it up in the docs or you might create a security hole. This is
+	 *          basically the only required method to add this exemption, don't
+	 *          add it to any other method if you don't exactly know what it does
+	 *
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 */
+	public function index() {
+		Util::addScript('openotp_sign', 'openotp_sign-index');
+		return new TemplateResponse('openotp_sign', 'index');
 	}
 }
