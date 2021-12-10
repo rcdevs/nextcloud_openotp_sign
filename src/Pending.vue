@@ -14,16 +14,18 @@
 			<thead>
 				<tr>
 					<th>Date</th>
-					<th>Recipient</th>
 					<th>Type</th>
-					<th>File</th>
+					<th>Recipient</th>
+					<th style="width: 100%">
+						File
+					</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr v-for="(request, index) in requests" :key="index">
 					<td>{{ request.created }}</td>
-					<td>{{ request.recipient }}</td>
 					<td>{{ request.is_qualified ? 'qualified' : 'advanced' }}</td>
+					<td>{{ request.recipient }}</td>
 					<td>{{ request.path }}</td>
 				</tr>
 			</tbody>
