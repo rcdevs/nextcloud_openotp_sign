@@ -16,7 +16,8 @@ class SignSessionMapper extends QBMapper {
         $qb->select('*')
            ->from($this->getTableName())
            ->where('is_pending=true')
-           ->andWhere($qb->expr()->eq('uid', $qb->createNamedParameter($uid)));
+           ->andWhere($qb->expr()->eq('uid', $qb->createNamedParameter($uid)))
+           ->orderBy('created', 'desc');
 
         return $this->findEntities($qb);
     }
@@ -28,7 +29,8 @@ class SignSessionMapper extends QBMapper {
            ->from($this->getTableName())
            ->where('is_pending=false')
            ->andWhere('is_error=false')
-           ->andWhere($qb->expr()->eq('uid', $qb->createNamedParameter($uid)));
+           ->andWhere($qb->expr()->eq('uid', $qb->createNamedParameter($uid)))
+           ->orderBy('created', 'desc');
 
         return $this->findEntities($qb);
     }
@@ -40,7 +42,8 @@ class SignSessionMapper extends QBMapper {
            ->from($this->getTableName())
            ->where('is_pending=false')
            ->andWhere('is_error=true')
-           ->andWhere($qb->expr()->eq('uid', $qb->createNamedParameter($uid)));
+           ->andWhere($qb->expr()->eq('uid', $qb->createNamedParameter($uid)))
+           ->orderBy('created', 'desc');
 
         return $this->findEntities($qb);
     }
