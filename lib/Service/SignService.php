@@ -658,6 +658,8 @@ class SignService {
 			$opts['proxy_password'] = $this->proxyPassword;
 		}
 
+		ini_set('default_socket_timeout', 600);
+
 		$nbServers = count($this->serverUrls);
 		for ($i = 0; $i < $nbServers; ++$i) {
 			$opts['location'] = $this->serverUrls[$i];
