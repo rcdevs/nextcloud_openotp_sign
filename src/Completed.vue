@@ -14,8 +14,9 @@
 			<thead>
 				<tr>
 					<th>Date</th>
-					<th>Type</th>
+					<th>Mode</th>
 					<th>Recipient</th>
+					<th>Type</th>
 					<th style="width: 100%">
 						File
 					</th>
@@ -26,6 +27,7 @@
 					<td>{{ request.created }}</td>
 					<td>{{ request.is_qualified ? 'qualified' : 'advanced' }}</td>
 					<td>{{ request.recipient }}</td>
+					<td>{{ request.is_yumisign ? 'YumiSign' : 'Nextcloud' }}</td>
 					<td>{{ request.path }}</td>
 				</tr>
 			</tbody>

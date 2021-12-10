@@ -306,6 +306,7 @@ class SignService {
 			$signSession->setPath($path);
 			$signSession->setRecipient($email);
 			$signSession->setSession($resp['session']);
+			$signSession->setIsYumisign(true);
 			$this->mapper->insert($signSession);
 		}
 
@@ -558,6 +559,7 @@ class SignService {
 			$signSession->setIsQualified(true);
 			$signSession->setRecipient($email);
 			$signSession->setSession($resp['session']);
+			$signSession->setIsYumisign(true);
 			$this->mapper->insert($signSession);
 		}
 

@@ -14,8 +14,9 @@
 			<thead>
 				<tr>
 					<th>Date</th>
-					<th>Type</th>
+					<th>Mode</th>
 					<th>Recipient</th>
+					<th>Type</th>
 					<th>File</th>
 					<th style="width: 100%">
 						Error
@@ -27,6 +28,7 @@
 					<td>{{ request.created }}</td>
 					<td>{{ request.is_qualified ? 'qualified' : 'advanced' }}</td>
 					<td>{{ request.recipient }}</td>
+					<td>{{ request.is_yumisign ? 'YumiSign' : 'Nextcloud' }}</td>
 					<td>{{ request.path }}</td>
 					<td>{{ request.message }}</td>
 				</tr>
