@@ -36,7 +36,7 @@ class SignSession extends Entity implements JsonSerializable {
             'path' => $this->path,
             'is_qualified' => $this->isQualified,
             'recipient' => $this->recipient,
-            'created' => $this->screated,
+            'created' => $this->created->format('Y-m-d H:i:s'),
             'message'=> $this->message
         ];
     }
