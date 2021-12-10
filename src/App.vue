@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="app-container">
 		<div id="app-navigation">
 			<ul>
 				<li>
@@ -35,3 +35,8 @@
 		</div>
 	</div>
 </template>
+<style scoped>
+.app-container {
+	width: 100%;
+}
+</style>
