@@ -21,10 +21,10 @@
 			</thead>
 			<tbody>
 				<tr v-for="(request, index) in requests" :key="index">
-					<th>{{ request.created }}</th>
-					<th>{{ request.recipient }}</th>
-					<th>{{ request.is_qualified ? 'qualified' : 'advanced' }}</th>
-					<th>{{ request.path }}</th>
+					<td>{{ request.created }}</td>
+					<td>{{ request.recipient }}</td>
+					<td>{{ request.is_qualified ? 'qualified' : 'advanced' }}</td>
+					<td>{{ request.path }}</td>
 				</tr>
 			</tbody>
 		</table>
