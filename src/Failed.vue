@@ -61,8 +61,6 @@ export default {
 			.then(response => {
 				this.requesting = false
 				this.requests = response.data
-				// eslint-disable-next-line
-				console.log(this.requests)
 			})
 			.catch(error => {
 				this.requesting = false
