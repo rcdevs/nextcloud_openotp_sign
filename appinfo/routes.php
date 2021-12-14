@@ -18,6 +18,7 @@ return [
 	   ['name' => 'sign#asyncExternalQualifiedSign', 'url' => '/async_external_qualified_sign', 'verb' => 'POST'],
 	   ['name' => 'sign#seal', 'url' => '/seal', 'verb' => 'POST'],
 	   ['name' => 'sign#getLocalUsers', 'url' => '/get_local_users', 'verb' => 'GET'],
+	   ['name' => 'sign#cancelSignRequest', 'url' => '/cancel_sign_request', 'verb' => 'PUT'],
 	   ['name' => 'settings#saveSettings', 'url' => '/settings', 'verb' => 'POST'],
 	   ['name' => 'settings#checkServerUrl', 'url' => '/check_server_url', 'verb' => 'POST'],
 	   ['name' => 'settings#checkSettings', 'url' => '/check_settings', 'verb' => 'GET'],

@@ -11,6 +11,7 @@ use OCP\IConfig;
 
 use OCA\OpenOTPSign\Db\SignSession;
 use OCA\OpenOTPSign\Db\SignSessionMapper;
+use OCP\AppFramework\Db\DoesNotExistException;
 
 class SignService {
     use GetsFile;
@@ -636,6 +637,74 @@ class SignService {
 
         return $resp;
     }
+
+	public function cancelSignRequest($session, $userId) {
+		try {
+			$signSession = $this->mapper->findBySession($session);
+		} catch(DoesNotExistException $e) {
+			$resp['code'] = 0;
+			$resp['message'] = "Session not started or timedout";
+			return $resp;
+		}
+
+		if ($signSession->getUid() !== $userId) {
+			$resp['code'] = 403;
+			$resp['message'] = "Forbidden";
+			return $resp;
+		}
+
+		$opts = array('connection_timeout' => self::CNX_TIME_OUT);
+
+		if ($this->ignoreSslErrors) {
+			$context = stream_context_create([
+				'ssl' => [
+					// set some SSL/TLS specific options
+					'verify_peer' => false,
+					'verify_peer_name' => false,
+					'allow_self_signed' => true
+				]
+			]);
+
+			$opts['stream_context'] = $context;
+		}
+
+		if ($this->useProxy) {
+			$opts['proxy_host'] = $this->proxyHost;
+			$opts['proxy_port'] = $this->proxyPort;
+			$opts['proxy_login'] = $this->proxyUsername;
+			$opts['proxy_password'] = $this->proxyPassword;
+		}
+
+		ini_set('default_socket_timeout', 600);
+
+		$nbServers = count($this->serverUrls);
+		for ($i = 0; $i < $nbServers; ++$i) {
+			$opts['location'] = $this->serverUrls[$i];
+			$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
+
+			try {
+				if (!$signSession->getIsQualified()) {
+					$resp = $client->openotpCancelConfirm($session);
+				} else {
+					$resp = $client->openotpCancelSign($session);
+				}
+
+				if ($resp['code'] === 1) {
+					$signSession->setIsPending(false);
+					$signSession->setIsError(true);
+					$signSession->setMessage($resp['message']);
+					$this->mapper->update($signSession);
+				}
+
+				return $resp;
+			} catch (\Throwable $e) {
+				$resp['code'] = 0;
+				$resp['message'] = $e->getMessage();
+			}
+		}
+
+		return $resp;
+	}
 
     public function checkAsyncSignature() {
 		$opts = array('connection_timeout' => self::CNX_TIME_OUT);

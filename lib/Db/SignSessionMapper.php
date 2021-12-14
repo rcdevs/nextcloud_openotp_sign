@@ -57,4 +57,15 @@ class SignSessionMapper extends QBMapper {
 
         return $this->findEntities($qb);
     }
+
+    public function findBySession(string $session) {
+        $qb = $this->db->getQueryBuilder();
+
+        $qb->select('*')
+           ->from($this->getTableName())
+           ->where('is_pending=true')
+           ->andWhere($qb->expr()->eq('session', $qb->createNamedParameter($session)));
+
+        return $this->findEntity($qb);
+    }
 }

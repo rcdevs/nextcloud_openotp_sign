@@ -131,6 +131,18 @@ class SignController extends Controller {
 	/**
 	 * @NoAdminRequired
 	 */
+	public function cancelSignRequest() {
+		$resp = $this->signService->cancelSignRequest($this->request->getParam('session'), $this->userId);
+
+		return new JSONResponse([
+			'code' => $resp['code'],
+			'message' => $resp['message']
+		]);
+	}
+
+	/**
+	 * @NoAdminRequired
+	 */
 	public function getLocalUsers() {
 		$cm = \OC::$server->getContactsManager();
 
