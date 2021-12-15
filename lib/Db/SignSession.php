@@ -19,6 +19,7 @@ class SignSession extends Entity implements JsonSerializable {
     protected $isError;
     protected $message;
     protected $isYumisign;
+    protected $expirationDate;
 
     public function __construct() {
         $this->addType('id','integer');
@@ -27,6 +28,7 @@ class SignSession extends Entity implements JsonSerializable {
         $this->addType('isPending', 'boolean');
         $this->addType('isError', 'boolean');
         $this->addType('isYumisign', 'boolean');
+        $this->addType('expirationDate', 'datetime');
 
         $this->setIsQualified(false);
         $this->setCreated(new \DateTime());
@@ -43,6 +45,7 @@ class SignSession extends Entity implements JsonSerializable {
 
     public function jsonSerialize() {
         $this->created->setTimezone(self::$timeZone);
+        $this->expirationDate->setTimezone(self::$timeZone);
 
         return [
             'id' => $this->id,
@@ -52,7 +55,8 @@ class SignSession extends Entity implements JsonSerializable {
             'created' => $this->created->format('Y-m-d H:i:s'),
             'session' => $this->session,
             'message'=> $this->message,
-            'is_yumisign' => $this->isYumisign
+            'is_yumisign' => $this->isYumisign,
+            'expiration_date' => $this->expirationDate->format('Y-m-d H:i:s')
         ];
     }
 }

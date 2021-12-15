@@ -14,6 +14,7 @@
 			<thead>
 				<tr>
 					<th>Date</th>
+					<th>Expiration Date</th>
 					<th>Mode</th>
 					<th>Recipient</th>
 					<th>Type</th>
@@ -26,6 +27,7 @@
 			<tbody>
 				<tr v-for="(request, index) in requests" :key="index">
 					<td>{{ request.created }}</td>
+					<td>{{ request.expiration_date }}</td>
 					<td>{{ request.is_qualified ? 'qualified' : 'advanced' }}</td>
 					<td>{{ request.recipient }}</td>
 					<td>{{ request.is_yumisign ? 'YumiSign' : 'Nextcloud' }}</td>

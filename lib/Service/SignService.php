@@ -228,6 +228,10 @@ class SignService {
 			$signSession->setPath($path);
 			$signSession->setRecipient($username);
 			$signSession->setSession($resp['session']);
+
+			$expirationDate = new \DateTime();
+			$signSession->setExpirationDate($expirationDate->add(new \DateInterval('PT'.$this->asyncTimeout.'S')));
+
 			$this->mapper->insert($signSession);
 
 			// Generate and send QR Code
@@ -308,6 +312,10 @@ class SignService {
 			$signSession->setRecipient($email);
 			$signSession->setSession($resp['session']);
 			$signSession->setIsYumisign(true);
+
+			$expirationDate = new \DateTime();
+			$signSession->setExpirationDate($expirationDate->add(new \DateInterval('PT'.$this->asyncTimeout.'S')));
+
 			$this->mapper->insert($signSession);
 		}
 
@@ -479,6 +487,10 @@ class SignService {
 			$signSession->setIsQualified(true);
 			$signSession->setRecipient($username);
 			$signSession->setSession($resp['session']);
+
+			$expirationDate = new \DateTime();
+			$signSession->setExpirationDate($expirationDate->add(new \DateInterval('PT'.$this->asyncTimeout.'S')));
+
 			$this->mapper->insert($signSession);
 
 			// Generate and send QR Code
@@ -561,6 +573,10 @@ class SignService {
 			$signSession->setRecipient($email);
 			$signSession->setSession($resp['session']);
 			$signSession->setIsYumisign(true);
+
+			$expirationDate = new \DateTime();
+			$signSession->setExpirationDate($expirationDate->add(new \DateInterval('PT'.$this->asyncTimeout.'S')));
+
 			$this->mapper->insert($signSession);
 		}
 
