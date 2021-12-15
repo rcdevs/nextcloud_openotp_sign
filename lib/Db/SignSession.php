@@ -7,6 +7,8 @@ use OCP\AppFramework\Db\Entity;
 
 class SignSession extends Entity implements JsonSerializable {
 
+    private static $timeZone;
+
     protected $uid;
     protected $path;
     protected $isQualified;
@@ -33,7 +35,15 @@ class SignSession extends Entity implements JsonSerializable {
         $this->setIsYumisign(false);
     }
 
+    public static function __constructStatic() {
+        $dateinfo = trim(shell_exec("timedatectl | grep -i zone: 2>/dev/null"));
+        $dateinfoarray = explode(' ', $dateinfo);
+        self::$timeZone = new \DateTimeZone($dateinfoarray[2]);
+    }
+
     public function jsonSerialize() {
+        $this->created->setTimezone(self::$timeZone);
+
         return [
             'id' => $this->id,
             'path' => $this->path,
@@ -46,3 +56,5 @@ class SignSession extends Entity implements JsonSerializable {
         ];
     }
 }
+
+SignSession::__constructStatic();
