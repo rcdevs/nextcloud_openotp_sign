@@ -32,7 +32,7 @@ secure and compliant with the eIDAS regulation.
     </dependencies>
     <navigations>
         <navigation>
-            <name>OpenOTP Sign</name>
+            <name>Sign</name>
             <route>openotp_sign.sign.index</route>
         </navigation>
     </navigations>
