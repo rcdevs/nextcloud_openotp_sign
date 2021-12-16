@@ -88,7 +88,7 @@ class SignService {
 			$opts['proxy_password'] = $this->proxyPassword;
 		}
 
-		$data  = '<div style="color: black; background-color: white; border-radius: 10px; padding: 5px;">';
+		$data  = '<div style="color: white;">';
 		$data .= "<strong>Name: </strong>$fileName";
 		$data .= "<br><strong>Size: </strong>".$this->humanFileSize($fileSize);
 		$data .= "<br><strong>Modified: </strong>".date('m/d/Y H:i:s', $lastModified);
@@ -175,7 +175,7 @@ class SignService {
 			$opts['proxy_password'] = $this->proxyPassword;
 		}
 
-		$data  = '<div style="color: black; background-color: white; border-radius: 10px; padding: 5px;">';
+		$data  = '<div style="color: white;">';
 		$data .= "<strong>Name: </strong>$fileName";
 		$data .= "<br><strong>Size: </strong>".$this->humanFileSize($fileSize);
 		$data .= "<br><strong>Modified: </strong>".date('m/d/Y H:i:s', $lastModified);
@@ -347,7 +347,7 @@ class SignService {
 			$opts['proxy_password'] = $this->proxyPassword;
 		}
 
-		$data  = '<div style="color: black; background-color: white; border-radius: 10px; padding: 5px;">';
+		$data  = '<div style="color: white;">';
 		$data .= "<strong>Name: </strong>$fileName";
 		$data .= "<br><strong>Size: </strong>".$this->humanFileSize($fileSize);
 		$data .= "<br><strong>Modified: </strong>".date('m/d/Y H:i:s', $lastModified);
@@ -434,7 +434,7 @@ class SignService {
 			$opts['proxy_password'] = $this->proxyPassword;
 		}
 
-		$data  = '<div style="color: black; background-color: white; border-radius: 10px; padding: 5px;">';
+		$data  = '<div style="color: white;">';
 		$data .= "<strong>Name: </strong>$fileName";
 		$data .= "<br><strong>Size: </strong>".$this->humanFileSize($fileSize);
 		$data .= "<br><strong>Modified: </strong>".date('m/d/Y H:i:s', $lastModified);
