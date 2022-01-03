@@ -147,8 +147,8 @@
 					v-model="syncTimeout"
 					type="number"
 					name="sync_timeout"
-					min="1"
-					max="5">
+					:min="MIN_TIMEOUT"
+					:max="MAX_SYNC_TIMEOUT">
 			</p>
 			<p>
 				<label for="async_timeout">{{ $t('openotp_sign', 'Nextcloud / YumiSign user signature (1 - 72 hours)') }}</label>
@@ -156,8 +156,8 @@
 					v-model="asyncTimeout"
 					type="number"
 					name="async_timeout"
-					min="1"
-					max="72">
+					:min="MIN_TIMEOUT"
+					:max="MAX_ASYNC_TIMEOUT">
 			</p>
 		</div>
 		<div id="save" class="section">
@@ -226,6 +226,9 @@ export default {
 			asyncTimeout: this.$parent.asyncTimeout,
 			success: false,
 			failure: false,
+			MIN_TIMEOUT: 1,
+			MAX_SYNC_TIMEOUT: 5,
+			MAX_ASYNC_TIMEOUT: 72,
 		}
 	},
 	mounted() {
@@ -239,6 +242,15 @@ export default {
 		saveSettings() {
 			this.success = false
 			this.failure = false
+
+			if (this.syncTimeout < this.MIN_TIMEOUT
+				|| this.syncTimeout > this.MAX_SYNC_TIMEOUT
+				|| this.asyncTimeout < this.MIN_TIMEOUT
+				|| this.asyncTimeout > this.MAX_ASYNC_TIMEOUT) {
+				this.failure = true
+				return
+			}
+
 			const baseUrl = generateUrl('/apps/openotp_sign')
 
 			axios.post(baseUrl + '/settings', {
