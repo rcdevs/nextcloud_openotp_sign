@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Nextcloud 3.14159\n"
 "Report-Msgid-Bugs-To: translations\\@example.com\n"
-"POT-Creation-Date: 2021-11-02 17:01+0100\n"
-"PO-Revision-Date: 2021-11-02 17:04+0100\n"
+"POT-Creation-Date: 2021-12-16 17:43+0100\n"
+"PO-Revision-Date: 2022-01-03 14:47+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -16,144 +16,318 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.0\n"
+"X-Generator: Poedit 3.0.1\n"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19323
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:1
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19377
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:4
 msgid "OpenOTP Sign Settings"
 msgstr "Paramètres de OpenOTP Sign"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19332
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:2
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19386
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:5
 msgid "Enter your OpenOTP server settings in the fields below."
 msgstr ""
 "Entrez les paramètres de votre serveur OpenOTP dans les champs ci-dessous."
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19343
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:3
-msgid "OpenOTP server URL"
-msgstr "URL du serveur OpenOTP"
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19406
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:6
+msgid "OpenOTP server URL #"
+msgstr "URL du serveur OpenOTP #"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19379
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:4
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19460
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:7
 msgid "Test"
 msgstr "Test"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19433
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:5
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19523
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:8
 msgid "Ignore SSL/TLS certificate errors"
 msgstr "Ignorer les erreurs de certificat SSL/TLS"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19445
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:6
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19536
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:9
 msgid "OpenOTP client id"
 msgstr "ID client OpenOTP"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19478
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:7
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19569
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:10
 msgid "OpenOTP Default Domain"
 msgstr "Domaine OpenOTP par défaut"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19510
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:8
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19601
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:11
 msgid "OpenOTP User settings"
 msgstr "Paramètres utilisateur OpenOTP"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19543
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:9
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19634
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:12
 msgid "Proxy Settings"
 msgstr "Paramètres du proxy"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19561
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:10
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19652
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:13
 msgid "Use a proxy"
 msgstr "Utiliser un serveur proxy"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19572
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:11
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19663
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:14
 msgid "Proxy Host"
 msgstr "Hôte du serveur proxy"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19605
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:12
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19696
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:15
 msgid "Proxy Port"
 msgstr "Port du serveur proxy"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19639
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:13
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19730
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:16
 msgid "Proxy Username"
 msgstr "Nom d’utilisateur du proxy"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19672
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:14
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19763
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:17
 msgid "Proxy Password"
 msgstr "Mot de passe du proxy"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19709
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:15
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19800
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:18
 msgid "Signed / sealed PDF File"
 msgstr "Fichier PDF signé / scellé"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19733
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:16
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19824
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:19
 msgid "Make a signed / sealed copy of the original PDF file"
 msgstr "Faire une copie signée / scellée du fichier PDF original"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19762
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:17
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19853
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:20
 msgid "Overwrite the original PDF file with its signed / sealed copy"
 msgstr "Écraser le fichier PDF original avec sa copie signée / scellée"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19780
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:18
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19866
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:21
+msgid "Signature requests time out"
+msgstr "Délai d’expiration des demandes de signature"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19872
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:22
+msgid "Self-signature (1 - 5 minutes)"
+msgstr "Auto-signature (1 - 5 minutes)"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19910
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:23
+msgid "Nextcloud / YumiSign user signature (1 - 72 hours)"
+msgstr "Signature pour un utilisateur Nextcloud / YumiSign (1 - 72 heures)"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19952
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:24
 msgid "Save"
 msgstr "Enregistrer"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19793
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:19
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19965
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:25
 msgid "Your settings have been saved succesfully"
 msgstr "Vos paramètres ont été enregistrés avec succès"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19808
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:20
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-adminSettings.js:19980
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:26
 msgid "There was an error saving settings"
 msgstr "Une erreur s’est produite lors de l’enregistrement des paramètres"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:4236
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:3980
+msgid "empty-content__icon"
+msgstr ""
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:3980
+msgid "empty-content__title"
+msgstr ""
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:3980
+msgid "empty-content"
+msgstr ""
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:8368
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:67
+msgid "Are you sure you want to cancel this signature request ?"
+msgstr "Êtes-vous sûr de vouloir annuler cette demande de signature ?"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:14886
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:2
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:27
+msgid "Completed signature requests"
+msgstr "Demandes de signature terminées"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:14906
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:29
+msgid "There are currently no completed signature requests"
+msgstr "Il n’y a actuellement aucune demande de signature terminée"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:14921
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:28
+msgid "No completed signature requests"
+msgstr "Aucune demande de signature complétée"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:14930
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:15050
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:15174
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:30
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:38
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:61
+msgid "Date"
+msgstr "Date"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:14932
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:15052
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:15180
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:31
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:39
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:63
+msgid "Mode"
+msgstr "Mode"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:14934
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:15054
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:15182
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:32
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:40
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:64
+msgid "Recipient"
+msgstr "Destinataire"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:14936
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:15056
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:33
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:41
+msgid "Type"
+msgstr "Type"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:14941
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:15058
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:15189
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:34
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:42
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:65
+msgid "File"
+msgstr "Fichier"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:15006
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:3
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:35
+msgid "Failed signature requests"
+msgstr "Demandes de signature en échec"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:15026
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:37
+msgid "There are currently no failed signature requests"
+msgstr "Il n’y a actuellement aucune demande de signature en échec"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:15041
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:36
+msgid "No failed signature requests"
+msgstr "Aucune demande de signature en échec"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:15063
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:43
+msgid "Error"
+msgstr "Erreur"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:15130
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:1
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:58
+msgid "Pending signature requests"
+msgstr "Demandes de signature en attente"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:15150
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:60
+msgid "There are currently no pending signature requests"
+msgstr "Il n’y a actuellement aucune demande de signature en attente"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:15165
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:59
+msgid "No pending signature requests"
+msgstr "Aucune demande de signature en attente"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:15177
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:62
+msgid "Expiration Date"
+msgstr "Date d'expiration"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-index.js:15238
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:66
+msgid "Cancel request"
+msgstr "Annuler la demande"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:6431
 msgid "action"
 msgid_plural "action--disabled"
 msgstr[0] ""
 msgstr[1] ""
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:4279
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:6474
 msgid "progress-ring__circle"
 msgid_plural "white"
 msgstr[0] ""
 msgstr[1] ""
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:4279
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:6474
 msgid "progress-ring"
 msgid_plural "50"
 msgstr[0] ""
 msgstr[1] ""
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:4279
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:6474
 msgid "mask"
 msgid_plural "modal-mask"
 msgstr[0] ""
 msgstr[1] ""
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:32346
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:32489
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:6593
+msgid "mention-bubble__title"
+msgid_plural "heading"
+msgstr[0] ""
+msgstr[1] ""
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:6593
+msgid "mention-bubble__select"
+msgid_plural "none"
+msgstr[0] ""
+msgstr[1] ""
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:6593
+msgid "mention-bubble"
+msgid_plural "mention-bubble--primary"
+msgstr[0] ""
+msgstr[1] ""
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:6677
+msgid "focusable"
+msgid_plural "#"
+msgstr[0] ""
+msgstr[1] ""
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:6677
+msgid "icon-confirm"
+msgid_plural "submit"
+msgstr[0] ""
+msgstr[1] ""
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:6698
+msgid "avatardiv__user-status"
+msgid_plural "avatardiv__user-status--"
+msgstr[0] ""
+msgstr[1] ""
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:42136
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:42280
 #: /var/www/html/nextcloud/apps/openotp_sign/lib/Settings/AdminSection.php:76
 #: /var/www/html/nextcloud/apps/openotp_sign/specialAppInfoFakeDummyForL10nScript.php:2
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:21
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:26
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:44
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:49
 msgid "OpenOTP Sign"
-msgstr ""
+msgstr "OpenOTP Sign"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:32356
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:22
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:42147
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:45
 msgid ""
 "You have to enter the <strong>OpenOTP server URL</strong> in the "
 "<strong>OpenOTP Sign</strong> settings prior to seal any document."
@@ -161,25 +335,25 @@ msgstr ""
 "Vous devez entrer l’URL du <strong>serveur OpenOTP</strong> dans les "
 "paramètres <strong>de OpenOTP Sign</strong> avant de sceller tout document."
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:32382
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:23
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:42170
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:46
 msgid "Digital seal of file <strong>{filename}</strong>"
 msgstr "Sceau numérique du fichier <strong>{filename}</strong>"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:32412
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:24
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:42200
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:47
 msgid "Seal"
 msgstr "Sceller"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:32440
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:32602
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:25
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:31
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:42226
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:42580
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:48
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:57
 msgid "Close"
 msgstr "Fermer"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:32499
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:27
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:42291
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:50
 msgid ""
 "You have to enter the <strong>OpenOTP server URL</strong> in the "
 "<strong>OpenOTP Sign</strong> settings prior to sign any document."
@@ -187,35 +361,91 @@ msgstr ""
 "Vous devez entrer l’URL du <strong>serveur OpenOTP</strong> dans les "
 "paramètres <strong>de OpenOTP Sign</strong> avant de signer un document."
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:32525
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:28
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:42314
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:51
 msgid "Digital signature of file <strong>{filename}</strong>"
 msgstr "Signature numérique du fichier <strong>{filename}</strong>"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:32556
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:29
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:42356
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:52
+msgid "Self-signature"
+msgstr "Auto-signature"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:42388
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:53
+msgid "Signature by a Nextcloud user:"
+msgstr "Signature par un utilisateur Nextcloud :"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:42479
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:54
+msgid "Signature by a YumiSign user:"
+msgstr "Signature par un utilisateur YumiSign :"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:42530
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:55
 msgid "Advanced signature"
 msgstr "Signature avancée"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:32573
-#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:30
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:42550
+#: /var/www/html/nextcloud/apps/openotp_sign/specialVueFakeDummyForL10nScript.js:56
 msgid "Qualified signature"
 msgstr "Signature qualifiée"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:41625
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:42724
+msgid "multiselect__tag-icon"
+msgid_plural "aria-hidden"
+msgstr[0] ""
+msgstr[1] ""
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:42724
+msgid "search"
+msgid_plural "multiselect__input"
+msgstr[0] ""
+msgstr[1] ""
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:42724
+msgid "tags"
+msgid_plural "multiselect__tags"
+msgstr[0] ""
+msgstr[1] ""
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:42724
+msgid "multiselect"
+msgid_plural "multiselect--active"
+msgstr[0] ""
+msgstr[1] ""
+
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:51615
 #: /var/www/html/nextcloud/apps/openotp_sign/src/main.js:43
 msgid "Sign with OpenOTP"
 msgstr "Signer avec OpenOTP"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:41638
+#: /var/www/html/nextcloud/apps/openotp_sign/js/openotp_sign-main.js:51628
 #: /var/www/html/nextcloud/apps/openotp_sign/src/main.js:55
 msgid "Seal with OpenOTP"
 msgstr "Sceller avec OpenOTP"
 
 #: /var/www/html/nextcloud/apps/openotp_sign/specialAppInfoFakeDummyForL10nScript.php:3
+msgid "Sign"
+msgstr "Signature"
+
+#: /var/www/html/nextcloud/apps/openotp_sign/specialAppInfoFakeDummyForL10nScript.php:4
 msgid "Nextcloud app to sign your documents with OpenOTP"
 msgstr "Application Nextcloud pour signer vos documents avec OpenOTP"
 
-#: /var/www/html/nextcloud/apps/openotp_sign/specialAppInfoFakeDummyForL10nScript.php:4
-msgid "TODO"
+#: /var/www/html/nextcloud/apps/openotp_sign/specialAppInfoFakeDummyForL10nScript.php:5
+msgid ""
+"# Electronic Signature\n"
+"Click & Sign with your Mobile with the OpenOTP Authentication Server which "
+"validates\n"
+"your identity and generates secure communication with your mobile, your "
+"signature is\n"
+"secure and compliant with the eIDAS regulation.\n"
+"\n"
+"# Features\n"
+"* Strong Authentication\n"
+"* Advanced Signature\n"
+"* Qualified Electronic Signature with our YumiSign Card Reader for IOS & "
+"Android\n"
+"* Sealing by YumiSign HSMs"
 msgstr ""
