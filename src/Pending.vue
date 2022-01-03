@@ -1,25 +1,25 @@
 <template>
 	<div class="component-container">
-		<h1>Pending signature requests</h1>
+		<h1>{{ $t('openotp_sign', 'Pending signature requests') }}</h1>
 		<div v-if="requesting">
 			<img :src="loadingImg">
 		</div>
 		<EmptyContent v-else-if="!requests.length" icon="icon-comment">
-			No pending signature requests
+			{{ $t('openotp_sign', 'No pending signature requests') }}
 			<template #desc>
-				There are currently no pending signature requests
+				{{ $t('openotp_sign', 'There are currently no pending signature requests') }}
 			</template>
 		</EmptyContent>
 		<table v-else>
 			<thead>
 				<tr>
-					<th>Date</th>
-					<th>Expiration Date</th>
-					<th>Mode</th>
-					<th>Recipient</th>
+					<th>{{ $t('openotp_sign', 'Date') }}</th>
+					<th>{{ $t('openotp_sign', 'Expiration Date') }}</th>
+					<th>{{ $t('openotp_sign', 'Mode') }}</th>
+					<th>{{ $t('openotp_sign', 'Recipient') }}</th>
 					<th>Type</th>
 					<th style="width: 100%">
-						File
+						{{ $t('openotp_sign', 'File') }}
 					</th>
 					<th>&nbsp;</th>
 				</tr>
@@ -35,7 +35,7 @@
 					<td>
 						<img v-if="canceling[index]" :src="loadingImg">
 						<button v-else @click="cancelRequest(index, request.session)">
-							Cancel request
+							{{ $t('openotp_sign', 'Cancel request') }}
 						</button>
 					</td>
 				</tr>
@@ -80,7 +80,7 @@ export default {
 	},
 	methods: {
 		cancelRequest(index, session) {
-			if (confirm('Are you sure you want to cancel this signature request ?')) {
+			if (confirm(t('openotp_sign', 'Are you sure you want to cancel this signature request ?'))) {
 				Vue.set(this.canceling, index, true)
 
 				const baseUrl = generateUrl('/apps/openotp_sign')

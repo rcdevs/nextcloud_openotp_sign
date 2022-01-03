@@ -1,25 +1,25 @@
 <template>
 	<div class="component-container">
-		<h1>Failed signature requests</h1>
+		<h1>{{ $t('openotp_sign', 'Failed signature requests') }}</h1>
 		<div v-if="requesting">
 			<img :src="loadingImg">
 		</div>
 		<EmptyContent v-else-if="!requests.length" icon="icon-comment">
-			No failed signature requests
+			{{ $t('openotp_sign', 'No failed signature requests') }}
 			<template #desc>
-				There are currently no failed signature requests
+				{{ $t('openotp_sign', 'There are currently no failed signature requests') }}
 			</template>
 		</EmptyContent>
 		<table v-else>
 			<thead>
 				<tr>
-					<th>Date</th>
-					<th>Mode</th>
-					<th>Recipient</th>
-					<th>Type</th>
-					<th>File</th>
+					<th>{{ $t('openotp_sign', 'Date') }}</th>
+					<th>{{ $t('openotp_sign', 'Mode') }}</th>
+					<th>{{ $t('openotp_sign', 'Recipient') }}</th>
+					<th>{{ $t('openotp_sign', 'Type') }}</th>
+					<th>{{ $t('openotp_sign', 'File') }}</th>
 					<th style="width: 100%">
-						Error
+						{{ $t('openotp_sign', 'Error') }}
 					</th>
 				</tr>
 			</thead>

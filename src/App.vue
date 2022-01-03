@@ -4,17 +4,17 @@
 			<ul>
 				<li>
 					<router-link to="/">
-						Pending signature requests
+						{{ $t('openotp_sign', 'Pending signature requests') }}
 					</router-link>
 				</li>
 				<li>
 					<router-link to="/completed">
-						Completed signature requests
+						{{ $t('openotp_sign', 'Completed signature requests') }}
 					</router-link>
 				</li>
 				<li>
 					<router-link to="/failed">
-						Failed signature requests
+						{{ $t('openotp_sign', 'Failed signature requests') }}
 					</router-link>
 				</li>
 			</ul>
