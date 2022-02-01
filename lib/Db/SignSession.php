@@ -4,6 +4,7 @@ namespace OCA\OpenOTPSign\Db;
 use JsonSerializable;
 
 use OCP\AppFramework\Db\Entity;
+use OCA\ServerInfo\Os;
 
 class SignSession extends Entity implements JsonSerializable {
 
@@ -38,9 +39,9 @@ class SignSession extends Entity implements JsonSerializable {
     }
 
     public static function __constructStatic() {
-        $dateinfo = trim(shell_exec("timedatectl | grep -i zone: 2>/dev/null"));
-        $dateinfoarray = explode(' ', $dateinfo);
-        self::$timeZone = new \DateTimeZone($dateinfoarray[2]);
+        $os = new Os();
+        $servertime  = $os->getTime();
+        self::$timeZone = new \DateTimeZone(preg_split('/ +/', $servertime)[4]);
     }
 
     public function jsonSerialize() {
