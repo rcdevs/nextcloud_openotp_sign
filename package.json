@@ -1,7 +1,7 @@
 {
 	"name": "openotp_sign",
 	"description": "Nextcloud app to sign your documents with OpenOTP",
-	"version": "1.1.1",
+	"version": "1.1.2",
 	"author": "RCDevs <info@rcdevs.com>",
 	"bugs": {
 		"url": "https://github.com/rcdevs/nextcloud_openotp_sign/issues"
