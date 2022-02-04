@@ -59,8 +59,8 @@ class SignService {
 		$this->proxyUsername = $config->getAppValue('openotp_sign', 'proxy_username');
 		$this->proxyPassword = $config->getAppValue('openotp_sign', 'proxy_password');
 		$this->signedFile = $config->getAppValue('openotp_sign', 'signed_file');
-		$this->syncTimeout = $config->getAppValue('openotp_sign', 'sync_timeout') * 60;
-		$this->asyncTimeout = $config->getAppValue('openotp_sign', 'async_timeout') * 3600;
+		$this->syncTimeout = (int) $config->getAppValue('openotp_sign', 'sync_timeout') * 60;
+		$this->asyncTimeout = (int) $config->getAppValue('openotp_sign', 'async_timeout') * 3600;
     }
 
     public function advancedSign($path, $userId, $remoteAddress) {
