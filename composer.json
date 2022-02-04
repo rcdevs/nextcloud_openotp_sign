@@ -1,5 +1,5 @@
 {
-    "name": "OpenOTP Sign",
+    "name": "rcdevs/openotp_sign",
     "description": "Nextcloud app to sign your documents with OpenOTP",
     "type": "project",
     "license": "AGPL",
