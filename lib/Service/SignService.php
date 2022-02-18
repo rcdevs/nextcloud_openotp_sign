@@ -13,6 +13,9 @@ use OCA\OpenOTPSign\Db\SignSession;
 use OCA\OpenOTPSign\Db\SignSessionMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 
+use setasign\Fpdi\Fpdi;
+use setasign\Fpdi\PdfParser\StreamReader;
+
 class SignService {
     use GetsFile;
 
@@ -63,6 +66,88 @@ class SignService {
 		$this->asyncTimeout = (int) $config->getAppValue('openotp_sign', 'async_timeout') * 3600;
     }
 
+	private function addWatermark(&$fileContent, $fileName) {
+
+		if (!str_ends_with(strtolower($fileName), ".pdf")) {
+			return $fileContent;
+		}
+
+		// Source file and watermark config
+		$imgPath = __DIR__.'/../../../../data/';
+		$text = 'RCDEVS - SPECIMEN - OPENOTP';
+		$font = __DIR__.'/DejaVuSans-Bold.ttf';
+		$opacity = 100;
+
+		// Set source PDF file
+		$pdf = new Fpdi();
+		$pagecount = $pdf->setSourceFile(StreamReader::createByString($fileContent));
+
+		// Add watermark to PDF pages
+		for ($i = 1; $i <= $pagecount; $i++) {
+			$tpl = $pdf->importPage($i);
+			$size = $pdf->getTemplateSize($tpl);
+			$pdf->addPage();
+			$pdf->useTemplate($tpl, 1, 1, $size['width'], $size['height'], TRUE);
+
+			$name = uniqid();
+
+			// Convert dimensions of the page from millimeters to pixels
+			$width  = $size['width'] * 3.7795275591;
+			$height = $size['height'] * 3.7795275591;
+
+			// Find angle of the diagonal and convert it from radians to degrees
+			$angle = atan($height / $width) * (180.0 / M_PI);
+
+			// Find max font size to fit the page
+			$font_size = 1;
+			$box = null;
+
+			while (true) {
+				$box = imagettfbbox($font_size, $angle, $font, $text);
+				$text_width = abs($box[6]) + $box[2];
+				if ($text_width > $width) {
+					$font_size--;
+					break;
+				}
+
+				$text_height = abs($box[5]) - $box[1];
+				if ($text_height > $height) {
+					$font_size--;
+					break;
+				}
+
+				$font_size++;
+			}
+
+			$img = imagecreatetruecolor($width, $height);
+
+			// Background color
+			$bg = imagecolorallocate($img, 255, 255, 255);
+			imagefilledrectangle($img, 0, 0, $width, $height, $bg);
+
+			// Font color settings
+			$color = imagecolorallocate($img, 255, 0, 0);
+
+			imagettftext($img, $font_size, $angle, abs($box[6]), $height, $color, $font, $text);
+			imagecolortransparent($img, $bg);
+			$blank = imagecreatetruecolor($width, $height);
+			$tbg = imagecolorallocate($blank, 255, 255, 255);
+			imagefilledrectangle($blank, 0, 0, $width, $height, $tbg);
+			imagecolortransparent($blank, $tbg);
+
+			// Create watermark image
+			imagecopymerge($blank, $img, 0, 0, 0, 0, $width, $height, $opacity);
+			imagepng($blank, $imgPath.$name.".png");
+
+			//Put the watermark
+			$pdf->Image($imgPath.$name.'.png', 0, 0, 0, 0, 'png');
+			@unlink($imgPath.$name.'.png');
+		}
+
+		// Return PDF with watermark
+		return $pdf->Output('S');
+	}
+
     public function advancedSign($path, $userId, $remoteAddress) {
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
@@ -109,7 +194,7 @@ class SignService {
 					$userId,
 					$this->defaultDomain,
 					$data,
-					$fileContent,
+					$this->addWatermark($fileContent, $fileName),
 					null,
 					null,
 					false,
@@ -197,7 +282,7 @@ class SignService {
 					$username,
 					$this->defaultDomain,
 					$data,
-					$fileContent,
+					$this->addWatermark($fileContent, $fileName),
 					null,
 					null,
 					true,
@@ -282,7 +367,7 @@ class SignService {
 			try {
 				$resp = $client->openotpExternConfirm(
 					$email,
-					$fileContent,
+					$this->addWatermark($fileContent, $fileName),
 					false,
 					true,
 					$this->asyncTimeout,
@@ -368,7 +453,7 @@ class SignService {
 					$userId,
 					$this->defaultDomain,
 					$data,
-					$fileContent,
+					$this->addWatermark($fileContent, $fileName),
 					'',
 					false,
 					$this->syncTimeout,
@@ -456,7 +541,7 @@ class SignService {
 					$username,
 					$this->defaultDomain,
 					$data,
-					$fileContent,
+					$this->addWatermark($fileContent, $fileName),
 					'',
 					true,
 					$this->asyncTimeout,
@@ -542,7 +627,7 @@ class SignService {
 			try {
 				$resp = $client->openotpExternSign(
 					$email,
-					$fileContent,
+					$this->addWatermark($fileContent, $fileName),
 					'',
 					true,
 					$this->asyncTimeout,
@@ -617,7 +702,7 @@ class SignService {
 
 			try {
 				$resp = $client->openotpSeal(
-					$fileContent,
+					$this->addWatermark($fileContent, $fileName),
 					'',
 					$this->clientId,
 					$remoteAddress,

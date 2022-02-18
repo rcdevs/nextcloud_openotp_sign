@@ -8,7 +8,9 @@
             "name": "RCDevs"
         }
     ],
-    "require": {},
+    "require": {
+        "setasign/fpdi-fpdf": "^2.3"
+    },
     "require-dev": {
         "phpunit/phpunit": "^5.4"
     }
