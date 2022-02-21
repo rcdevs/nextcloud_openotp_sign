@@ -160,11 +160,14 @@
 					:max="MAX_ASYNC_TIMEOUT">
 			</p>
 		</div>
-		<div id="watermark" class="section">
-			<h2>{{ $t('openotp_sign', 'PDF watermark') }}</h2>
+		<div id="demo" class="section">
+			<h2>{{ $t('openotp_sign', 'Demo mode') }}</h2>
 			<p>
-				<CheckboxRadioSwitch :checked.sync="enableWatermark">
-					{{ $t('openotp_sign', 'Add watermark to PDFs') }}
+				{{ $t('openotp_sign', 'In demo mode, it is only possible to sign PDF files, on which a watermark will be added.') }}
+			</p>
+			<p>
+				<CheckboxRadioSwitch :checked.sync="enableDemoMode">
+					{{ $t('openotp_sign', 'Enable demo mode') }}
 				</CheckboxRadioSwitch>
 			</p>
 			<p>
@@ -174,7 +177,7 @@
 					type="text"
 					name="watermark_text"
 					maxlength="255"
-					:disabled="!enableWatermark">
+					:disabled="!enableDemoMode">
 			</p>
 		</div>
 		<div id="save" class="section">
@@ -241,7 +244,7 @@ export default {
 			signedFile: this.$parent.signedFile,
 			syncTimeout: this.$parent.syncTimeout,
 			asyncTimeout: this.$parent.asyncTimeout,
-			enableWatermark: !!this.$parent.enableWatermark,
+			enableDemoMode: !!this.$parent.enableDemoMode,
 			watermarkText: this.$parent.watermarkText,
 			success: false,
 			failure: false,
@@ -286,7 +289,7 @@ export default {
 				signed_file: this.signedFile,
 				sync_timeout: this.syncTimeout,
 				async_timeout: this.asyncTimeout,
-				enable_watermark: this.enableWatermark,
+				enable_demo_mode: this.enableDemoMode,
 				watermark_text: this.watermarkText,
 			})
 				.then(response => {

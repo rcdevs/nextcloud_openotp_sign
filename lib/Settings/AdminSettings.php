@@ -56,7 +56,7 @@ class AdminSettings implements ISettings {
             'signed_file' => $this->config->getAppValue('openotp_sign', 'signed_file', 'copy'),
             'sync_timeout' => $this->config->getAppValue('openotp_sign', 'sync_timeout', 2),
             'async_timeout' => $this->config->getAppValue('openotp_sign', 'async_timeout', 1),
-            'enable_watermark' => $this->config->getAppValue('openotp_sign', 'enable_watermark'),
+            'enable_demo_mode' => $this->config->getAppValue('openotp_sign', 'enable_demo_mode'),
             'watermark_text' => $this->config->getAppValue('openotp_sign', 'watermark_text', 'RCDEVS - SPECIMEN - OPENOTP'),
         ], 'blank');
     }

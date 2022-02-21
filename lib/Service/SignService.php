@@ -64,13 +64,13 @@ class SignService {
 		$this->signedFile = $config->getAppValue('openotp_sign', 'signed_file');
 		$this->syncTimeout = (int) $config->getAppValue('openotp_sign', 'sync_timeout') * 60;
 		$this->asyncTimeout = (int) $config->getAppValue('openotp_sign', 'async_timeout') * 3600;
-		$this->enableWatermark = $config->getAppValue('openotp_sign', 'enable_watermark');
+		$this->enableDemoMode = $config->getAppValue('openotp_sign', 'enable_demo_mode');
 		$this->watermarkText = $config->getAppValue('openotp_sign', 'watermark_text');
     }
 
 	private function addWatermark(&$fileContent, $fileName) {
 
-		if (!$this->enableWatermark || !str_ends_with(strtolower($fileName), ".pdf")) {
+		if (!$this->enableDemoMode || !str_ends_with(strtolower($fileName), ".pdf")) {
 			return $fileContent;
 		}
 
