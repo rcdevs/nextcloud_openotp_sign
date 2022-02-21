@@ -8,6 +8,7 @@ use OCP\Accounts\IAccountManager;
 
 use OCP\Files\IRootFolder;
 use OCP\IConfig;
+use OCP\IL10N;
 
 use OCA\OpenOTPSign\Db\SignSession;
 use OCA\OpenOTPSign\Db\SignSessionMapper;
@@ -159,7 +160,7 @@ class SignService {
 
 		if ($this->enableDemoMode && !$isPdf) {
 			$resp['code'] = 0;
-			$resp['message'] = "Demo mode enabled. It is only possible to sign PDF files.";
+			$resp['message'] = $this->l->t("Demo mode enabled. It is only possible to sign PDF files.");
 			return $resp;
 		}
 
@@ -256,7 +257,7 @@ class SignService {
 
 		if ($this->enableDemoMode && !$isPdf) {
 			$resp['code'] = 0;
-			$resp['message'] = "Demo mode enabled. It is only possible to sign PDF files.";
+			$resp['message'] = $this->l->t("Demo mode enabled. It is only possible to sign PDF files.");
 			return $resp;
 		}
 
@@ -358,7 +359,7 @@ class SignService {
 
 		if ($this->enableDemoMode && !$isPdf) {
 			$resp['code'] = 0;
-			$resp['message'] = "Demo mode enabled. It is only possible to sign PDF files.";
+			$resp['message'] = $this->l->t("Demo mode enabled. It is only possible to sign PDF files.");
 			return $resp;
 		}
 
@@ -445,7 +446,7 @@ class SignService {
 
 		if ($this->enableDemoMode && !$isPdf) {
 			$resp['code'] = 0;
-			$resp['message'] = "Demo mode enabled. It is only possible to sign PDF files.";
+			$resp['message'] = $this->l->t("Demo mode enabled. It is only possible to sign PDF files.");
 			return $resp;
 		}
 
@@ -541,7 +542,7 @@ class SignService {
 
 		if ($this->enableDemoMode && !$isPdf) {
 			$resp['code'] = 0;
-			$resp['message'] = "Demo mode enabled. It is only possible to sign PDF files.";
+			$resp['message'] = $this->l->t("Demo mode enabled. It is only possible to sign PDF files.");
 			return $resp;
 		}
 
@@ -644,7 +645,7 @@ class SignService {
 
 		if ($this->enableDemoMode && !$isPdf) {
 			$resp['code'] = 0;
-			$resp['message'] = "Demo mode enabled. It is only possible to sign PDF files.";
+			$resp['message'] = $this->l->t("Demo mode enabled. It is only possible to sign PDF files.");
 			return $resp;
 		}
 
@@ -733,7 +734,7 @@ class SignService {
 
 		if ($this->enableDemoMode && !$isPdf) {
 			$resp['code'] = 0;
-			$resp['message'] = "Demo mode enabled. It is only possible to seal PDF files.";
+			$resp['message'] = $this->l->t("Demo mode enabled. It is only possible to sign PDF files.");
 			return $resp;
 		}
 
