@@ -22,6 +22,9 @@ class SignService {
 
 	const CNX_TIME_OUT = 1;
 
+    /** @var IL10N */
+    private $l;
+
 	private $mapper;
 	private $storage;
 	private $accountManager;
@@ -49,12 +52,14 @@ class SignService {
 		IConfig $config,
 		IUserManager $userManager,
 		IAccountManager $accountManager,
-		SignSessionMapper $mapper)
+		SignSessionMapper $mapper,
+		IL10N $l)
 	{
 		$this->mapper = $mapper;
 		$this->storage = $storage;
 		$this->accountManager = $accountManager;
 		$this->userManager = $userManager;
+		$this->l = $l;
 
 		$this->serverUrls = json_decode($config->getAppValue('openotp_sign', 'server_urls', '[]'));
 		$this->ignoreSslErrors = $config->getAppValue('openotp_sign', 'ignore_ssl_errors');
