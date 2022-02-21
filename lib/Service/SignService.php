@@ -72,9 +72,9 @@ class SignService {
 		$this->watermarkText = $config->getAppValue('openotp_sign', 'watermark_text');
     }
 
-	private function addWatermark(&$fileContent, $fileName) {
+	private function addWatermark(&$fileContent, $fileName, $isPdf) {
 
-		if (!$this->enableDemoMode || !str_ends_with(strtolower($fileName), ".pdf")) {
+		if (!$this->enableDemoMode || !$isPdf) {
 			return $fileContent;
 		}
 
@@ -154,6 +154,15 @@ class SignService {
 	}
 
     public function advancedSign($path, $userId, $remoteAddress) {
+
+		$isPdf = str_ends_with(strtolower($path), ".pdf");
+
+		if ($this->enableDemoMode && !$isPdf) {
+			$resp['code'] = 0;
+			$resp['message'] = "Demo mode enabled. It is only possible to sign PDF files.";
+			return $resp;
+		}
+
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
 		$opts = array('connection_timeout' => self::CNX_TIME_OUT);
@@ -199,7 +208,7 @@ class SignService {
 					$userId,
 					$this->defaultDomain,
 					$data,
-					$this->addWatermark($fileContent, $fileName),
+					$this->addWatermark($fileContent, $fileName, $isPdf),
 					null,
 					null,
 					false,
@@ -242,6 +251,15 @@ class SignService {
     }
 
     public function asyncLocalAdvancedSign($path, $username, $userId, $remoteAddress, $email) {
+
+		$isPdf = str_ends_with(strtolower($path), ".pdf");
+
+		if ($this->enableDemoMode && !$isPdf) {
+			$resp['code'] = 0;
+			$resp['message'] = "Demo mode enabled. It is only possible to sign PDF files.";
+			return $resp;
+		}
+
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
 		$opts = array('connection_timeout' => self::CNX_TIME_OUT);
@@ -287,7 +305,7 @@ class SignService {
 					$username,
 					$this->defaultDomain,
 					$data,
-					$this->addWatermark($fileContent, $fileName),
+					$this->addWatermark($fileContent, $fileName, $isPdf),
 					null,
 					null,
 					true,
@@ -335,6 +353,15 @@ class SignService {
     }
 
 	public function asyncExternalAdvancedSign($path, $email, $userId, $remoteAddress) {
+
+		$isPdf = str_ends_with(strtolower($path), ".pdf");
+
+		if ($this->enableDemoMode && !$isPdf) {
+			$resp['code'] = 0;
+			$resp['message'] = "Demo mode enabled. It is only possible to sign PDF files.";
+			return $resp;
+		}
+
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
 		$opts = array('connection_timeout' => self::CNX_TIME_OUT);
@@ -372,7 +399,7 @@ class SignService {
 			try {
 				$resp = $client->openotpExternConfirm(
 					$email,
-					$this->addWatermark($fileContent, $fileName),
+					$this->addWatermark($fileContent, $fileName, $isPdf),
 					false,
 					true,
 					$this->asyncTimeout,
@@ -413,6 +440,15 @@ class SignService {
 	}
 
     public function qualifiedSign($path, $userId, $remoteAddress) {
+
+		$isPdf = str_ends_with(strtolower($path), ".pdf");
+
+		if ($this->enableDemoMode && !$isPdf) {
+			$resp['code'] = 0;
+			$resp['message'] = "Demo mode enabled. It is only possible to sign PDF files.";
+			return $resp;
+		}
+
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
 		$opts = array('connection_timeout' => self::CNX_TIME_OUT);
@@ -458,7 +494,7 @@ class SignService {
 					$userId,
 					$this->defaultDomain,
 					$data,
-					$this->addWatermark($fileContent, $fileName),
+					$this->addWatermark($fileContent, $fileName, $isPdf),
 					'',
 					false,
 					$this->syncTimeout,
@@ -500,6 +536,15 @@ class SignService {
     }
 
     public function asyncLocalQualifiedSign($path, $username, $userId, $remoteAddress, $email) {
+
+		$isPdf = str_ends_with(strtolower($path), ".pdf");
+
+		if ($this->enableDemoMode && !$isPdf) {
+			$resp['code'] = 0;
+			$resp['message'] = "Demo mode enabled. It is only possible to sign PDF files.";
+			return $resp;
+		}
+
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
 		$opts = array('connection_timeout' => self::CNX_TIME_OUT);
@@ -546,7 +591,7 @@ class SignService {
 					$username,
 					$this->defaultDomain,
 					$data,
-					$this->addWatermark($fileContent, $fileName),
+					$this->addWatermark($fileContent, $fileName, $isPdf),
 					'',
 					true,
 					$this->asyncTimeout,
@@ -594,6 +639,15 @@ class SignService {
     }
 
     public function asyncExternalQualifiedSign($path, $email, $userId, $remoteAddress) {
+
+		$isPdf = str_ends_with(strtolower($path), ".pdf");
+
+		if ($this->enableDemoMode && !$isPdf) {
+			$resp['code'] = 0;
+			$resp['message'] = "Demo mode enabled. It is only possible to sign PDF files.";
+			return $resp;
+		}
+
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
 		$opts = array('connection_timeout' => self::CNX_TIME_OUT);
@@ -632,7 +686,7 @@ class SignService {
 			try {
 				$resp = $client->openotpExternSign(
 					$email,
-					$this->addWatermark($fileContent, $fileName),
+					$this->addWatermark($fileContent, $fileName, $isPdf),
 					'',
 					true,
 					$this->asyncTimeout,
@@ -674,6 +728,15 @@ class SignService {
     }
 
     public function seal($path, $userId, $remoteAddress) {
+
+		$isPdf = str_ends_with(strtolower($path), ".pdf");
+
+		if ($this->enableDemoMode && !$isPdf) {
+			$resp['code'] = 0;
+			$resp['message'] = "Demo mode enabled. It is only possible to seal PDF files.";
+			return $resp;
+		}
+
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
 		$opts = array('connection_timeout' => self::CNX_TIME_OUT);
@@ -707,7 +770,7 @@ class SignService {
 
 			try {
 				$resp = $client->openotpSeal(
-					$this->addWatermark($fileContent, $fileName),
+					$this->addWatermark($fileContent, $fileName, $isPdf),
 					'',
 					$this->clientId,
 					$remoteAddress,

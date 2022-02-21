@@ -163,7 +163,7 @@
 		<div id="demo" class="section">
 			<h2>{{ $t('openotp_sign', 'Demo mode') }}</h2>
 			<p>
-				{{ $t('openotp_sign', 'In demo mode, it is only possible to sign PDF files, on which a watermark will be added.') }}
+				{{ $t('openotp_sign', 'In demo mode, it is only possible to sign or seal PDF files, on which a watermark will be added.') }}
 			</p>
 			<p>
 				<CheckboxRadioSwitch :checked.sync="enableDemoMode">
