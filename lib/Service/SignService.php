@@ -38,6 +38,10 @@ class SignService {
 	private $proxyUsername;
 	private $proxyPassword;
 	private $signedFile;
+	private $syncTimeout;
+	private $asyncTimeout;
+	private $enableDemoMode;
+	private $watermarkText;
 
 	public function __construct(
         IRootFolder $storage,
