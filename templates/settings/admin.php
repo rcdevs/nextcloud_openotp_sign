@@ -40,4 +40,6 @@ OCP\Util::addscript($appId, 'openotp_sign-adminSettings');
   data-signed-file="<?php echo $_['signed_file'] ?>"
   data-sync-timeout="<?php echo $_['sync_timeout'] ?>"
   data-async-timeout="<?php echo $_['async_timeout'] ?>"
+  data-enable-watermark="<?php echo $_['enable_watermark'] ?>"
+  data-watermark-text="<?php echo $_['watermark_text'] ?>"
 ></div>

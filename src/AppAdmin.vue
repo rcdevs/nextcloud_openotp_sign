@@ -160,6 +160,23 @@
 					:max="MAX_ASYNC_TIMEOUT">
 			</p>
 		</div>
+		<div id="watermark" class="section">
+			<h2>{{ $t('openotp_sign', 'PDF watermark') }}</h2>
+			<p>
+				<CheckboxRadioSwitch :checked.sync="enableWatermark">
+					{{ $t('openotp_sign', 'Add watermark to PDFs') }}
+				</CheckboxRadioSwitch>
+			</p>
+			<p>
+				<label for="watermark_text">{{ $t('openotp_sign', 'Watermark text') }}</label>
+				<input id="watermark_text"
+					v-model="watermarkText"
+					type="text"
+					name="watermark_text"
+					maxlength="255"
+					:disabled="!enableWatermark">
+			</p>
+		</div>
 		<div id="save" class="section">
 			<p>
 				<button @click="saveSettings">
@@ -224,6 +241,8 @@ export default {
 			signedFile: this.$parent.signedFile,
 			syncTimeout: this.$parent.syncTimeout,
 			asyncTimeout: this.$parent.asyncTimeout,
+			enableWatermark: !!this.$parent.enableWatermark,
+			watermarkText: this.$parent.watermarkText,
 			success: false,
 			failure: false,
 			MIN_TIMEOUT: 1,
@@ -267,6 +286,8 @@ export default {
 				signed_file: this.signedFile,
 				sync_timeout: this.syncTimeout,
 				async_timeout: this.asyncTimeout,
+				enable_watermark: this.enableWatermark,
+				watermark_text: this.watermarkText,
 			})
 				.then(response => {
 					this.success = true

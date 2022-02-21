@@ -64,17 +64,18 @@ class SignService {
 		$this->signedFile = $config->getAppValue('openotp_sign', 'signed_file');
 		$this->syncTimeout = (int) $config->getAppValue('openotp_sign', 'sync_timeout') * 60;
 		$this->asyncTimeout = (int) $config->getAppValue('openotp_sign', 'async_timeout') * 3600;
+		$this->enableWatermark = $config->getAppValue('openotp_sign', 'enable_watermark');
+		$this->watermarkText = $config->getAppValue('openotp_sign', 'watermark_text');
     }
 
 	private function addWatermark(&$fileContent, $fileName) {
 
-		if (!str_ends_with(strtolower($fileName), ".pdf")) {
+		if (!$this->enableWatermark || !str_ends_with(strtolower($fileName), ".pdf")) {
 			return $fileContent;
 		}
 
 		// Source file and watermark config
 		$imgPath = __DIR__.'/../../../../data/';
-		$text = 'RCDEVS - SPECIMEN - OPENOTP';
 		$font = __DIR__.'/DejaVuSans-Bold.ttf';
 		$opacity = 100;
 
@@ -103,7 +104,7 @@ class SignService {
 			$box = null;
 
 			while (true) {
-				$box = imagettfbbox($font_size, $angle, $font, $text);
+				$box = imagettfbbox($font_size, $angle, $font, $this->watermarkText);
 				$text_width = abs($box[6]) + $box[2];
 				if ($text_width > $width) {
 					$font_size--;
@@ -128,7 +129,7 @@ class SignService {
 			// Font color settings
 			$color = imagecolorallocate($img, 255, 0, 0);
 
-			imagettftext($img, $font_size, $angle, abs($box[6]), $height, $color, $font, $text);
+			imagettftext($img, $font_size, $angle, abs($box[6]), $height, $color, $font, $this->watermarkText);
 			imagecolortransparent($img, $bg);
 			$blank = imagecreatetruecolor($width, $height);
 			$tbg = imagecolorallocate($blank, 255, 255, 255);
