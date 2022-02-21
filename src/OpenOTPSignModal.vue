@@ -224,6 +224,11 @@ export default {
 			this.modal = false
 		},
 		advancedSignature() {
+			if (!this.filename.toLowerCase().endsWith('.pdf')) {
+				alert(t('openotp_sign', 'Advanced signature is possible only with PDF files'))
+				return
+			}
+
 			if (this.recipientType === 'self') {
 				this.syncAdvancedSignature()
 			} else if (this.recipientType === 'nextcloud') {
