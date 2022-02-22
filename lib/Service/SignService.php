@@ -984,7 +984,7 @@ class SignService {
 		$headers .= "Content-Type: multipart/alternative; boundary=\"$boundary\"\r\n";
 		$headers .= "Mime-Version: 1.0\r\n";
 
-		$msg .= "--$boundary\r\n";
+		$msg  = "--$boundary\r\n";
 		$msg .= "Content-Transfer-Encoding: 8bit\r\n";
 		$msg .= "Content-Type: text/plain; charset=utf-8\r\n";
 		$msg .= "\r\n";
