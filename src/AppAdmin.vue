@@ -328,7 +328,7 @@ export default {
 			})
 				.then(response => {
 					this.statusesRequesting[serverNum] = false
-					if (response.data.status === true) {
+					if (response.data.status === 'true') {
 						this.serverMessages[serverNum] = response.data.message
 					} else {
 						this.serverMessages[serverNum] = ''

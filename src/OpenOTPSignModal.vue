@@ -251,7 +251,7 @@ export default {
 			})
 				.then(response => {
 					this.requesting = false
-					if (response.data.code === 1) {
+					if (response.data.code === '1') {
 						this.success = true
 					} else {
 						this.error = true
@@ -284,7 +284,7 @@ export default {
 			})
 				.then(response => {
 					this.requesting = false
-					if (response.data.code === 2) {
+					if (response.data.code === '2') {
 						this.success = true
 					} else {
 						this.error = true
@@ -316,7 +316,7 @@ export default {
 			})
 				.then(response => {
 					this.requesting = false
-					if (response.data.code === 2) {
+					if (response.data.code === '2') {
 						this.success = true
 					} else {
 						this.error = true
@@ -352,7 +352,7 @@ export default {
 			})
 				.then(response => {
 					this.requesting = false
-					if (response.data.code === 1) {
+					if (response.data.code === '1') {
 						this.success = true
 					} else {
 						this.error = true
@@ -385,7 +385,7 @@ export default {
 			})
 				.then(response => {
 					this.requesting = false
-					if (response.data.code === 2) {
+					if (response.data.code === '2') {
 						this.success = true
 					} else {
 						this.error = true
@@ -417,7 +417,7 @@ export default {
 			})
 				.then(response => {
 					this.requesting = false
-					if (response.data.code === 2) {
+					if (response.data.code === '2') {
 						this.success = true
 					} else {
 						this.error = true

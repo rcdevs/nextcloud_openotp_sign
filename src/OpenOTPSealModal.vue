@@ -140,7 +140,7 @@ export default {
 			})
 				.then(response => {
 					this.requesting = false
-					if (response.data.code === 1) {
+					if (response.data.code === '1') {
 						this.success = true
 					} else {
 						this.error = true

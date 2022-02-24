@@ -16,6 +16,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
 
 use setasign\Fpdi\Fpdi;
 use setasign\Fpdi\PdfParser\StreamReader;
+use nusoap_client;
 
 class SignService {
     use GetsFile;
@@ -171,26 +172,16 @@ class SignService {
 
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
-		$opts = array('connection_timeout' => self::CNX_TIME_OUT);
-
-		if ($this->ignoreSslErrors) {
-			$context = stream_context_create([
-				'ssl' => [
-					// set some SSL/TLS specific options
-					'verify_peer' => false,
-					'verify_peer_name' => false,
-					'allow_self_signed' => true
-				]
-			]);
-
-			$opts['stream_context'] = $context;
-		}
-
 		if ($this->useProxy) {
-			$opts['proxy_host'] = $this->proxyHost;
-			$opts['proxy_port'] = $this->proxyPort;
-			$opts['proxy_login'] = $this->proxyUsername;
-			$opts['proxy_password'] = $this->proxyPassword;
+			$proxyHost = $this->proxyHost;
+			$proxyPort = $this->proxyPort;
+			$proxyUsername = $this->proxyUsername;
+			$proxyPassword = $this->proxyPassword;
+		} else {
+			$proxyHost = false;
+			$proxyPort = false;
+			$proxyUsername = false;
+			$proxyPassword = false;
 		}
 
 		$data  = '<div style="color: white;">';
@@ -202,44 +193,46 @@ class SignService {
 		$user = $this->userManager->get($userId);
 		$account = $this->accountManager->getAccount($user);
 
-		ini_set('default_socket_timeout', 600);
-
 		$nbServers = count($this->serverUrls);
 		for ($i = 0; $i < $nbServers; ++$i) {
-			$opts['location'] = $this->serverUrls[$i];
-			$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
+			$client = new nusoap_client($this->serverUrls[$i], false, $proxyHost, $proxyPort, $proxyUsername, $proxyPassword, self::CNX_TIME_OUT, $this->syncTimeout);
+			$client->setDebugLevel(0);
+			$client->soap_defencoding = 'UTF-8';
+			$client->decode_utf8 = FALSE;
 
-			try {
-				$resp = $client->openotpNormalConfirm(
-					$userId,
-					$this->defaultDomain,
-					$data,
-					$this->addWatermark($fileContent, $fileName, $isPdf),
-					null,
-					null,
-					false,
-					$this->syncTimeout,
-					$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
-					$this->clientId,
-					$remoteAddress,
-					$this->userSettings,
-					null
-				);
+			$resp = $client->call('openotpNormalConfirm', array(
+				'username' => $userId,
+				'domain' => $this->defaultDomain,
+				'data' => $data,
+				'file' => base64_encode($this->addWatermark($fileContent, $fileName, $isPdf)),
+				'form' => null,
+				'scan' => false,
+				'async' => false,
+				'timeout' => $this->syncTimeout,
+				'issuer' => $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
+				'client' => $this->clientId,
+				'source' => $remoteAddress,
+				'settings' => $this->userSettings,
+				'virtual' => null
+			), 'urn:openotp', '', false, null, 'rpc', 'literal');
 
-				if ($resp === null) {
-					$resp['code'] = 0;
-					$resp['message'] = "File too big. Set the PHP directive post_max_size to 20M on the OpenOTP server.";
-					return $resp;
-				}
-
-				break;
-			} catch (\Throwable $e) {
+			if ($client->fault) {
 				$resp['code'] = 0;
-				$resp['message'] = $e->getMessage();
+				$resp['message'] = $resp['faultcode'].' / '.$resp['faultstring'];
+				break;
 			}
+
+			$err = $client->getError();
+			if ($err) {
+				$resp['code'] = 0;
+				$resp['message'] = $err;
+				continue;
+			}
+
+			break;
 		}
 
-		if ($resp['code'] === 1) {
+		if ($resp['code'] === '1') {
 			if (str_ends_with(strtolower($path), ".pdf")) {
 				if ($this->signedFile == "overwrite") {
 					$newPath = $path;
@@ -250,7 +243,7 @@ class SignService {
 				$newPath = $path . ".p7s";
 			}
 
-			$this->saveContainer($userId, $resp['file'], $newPath);
+			$this->saveContainer($userId, base64_decode($resp['file']), $newPath);
 		}
 
         return $resp;
@@ -268,25 +261,16 @@ class SignService {
 
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
-		$opts = array('connection_timeout' => self::CNX_TIME_OUT);
-		if ($this->ignoreSslErrors) {
-			$context = stream_context_create([
-				'ssl' => [
-					// set some SSL/TLS specific options
-					'verify_peer' => false,
-					'verify_peer_name' => false,
-					'allow_self_signed' => true
-				]
-			]);
-
-			$opts['stream_context'] = $context;
-		}
-
 		if ($this->useProxy) {
-			$opts['proxy_host'] = $this->proxyHost;
-			$opts['proxy_port'] = $this->proxyPort;
-			$opts['proxy_login'] = $this->proxyUsername;
-			$opts['proxy_password'] = $this->proxyPassword;
+			$proxyHost = $this->proxyHost;
+			$proxyPort = $this->proxyPort;
+			$proxyUsername = $this->proxyUsername;
+			$proxyPassword = $this->proxyPassword;
+		} else {
+			$proxyHost = false;
+			$proxyPort = false;
+			$proxyUsername = false;
+			$proxyPassword = false;
 		}
 
 		$data  = '<div style="color: white;">';
@@ -299,44 +283,46 @@ class SignService {
 		$account = $this->accountManager->getAccount($user);
 		$sender = $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue();
 
-		ini_set('default_socket_timeout', 600);
-
 		$nbServers = count($this->serverUrls);
 		for ($i = 0; $i < $nbServers; ++$i) {
-			$opts['location'] = $this->serverUrls[$i];
-			$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
+			$client = new nusoap_client($this->serverUrls[$i], false, $proxyHost, $proxyPort, $proxyUsername, $proxyPassword, self::CNX_TIME_OUT);
+			$client->setDebugLevel(0);
+			$client->soap_defencoding = 'UTF-8';
+			$client->decode_utf8 = FALSE;
 
-			try {
-				$resp = $client->openotpNormalConfirm(
-					$username,
-					$this->defaultDomain,
-					$data,
-					$this->addWatermark($fileContent, $fileName, $isPdf),
-					null,
-					null,
-					true,
-					$this->asyncTimeout,
-					$sender,
-					$this->clientId,
-					$remoteAddress,
-					$this->userSettings,
-					null
-				);
+			$resp = $client->call('openotpNormalConfirm', array(
+				'username' => $username,
+				'domain' => $this->defaultDomain,
+				'data' => $data,
+				'file' => base64_encode($this->addWatermark($fileContent, $fileName, $isPdf)),
+				'form' => null,
+				'scan' => false,
+				'async' => true,
+				'timeout' => $this->asyncTimeout,
+				'issuer' => $sender,
+				'client' => $this->clientId,
+				'source' => $remoteAddress,
+				'settings' => $this->userSettings,
+				'virtual' => null
+			), 'urn:openotp', '', false, null, 'rpc', 'literal');
 
-				if ($resp === null) {
-					$resp['code'] = 0;
-					$resp['message'] = "File too big. Set the PHP directive post_max_size to 20M on the OpenOTP server.";
-					return $resp;
-				}
-
-				break;
-			} catch (\Throwable $e) {
+			if ($client->fault) {
 				$resp['code'] = 0;
-				$resp['message'] = $e->getMessage();
+				$resp['message'] = $resp['faultcode'].' / '.$resp['faultstring'];
+				break;
 			}
+
+			$err = $client->getError();
+			if ($err) {
+				$resp['code'] = 0;
+				$resp['message'] = $err;
+				continue;
+			}
+
+			break;
 		}
 
-		if ($resp['code'] === 2) {
+		if ($resp['code'] === '2') {
 			$signSession = new SignSession();
 			$signSession->setUid($userId);
 			$signSession->setPath($path);
@@ -350,8 +336,14 @@ class SignService {
 
 			// Generate and send QR Code
 			if (!empty($email)) {
-				$resp2 = $client->openotpTouchConfirm($resp['session'], false, "PNG", 5, 3);
-				$this->sendQRCodeByEmail('advanced', $sender, $email, $resp2['qrImage'], $resp2['message']);
+				$resp2 = $client->call('openotpTouchConfirm', array(
+					'session' => $resp['session'],
+					'sendPush' => false,
+					'qrFormat' => 'PNG',
+					'qrSizing' => 5,
+					'qrMargin' => 3
+				), 'urn:openotp', '', false, null, 'rpc', 'literal');
+				$this->sendQRCodeByEmail('advanced', $sender, $email, base64_decode($resp2['qrImage']), $resp2['message']);
 			}
 		}
 
@@ -370,65 +362,58 @@ class SignService {
 
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
-		$opts = array('connection_timeout' => self::CNX_TIME_OUT);
-		if ($this->ignoreSslErrors) {
-			$context = stream_context_create([
-				'ssl' => [
-					// set some SSL/TLS specific options
-					'verify_peer' => false,
-					'verify_peer_name' => false,
-					'allow_self_signed' => true
-				]
-			]);
-
-			$opts['stream_context'] = $context;
-		}
-
 		if ($this->useProxy) {
-			$opts['proxy_host'] = $this->proxyHost;
-			$opts['proxy_port'] = $this->proxyPort;
-			$opts['proxy_login'] = $this->proxyUsername;
-			$opts['proxy_password'] = $this->proxyPassword;
+			$proxyHost = $this->proxyHost;
+			$proxyPort = $this->proxyPort;
+			$proxyUsername = $this->proxyUsername;
+			$proxyPassword = $this->proxyPassword;
+		} else {
+			$proxyHost = false;
+			$proxyPort = false;
+			$proxyUsername = false;
+			$proxyPassword = false;
 		}
 
 		$user = $this->userManager->get($userId);
 		$account = $this->accountManager->getAccount($user);
 		$sender = $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue();
 
-		ini_set('default_socket_timeout', 600);
-
 		$nbServers = count($this->serverUrls);
 		for ($i = 0; $i < $nbServers; ++$i) {
-			$opts['location'] = $this->serverUrls[$i];
-			$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
+			$client = new nusoap_client($this->serverUrls[$i], false, $proxyHost, $proxyPort, $proxyUsername, $proxyPassword, self::CNX_TIME_OUT);
+			$client->setDebugLevel(0);
+			$client->soap_defencoding = 'UTF-8';
+			$client->decode_utf8 = FALSE;
 
-			try {
-				$resp = $client->openotpExternConfirm(
-					$email,
-					$this->addWatermark($fileContent, $fileName, $isPdf),
-					false,
-					true,
-					$this->asyncTimeout,
-					$sender,
-					$this->clientId,
-					$remoteAddress,
-					$this->userSettings
-				);
+			$resp = $client->call('openotpExternConfirm', array(
+				'recipient' => $email,
+				'file' => base64_encode($this->addWatermark($fileContent, $fileName, $isPdf)),
+				'scan' => false,
+				'async' => true,
+				'timeout' => $this->asyncTimeout,
+				'issuer' => $sender,
+				'client' => $this->clientId,
+				'source' => $remoteAddress,
+				'settings' => $this->userSettings
+			), 'urn:openotp', '', false, null, 'rpc', 'literal');
 
-				if ($resp === null) {
-					$resp['code'] = 0;
-					$resp['message'] = "File too big. Set the PHP directive post_max_size to 20M on the OpenOTP server.";
-					return $resp;
-				}
-
-				break;
-			} catch (\Throwable $e) {
+			if ($client->fault) {
 				$resp['code'] = 0;
-				$resp['message'] = $e->getMessage();
+				$resp['message'] = $resp['faultcode'].' / '.$resp['faultstring'];
+				break;
 			}
+
+			$err = $client->getError();
+			if ($err) {
+				$resp['code'] = 0;
+				$resp['message'] = $err;
+				continue;
+			}
+
+			break;
 		}
 
-		if ($resp['code'] === 2) {
+		if ($resp['code'] === '2') {
 			$signSession = new SignSession();
 			$signSession->setUid($userId);
 			$signSession->setPath($path);
@@ -457,26 +442,16 @@ class SignService {
 
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
-		$opts = array('connection_timeout' => self::CNX_TIME_OUT);
-
-		if ($this->ignoreSslErrors) {
-			$context = stream_context_create([
-				'ssl' => [
-					// set some SSL/TLS specific options
-					'verify_peer' => false,
-					'verify_peer_name' => false,
-					'allow_self_signed' => true
-				]
-			]);
-
-			$opts['stream_context'] = $context;
-		}
-
 		if ($this->useProxy) {
-			$opts['proxy_host'] = $this->proxyHost;
-			$opts['proxy_port'] = $this->proxyPort;
-			$opts['proxy_login'] = $this->proxyUsername;
-			$opts['proxy_password'] = $this->proxyPassword;
+			$proxyHost = $this->proxyHost;
+			$proxyPort = $this->proxyPort;
+			$proxyUsername = $this->proxyUsername;
+			$proxyPassword = $this->proxyPassword;
+		} else {
+			$proxyHost = false;
+			$proxyPort = false;
+			$proxyUsername = false;
+			$proxyPassword = false;
 		}
 
 		$data  = '<div style="color: white;">';
@@ -488,43 +463,45 @@ class SignService {
 		$user = $this->userManager->get($userId);
 		$account = $this->accountManager->getAccount($user);
 
-		ini_set('default_socket_timeout', 600);
-
 		$nbServers = count($this->serverUrls);
 		for ($i = 0; $i < $nbServers; ++$i) {
-			$opts['location'] = $this->serverUrls[$i];
-			$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
+			$client = new nusoap_client($this->serverUrls[$i], false, $proxyHost, $proxyPort, $proxyUsername, $proxyPassword, self::CNX_TIME_OUT, $this->syncTimeout);
+			$client->setDebugLevel(0);
+			$client->soap_defencoding = 'UTF-8';
+			$client->decode_utf8 = FALSE;
 
-			try {
-				$resp = $client->openotpNormalSign(
-					$userId,
-					$this->defaultDomain,
-					$data,
-					$this->addWatermark($fileContent, $fileName, $isPdf),
-					'',
-					false,
-					$this->syncTimeout,
-					$account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
-					$this->clientId,
-					$remoteAddress,
-					$this->userSettings,
-					null
-				);
+			$resp = $client->call('openotpNormalSign', array(
+				'username' => $userId,
+				'domain' => $this->defaultDomain,
+				'data' => $data,
+				'file' => base64_encode($this->addWatermark($fileContent, $fileName, $isPdf)),
+				'mode' => '',
+				'async' => false,
+				'timeout' => $this->syncTimeout,
+				'issuer' => $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
+				'client' => $this->clientId,
+				'source' => $remoteAddress,
+				'settings' => $this->userSettings,
+				'virtual' => null
+			), 'urn:openotp', '', false, null, 'rpc', 'literal');
 
-				if ($resp === null) {
-					$resp['code'] = 0;
-					$resp['message'] = "File too big. Set the PHP directive post_max_size to 20M on the OpenOTP server.";
-					return $resp;
-				}
-
-				break;
-			} catch (\Throwable $e) {
+			if ($client->fault) {
 				$resp['code'] = 0;
-				$resp['message'] = $e->getMessage();
+				$resp['message'] = $resp['faultcode'].' / '.$resp['faultstring'];
+				break;
 			}
+
+			$err = $client->getError();
+			if ($err) {
+				$resp['code'] = 0;
+				$resp['message'] = $err;
+				continue;
+			}
+
+			break;
 		}
 
-		if ($resp['code'] === 1) {
+		if ($resp['code'] === '1') {
 			if (str_ends_with(strtolower($path), ".pdf")) {
 				if ($this->signedFile == "overwrite") {
 					$newPath = $path;
@@ -535,7 +512,7 @@ class SignService {
 				$newPath = $path . ".p7s";
 			}
 
-			$this->saveContainer($userId, $resp['file'], $newPath);
+			$this->saveContainer($userId, base64_decode($resp['file']), $newPath);
 		}
 
         return $resp;
@@ -553,26 +530,16 @@ class SignService {
 
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
-		$opts = array('connection_timeout' => self::CNX_TIME_OUT);
-
-		if ($this->ignoreSslErrors) {
-			$context = stream_context_create([
-				'ssl' => [
-					// set some SSL/TLS specific options
-					'verify_peer' => false,
-					'verify_peer_name' => false,
-					'allow_self_signed' => true
-				]
-			]);
-
-			$opts['stream_context'] = $context;
-		}
-
 		if ($this->useProxy) {
-			$opts['proxy_host'] = $this->proxyHost;
-			$opts['proxy_port'] = $this->proxyPort;
-			$opts['proxy_login'] = $this->proxyUsername;
-			$opts['proxy_password'] = $this->proxyPassword;
+			$proxyHost = $this->proxyHost;
+			$proxyPort = $this->proxyPort;
+			$proxyUsername = $this->proxyUsername;
+			$proxyPassword = $this->proxyPassword;
+		} else {
+			$proxyHost = false;
+			$proxyPort = false;
+			$proxyUsername = false;
+			$proxyPassword = false;
 		}
 
 		$data  = '<div style="color: white;">';
@@ -585,43 +552,45 @@ class SignService {
 		$account = $this->accountManager->getAccount($user);
 		$sender = $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue();
 
-		ini_set('default_socket_timeout', 600);
-
 		$nbServers = count($this->serverUrls);
 		for ($i = 0; $i < $nbServers; ++$i) {
-			$opts['location'] = $this->serverUrls[$i];
-			$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
+			$client = new nusoap_client($this->serverUrls[$i], false, $proxyHost, $proxyPort, $proxyUsername, $proxyPassword, self::CNX_TIME_OUT);
+			$client->setDebugLevel(0);
+			$client->soap_defencoding = 'UTF-8';
+			$client->decode_utf8 = FALSE;
 
-			try {
-				$resp = $client->openotpNormalSign(
-					$username,
-					$this->defaultDomain,
-					$data,
-					$this->addWatermark($fileContent, $fileName, $isPdf),
-					'',
-					true,
-					$this->asyncTimeout,
-					$sender,
-					$this->clientId,
-					$remoteAddress,
-					$this->userSettings,
-					null
-				);
+			$resp = $client->call('openotpNormalSign', array(
+				'username' => $username,
+				'domain' => $this->defaultDomain,
+				'data' => $data,
+				'file' => base64_encode($this->addWatermark($fileContent, $fileName, $isPdf)),
+				'mode' => '',
+				'async' => true,
+				'timeout' => $this->asyncTimeout,
+				'issuer' => $sender,
+				'client' => $this->clientId,
+				'source' => $remoteAddress,
+				'settings' => $this->userSettings,
+				'virtual' => null
+			), 'urn:openotp', '', false, null, 'rpc', 'literal');
 
-				if ($resp === null) {
-					$resp['code'] = 0;
-					$resp['message'] = "File too big. Set the PHP directive post_max_size to 20M on the OpenOTP server.";
-					return $resp;
-				}
-
-				break;
-			} catch (\Throwable $e) {
+			if ($client->fault) {
 				$resp['code'] = 0;
-				$resp['message'] = $e->getMessage();
+				$resp['message'] = $resp['faultcode'].' / '.$resp['faultstring'];
+				break;
 			}
+
+			$err = $client->getError();
+			if ($err) {
+				$resp['code'] = 0;
+				$resp['message'] = $err;
+				continue;
+			}
+
+			break;
 		}
 
-		if ($resp['code'] === 2) {
+		if ($resp['code'] === '2') {
 			$signSession = new SignSession();
 			$signSession->setUid($userId);
 			$signSession->setPath($path);
@@ -636,8 +605,14 @@ class SignService {
 
 			// Generate and send QR Code
 			if (!empty($email)) {
-				$resp2 = $client->openotpTouchSign($resp['session'], false, "PNG", 5, 3);
-				$this->sendQRCodeByEmail('qualified', $sender, $email, $resp2['qrImage'], $resp2['message']);
+				$resp2 = $client->call('openotpTouchSign', array(
+					'session' => $resp['session'],
+					'sendPush' => false,
+					'qrFormat' => 'PNG',
+					'qrSizing' => 5,
+					'qrMargin' => 3
+				), 'urn:openotp', '', false, null, 'rpc', 'literal');
+				$this->sendQRCodeByEmail('qualified', $sender, $email, base64_decode($resp2['qrImage']), $resp2['message']);
 			}
 		}
 
@@ -656,66 +631,58 @@ class SignService {
 
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
-		$opts = array('connection_timeout' => self::CNX_TIME_OUT);
-
-		if ($this->ignoreSslErrors) {
-			$context = stream_context_create([
-				'ssl' => [
-					// set some SSL/TLS specific options
-					'verify_peer' => false,
-					'verify_peer_name' => false,
-					'allow_self_signed' => true
-				]
-			]);
-
-			$opts['stream_context'] = $context;
-		}
-
 		if ($this->useProxy) {
-			$opts['proxy_host'] = $this->proxyHost;
-			$opts['proxy_port'] = $this->proxyPort;
-			$opts['proxy_login'] = $this->proxyUsername;
-			$opts['proxy_password'] = $this->proxyPassword;
+			$proxyHost = $this->proxyHost;
+			$proxyPort = $this->proxyPort;
+			$proxyUsername = $this->proxyUsername;
+			$proxyPassword = $this->proxyPassword;
+		} else {
+			$proxyHost = false;
+			$proxyPort = false;
+			$proxyUsername = false;
+			$proxyPassword = false;
 		}
 
 		$user = $this->userManager->get($userId);
 		$account = $this->accountManager->getAccount($user);
 		$sender = $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue();
 
-		ini_set('default_socket_timeout', 600);
-
 		$nbServers = count($this->serverUrls);
 		for ($i = 0; $i < $nbServers; ++$i) {
-			$opts['location'] = $this->serverUrls[$i];
-			$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
+			$client = new nusoap_client($this->serverUrls[$i], false, $proxyHost, $proxyPort, $proxyUsername, $proxyPassword, self::CNX_TIME_OUT);
+			$client->setDebugLevel(0);
+			$client->soap_defencoding = 'UTF-8';
+			$client->decode_utf8 = FALSE;
 
-			try {
-				$resp = $client->openotpExternSign(
-					$email,
-					$this->addWatermark($fileContent, $fileName, $isPdf),
-					'',
-					true,
-					$this->asyncTimeout,
-					$sender,
-					$this->clientId,
-					$remoteAddress,
-					$this->userSettings
-				);
+			$resp = $client->call('openotpExternSign', array(
+				'recipient' => $email,
+				'file' => base64_encode($this->addWatermark($fileContent, $fileName, $isPdf)),
+				'mode' => '',
+				'async' => true,
+				'timeout' => $this->asyncTimeout,
+				'issuer' => $sender,
+				'client' => $this->clientId,
+				'source' => $remoteAddress,
+				'settings' => $this->userSettings
+			), 'urn:openotp', '', false, null, 'rpc', 'literal');
 
-				if ($resp === null) {
-					$resp['code'] = 0;
-					$resp['message'] = "File too big. Set the PHP directive post_max_size to 20M on the OpenOTP server.";
-					return $resp;
-				}
-
-				break;
-			} catch (\Throwable $e) {
+			if ($client->fault) {
 				$resp['code'] = 0;
-				$resp['message'] = $e->getMessage();
+				$resp['message'] = $resp['faultcode'].' / '.$resp['faultstring'];
+				break;
 			}
+
+			$err = $client->getError();
+			if ($err) {
+				$resp['code'] = 0;
+				$resp['message'] = $err;
+				continue;
+			}
+
+			break;
 		}
 
-		if ($resp['code'] === 2) {
+		if ($resp['code'] === '2') {
 			$signSession = new SignSession();
 			$signSession->setUid($userId);
 			$signSession->setPath($path);
@@ -745,58 +712,50 @@ class SignService {
 
 		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
 
-		$opts = array('connection_timeout' => self::CNX_TIME_OUT);
-
-		if ($this->ignoreSslErrors) {
-			$context = stream_context_create([
-				'ssl' => [
-					// set some SSL/TLS specific options
-					'verify_peer' => false,
-					'verify_peer_name' => false,
-					'allow_self_signed' => true
-				]
-			]);
-
-			$opts['stream_context'] = $context;
-		}
-
 		if ($this->useProxy) {
-			$opts['proxy_host'] = $this->proxyHost;
-			$opts['proxy_port'] = $this->proxyPort;
-			$opts['proxy_login'] = $this->proxyUsername;
-			$opts['proxy_password'] = $this->proxyPassword;
+			$proxyHost = $this->proxyHost;
+			$proxyPort = $this->proxyPort;
+			$proxyUsername = $this->proxyUsername;
+			$proxyPassword = $this->proxyPassword;
+		} else {
+			$proxyHost = false;
+			$proxyPort = false;
+			$proxyUsername = false;
+			$proxyPassword = false;
 		}
-
-		ini_set('default_socket_timeout', 600);
 
 		$nbServers = count($this->serverUrls);
 		for ($i = 0; $i < $nbServers; ++$i) {
-			$opts['location'] = $this->serverUrls[$i];
-			$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
+			$client = new nusoap_client($this->serverUrls[$i], false, $proxyHost, $proxyPort, $proxyUsername, $proxyPassword, self::CNX_TIME_OUT);
+			$client->setDebugLevel(0);
+			$client->soap_defencoding = 'UTF-8';
+			$client->decode_utf8 = FALSE;
 
-			try {
-				$resp = $client->openotpSeal(
-					$this->addWatermark($fileContent, $fileName, $isPdf),
-					'',
-					$this->clientId,
-					$remoteAddress,
-					'CaDESMode=Detached,'.$this->userSettings
-				);
+			$resp = $client->call('openotpSeal', array(
+				'file' => base64_encode($this->addWatermark($fileContent, $fileName, $isPdf)),
+				'mode' => '',
+				'client' => $this->clientId,
+				'source' => $remoteAddress,
+				'settings' => 'CaDESMode=Detached,'.$this->userSettings
+			), 'urn:openotp', '', false, null, 'rpc', 'literal');
 
-				if ($resp === null) {
-					$resp['code'] = 0;
-					$resp['message'] = "File too big. Set the PHP directive post_max_size to 20M on the OpenOTP server.";
-					return $resp;
-				}
-
-				break;
-			} catch (\Throwable $e) {
+			if ($client->fault) {
 				$resp['code'] = 0;
-				$resp['message'] = $e->getMessage();
+				$resp['message'] = $resp['faultcode'].' / '.$resp['faultstring'];
+				break;
 			}
+
+			$err = $client->getError();
+			if ($err) {
+				$resp['code'] = 0;
+				$resp['message'] = $err;
+				continue;
+			}
+
+			break;
 		}
 
-		if ($resp['code'] === 1) {
+		if ($resp['code'] === '1') {
 			if (str_ends_with(strtolower($path), ".pdf")) {
 				if ($this->signedFile == "overwrite") {
 					$newPath = $path;
@@ -807,7 +766,7 @@ class SignService {
 				$newPath = $path . ".p7s";
 			}
 
-			$this->saveContainer($userId, $resp['file'], $newPath);
+			$this->saveContainer($userId, base64_decode($resp['file']), $newPath);
 		}
 
         return $resp;
@@ -828,152 +787,153 @@ class SignService {
 			return $resp;
 		}
 
-		$opts = array('connection_timeout' => self::CNX_TIME_OUT);
-
-		if ($this->ignoreSslErrors) {
-			$context = stream_context_create([
-				'ssl' => [
-					// set some SSL/TLS specific options
-					'verify_peer' => false,
-					'verify_peer_name' => false,
-					'allow_self_signed' => true
-				]
-			]);
-
-			$opts['stream_context'] = $context;
-		}
-
 		if ($this->useProxy) {
-			$opts['proxy_host'] = $this->proxyHost;
-			$opts['proxy_port'] = $this->proxyPort;
-			$opts['proxy_login'] = $this->proxyUsername;
-			$opts['proxy_password'] = $this->proxyPassword;
+			$proxyHost = $this->proxyHost;
+			$proxyPort = $this->proxyPort;
+			$proxyUsername = $this->proxyUsername;
+			$proxyPassword = $this->proxyPassword;
+		} else {
+			$proxyHost = false;
+			$proxyPort = false;
+			$proxyUsername = false;
+			$proxyPassword = false;
 		}
-
-		ini_set('default_socket_timeout', 600);
 
 		$nbServers = count($this->serverUrls);
 		for ($i = 0; $i < $nbServers; ++$i) {
-			$opts['location'] = $this->serverUrls[$i];
-			$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
+			$client = new nusoap_client($this->serverUrls[$i], false, $proxyHost, $proxyPort, $proxyUsername, $proxyPassword, self::CNX_TIME_OUT, $this->syncTimeout);
+			$client->setDebugLevel(0);
+			$client->soap_defencoding = 'UTF-8';
+			$client->decode_utf8 = FALSE;
 
-			try {
-				if (!$signSession->getIsQualified()) {
-					$resp = $client->openotpCancelConfirm($session);
-				} else {
-					$resp = $client->openotpCancelSign($session);
-				}
-
-				if ($resp['code'] === 1) {
-					$signSession->setIsPending(false);
-					$signSession->setIsError(true);
-					$signSession->setMessage($resp['message']);
-					$this->mapper->update($signSession);
-				}
-
-				return $resp;
-			} catch (\Throwable $e) {
-				$resp['code'] = 0;
-				$resp['message'] = $e->getMessage();
+			if (!$signSession->getIsQualified()) {
+				$resp = $client->call('openotpCancelConfirm', array(
+					$session
+				), 'urn:openotp', '', false, null, 'rpc', 'literal');
+			} else {
+				$resp = $client->call('openotpCancelSign', array(
+					$session
+				), 'urn:openotp', '', false, null, 'rpc', 'literal');
 			}
+
+			if ($client->fault) {
+				$resp['code'] = 0;
+				$resp['message'] = $resp['faultcode'].' / '.$resp['faultstring'];
+				break;
+			}
+
+			$err = $client->getError();
+			if ($err) {
+				$resp['code'] = 0;
+				$resp['message'] = $err;
+				continue;
+			}
+
+			if ($resp['code'] === '1') {
+				$signSession->setIsPending(false);
+				$signSession->setIsError(true);
+				$signSession->setMessage($resp['message']);
+				$this->mapper->update($signSession);
+			}
+
+			return $resp;
 		}
 
 		return $resp;
 	}
 
     public function checkAsyncSignature() {
-		$opts = array('connection_timeout' => self::CNX_TIME_OUT);
-
-		if ($this->ignoreSslErrors) {
-			$context = stream_context_create([
-				'ssl' => [
-					// set some SSL/TLS specific options
-					'verify_peer' => false,
-					'verify_peer_name' => false,
-					'allow_self_signed' => true
-				]
-			]);
-
-			$opts['stream_context'] = $context;
-		}
-
 		if ($this->useProxy) {
-			$opts['proxy_host'] = $this->proxyHost;
-			$opts['proxy_port'] = $this->proxyPort;
-			$opts['proxy_login'] = $this->proxyUsername;
-			$opts['proxy_password'] = $this->proxyPassword;
+			$proxyHost = $this->proxyHost;
+			$proxyPort = $this->proxyPort;
+			$proxyUsername = $this->proxyUsername;
+			$proxyPassword = $this->proxyPassword;
+		} else {
+			$proxyHost = false;
+			$proxyPort = false;
+			$proxyUsername = false;
+			$proxyPassword = false;
 		}
-
-		ini_set('default_socket_timeout', 600);
 
 		$nbServers = count($this->serverUrls);
 		for ($i = 0; $i < $nbServers; ++$i) {
-			$opts['location'] = $this->serverUrls[$i];
-			$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
+			$client = new nusoap_client($this->serverUrls[$i], false, $proxyHost, $proxyPort, $proxyUsername, $proxyPassword, self::CNX_TIME_OUT);
+			$client->setDebugLevel(0);
+			$client->soap_defencoding = 'UTF-8';
+			$client->decode_utf8 = FALSE;
 
-			try {
-				$signSessions = $this->mapper->findAllPending();
-				foreach ($signSessions as $signSession) {
-					if (!$signSession->getIsQualified()) {
-						$resp = $client->openotpCheckConfirm($signSession->getSession());
-					} else {
-						$resp = $client->openotpCheckSign($signSession->getSession());
-					}
-
-					if ($resp['code'] === 1) {
-						$path = $signSession->getPath();
-						if (str_ends_with(strtolower($path), ".pdf")) {
-							if ($this->signedFile == "overwrite") {
-								$newPath = $path;
-							} else {
-								$newPath = substr_replace($path, "-{$signSession->getRecipient()}-signed", strrpos($path, '.'), 0);
-							}
-						} else {
-							$newPath = $path . ".p7s";
-						}
-
-						$this->saveContainer($signSession->getUid(), $resp['file'], $newPath);
-
-						$signSession->setIsPending(false);
-						$this->mapper->update($signSession);
-					} else if ($resp['code'] === 0) {
-						$signSession->setIsPending(false);
-						$signSession->setIsError(true);
-						$signSession->setMessage($resp['message']);
-						$this->mapper->update($signSession);
-					}
+			$signSessions = $this->mapper->findAllPending();
+			foreach ($signSessions as $signSession) {
+				if (!$signSession->getIsQualified()) {
+					$resp = $client->call('openotpCheckConfirm', array(
+						$signSession->getSession()
+					), 'urn:openotp', '', false, null, 'rpc', 'literal');
+				} else {
+					$resp = $client->call('openotpCheckSign', array(
+						$signSession->getSession()
+					), 'urn:openotp', '', false, null, 'rpc', 'literal');
 				}
-			} catch (\Throwable $e) {
+
+				if ($client->fault) {
+					$resp['code'] = 0;
+					$resp['message'] = $resp['faultcode'].' / '.$resp['faultstring'];
+					break 2;
+				}
+
+				$err = $client->getError();
+				if ($err) {
+					$resp['code'] = 0;
+					$resp['message'] = $err;
+					break;
+				}
+
+				if ($resp['code'] === '1') {
+					$path = $signSession->getPath();
+					if (str_ends_with(strtolower($path), ".pdf")) {
+						if ($this->signedFile == "overwrite") {
+							$newPath = $path;
+						} else {
+							$newPath = substr_replace($path, "-{$signSession->getRecipient()}-signed", strrpos($path, '.'), 0);
+						}
+					} else {
+						$newPath = $path . ".p7s";
+					}
+
+					$this->saveContainer($signSession->getUid(), base64_decode($resp['file']), $newPath);
+
+					$signSession->setIsPending(false);
+					$this->mapper->update($signSession);
+				} else if ($resp['code'] === '0') {
+					$signSession->setIsPending(false);
+					$signSession->setIsError(true);
+					$signSession->setMessage($resp['message']);
+					$this->mapper->update($signSession);
+				}
 			}
+
+			break;
 		}
     }
 
 	public function openotpStatus(IRequest $request) {
-		$opts = array('location' => $request->getParam('server_url'));
-		$opts['connection_timeout'] = self::CNX_TIME_OUT;
-
-		if ($request->getParam('ignore_ssl_errors')) {
-			$context = stream_context_create([
-				'ssl' => [
-					// set some SSL/TLS specific options
-					'verify_peer' => false,
-					'verify_peer_name' => false,
-					'allow_self_signed' => true
-				]
-			]);
-
-			$opts['stream_context'] = $context;
+		if ($this->useProxy) {
+			$proxyHost = $this->proxyHost;
+			$proxyPort = $this->proxyPort;
+			$proxyUsername = $this->proxyUsername;
+			$proxyPassword = $this->proxyPassword;
+		} else {
+			$proxyHost = false;
+			$proxyPort = false;
+			$proxyUsername = false;
+			$proxyPassword = false;
 		}
 
-		if ($request->getParam('use_proxy')) {
-			$opts['proxy_host'] = $request->getParam('proxy_host');
-			$opts['proxy_port'] = $request->getParam('proxy_port');
-			$opts['proxy_login'] = $request->getParam('proxy_username');
-			$opts['proxy_password'] = $request->getParam('proxy_password');
-		}
+		$client = new nusoap_client($request->getParam('server_url'), false, $proxyHost, $proxyPort, $proxyUsername, $proxyPassword, self::CNX_TIME_OUT);
+		$client->setDebugLevel(0);
+		$client->soap_defencoding = 'UTF-8';
+		$client->decode_utf8 = FALSE;
 
-		$client = new \SoapClient(__DIR__.'/openotp.wsdl', $opts);
-		return $client->openotpStatus();
+		return $client->call('openotpStatus', array());
 	}
 
 	private function sendQRCodeByEmail($signType, $sender, $recipient, $qrCode, $uri) {

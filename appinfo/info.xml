@@ -28,7 +28,6 @@ secure and compliant with the eIDAS regulation.
     <dependencies>
         <php min-version="7.3"/>
         <nextcloud min-version="22" max-version="23"/>
-        <lib>soap</lib>
     </dependencies>
     <navigations>
         <navigation>

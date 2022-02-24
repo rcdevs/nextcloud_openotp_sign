@@ -89,7 +89,7 @@ export default {
 				})
 					.then(response => {
 						Vue.set(this.canceling, index, false)
-						if (response.data.code === 1) {
+						if (response.data.code === '1') {
 							this.requests.splice(index, 1)
 						} else {
 							alert(response.data.message)
