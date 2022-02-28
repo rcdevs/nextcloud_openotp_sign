@@ -64,9 +64,16 @@ class SettingsController extends Controller {
 	public function checkServerUrl() {
 		$resp = $this->signService->openotpStatus($this->request);
 
+		if (isset($resp['status'])) {
+			return new JSONResponse([
+				'status' => $resp['status'],
+				'message' => $resp['message']
+			]);
+		}
+
 		return new JSONResponse([
-			'status' => $resp['status'],
-			'message' => $resp['message']
+			'status' => 'false',
+			'message' => ''
 		]);
 	}
 
