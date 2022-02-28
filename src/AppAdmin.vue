@@ -33,8 +33,7 @@
 						type="text"
 						:name="'ootp_server_url' + index"
 						maxlength="300"
-						:placeholder="'https://myserver' + (parseInt(index) + 1) + ':8443/openotp/'"
-						@input="enableSslSetting">
+						:placeholder="'https://myserver' + (parseInt(index) + 1) + ':8443/openotp/'">
 					<button @click="testConnection(index, serverUrls[index])">
 						{{ $t('openotp_sign', 'Test') }}
 					</button>
@@ -47,11 +46,6 @@
 					<pre v-if="serverMessages[index].length" class="server_message">{{ serverMessages[index] }}</pre>
 				</transition>
 			</div>
-			<p>
-				<CheckboxRadioSwitch :checked.sync="ignoreSslErrors" :disabled="!sslSettingEnabled">
-					{{ $t('openotp_sign', 'Ignore SSL/TLS certificate errors') }}
-				</CheckboxRadioSwitch>
-			</p>
 			<p>
 				<label for="ootp_client_id">{{ $t('openotp_sign', 'OpenOTP client id') }}</label>
 				<input id="ootp_client_id"
@@ -223,16 +217,6 @@ export default {
 			serverUrls,
 			statusesRequesting,
 			serverMessages,
-			ignoreSslErrors: !!this.$parent.ignoreSslErrors,
-			sslSettingEnabled: (function(serverUrls) {
-				for (let i = 0; i < serverUrls.length; ++i) {
-					if (serverUrls[i].startsWith('https://')) {
-						return true
-					}
-				}
-
-				return false
-			}(serverUrls)),
 			clientId: this.$parent.clientId,
 			defaultDomain: this.$parent.defaultDomain,
 			userSettings: this.$parent.userSettings,
@@ -277,7 +261,6 @@ export default {
 
 			axios.post(baseUrl + '/settings', {
 				server_urls: this.serverUrls,
-				ignore_ssl_errors: this.ignoreSslErrors,
 				client_id: this.clientId,
 				default_domain: this.defaultDomain,
 				user_settings: this.userSettings,
@@ -301,17 +284,6 @@ export default {
 					console.log(error)
 				})
 		},
-		enableSslSetting() {
-			let enable = false
-			for (let i = 0; i < this.serverUrls.length; ++i) {
-				if (this.serverUrls[i].startsWith('https://')) {
-					enable = true
-					break
-				}
-			}
-
-			this.sslSettingEnabled = enable
-		},
 		testConnection(serverNum, serverUrl) {
 			this.statusesRequesting[serverNum] = true
 			this.serverMessages[serverNum] = ''
@@ -319,7 +291,6 @@ export default {
 
 			axios.post(baseUrl + '/check_server_url', {
 				server_url: serverUrl,
-				ignore_ssl_errors: this.ignoreSslErrors,
 				use_proxy: this.useProxy,
 				proxy_host: this.proxyHost,
 				proxy_port: this.proxyPort,

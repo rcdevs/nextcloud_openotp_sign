@@ -33,7 +33,6 @@ class SignService {
 
     // Settings
 	private $serverUrls;
-	private $ignoreSslErrors;
 	private $clientId;
 	private $defaultDomain;
 	private $userSettings;
@@ -63,7 +62,6 @@ class SignService {
 		$this->l = $l;
 
 		$this->serverUrls = json_decode($config->getAppValue('openotp_sign', 'server_urls', '[]'));
-		$this->ignoreSslErrors = $config->getAppValue('openotp_sign', 'ignore_ssl_errors');
 		$this->clientId = $config->getAppValue('openotp_sign', 'client_id');
 		$this->defaultDomain = $config->getAppValue('openotp_sign', 'default_domain');
 		$this->userSettings = $config->getAppValue('openotp_sign', 'user_settings');

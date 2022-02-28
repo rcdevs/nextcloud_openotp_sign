@@ -42,7 +42,6 @@ class SettingsController extends Controller {
 
 	public function saveSettings() {
 		$this->config->setAppValue('openotp_sign', 'server_urls', json_encode($this->request->getParam('server_urls')));
-		$this->config->setAppValue('openotp_sign', 'ignore_ssl_errors', $this->request->getParam('ignore_ssl_errors'));
 		$this->config->setAppValue('openotp_sign', 'client_id', $this->request->getParam('client_id'));
 		$this->config->setAppValue('openotp_sign', 'default_domain', $this->request->getParam('default_domain'));
 		$this->config->setAppValue('openotp_sign', 'user_settings', $this->request->getParam('user_settings'));
