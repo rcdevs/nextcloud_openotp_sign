@@ -1,6 +1,7 @@
 1.2.1
 	- Switch from SoapClient to NuSOAP
 	- Fix timezone detection not always working
+	- Remove useless setting to ignore SSL/TLS certificate errors
 1.2.0
 	- Add a demo mode with PDF watermarking
 	- Add a meaningful error message when trying to perform an advanced
