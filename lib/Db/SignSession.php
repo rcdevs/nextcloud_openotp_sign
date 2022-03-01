@@ -53,11 +53,11 @@ class SignSession extends Entity implements JsonSerializable {
             'path' => $this->path,
             'is_qualified' => $this->isQualified,
             'recipient' => $this->recipient,
-            'created' => $this->created->format('Y-m-d H:i:s'),
+            'created' => $this->created->format('Y-m-d H:i:s e'),
             'session' => $this->session,
             'message'=> $this->message,
             'is_yumisign' => $this->isYumisign,
-            'expiration_date' => $this->expirationDate->format('Y-m-d H:i:s')
+            'expiration_date' => $this->expirationDate->format('Y-m-d H:i:s e')
         ];
     }
 }
