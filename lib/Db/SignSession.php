@@ -38,8 +38,10 @@ class SignSession extends Entity implements JsonSerializable {
     }
 
     public static function __constructStatic() {
-        $timezone = trim(shell_exec('date +%Z'));
-        self::$timeZone = new \DateTimeZone($timezone);
+        if (is_callable('shell_exec') && stripos(ini_get('disable_functions'), 'shell_exec') === false) {
+            $timezone = trim(shell_exec('date +%Z'));
+            self::$timeZone = new \DateTimeZone($timezone);
+        }
     }
 
     public function jsonSerialize() {
