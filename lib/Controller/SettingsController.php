@@ -53,6 +53,7 @@ class SettingsController extends Controller {
 		$this->config->setAppValue('openotp_sign', 'signed_file', $this->request->getParam('signed_file'));
 		$this->config->setAppValue('openotp_sign', 'sync_timeout', $this->request->getParam('sync_timeout'));
 		$this->config->setAppValue('openotp_sign', 'async_timeout', $this->request->getParam('async_timeout'));
+		$this->config->setAppValue('openotp_sign', 'cron_interval', $this->request->getParam('cron_interval'));
 		$this->config->setAppValue('openotp_sign', 'enable_demo_mode', $this->request->getParam('enable_demo_mode'));
 		$this->config->setAppValue('openotp_sign', 'watermark_text', $this->request->getParam('watermark_text'));
 

@@ -154,6 +154,21 @@
 					:max="MAX_ASYNC_TIMEOUT">
 			</p>
 		</div>
+		<div id="crontab" class="section">
+			<h2>{{ $t('openotp_sign', 'Completion check of pending asynchronous signatures') }}</h2>
+			<p style="white-space: pre;">{{ $t('openotp_sign', 'Define the execution periodicity of the background job that checks for completed signature requests.\n'
+				+ 'Please note that for this periodicity to be honored, it is necessary to configure NextCloud background\njobs setting with \'Cron\' value and to define the crontab periodicity accordingly.') }}
+			</p>
+			<p>
+				<label for="cron_interval">{{ $t('openotp_sign', 'Background job periodicity (1 - 15 minutes)') }}</label>
+				<input id="cron_interval"
+					v-model="cronInterval"
+					type="number"
+					name="cron_interval"
+					:min="MIN_CRON_INTERVAL"
+					:max="MAX_CRON_INTERVAL">
+			</p>
+		</div>
 		<div id="demo" class="section">
 			<h2>{{ $t('openotp_sign', 'Demo mode') }}</h2>
 			<p>
@@ -228,6 +243,7 @@ export default {
 			signedFile: this.$parent.signedFile,
 			syncTimeout: this.$parent.syncTimeout,
 			asyncTimeout: this.$parent.asyncTimeout,
+			cronInterval: this.$parent.cronInterval,
 			enableDemoMode: !!this.$parent.enableDemoMode,
 			watermarkText: this.$parent.watermarkText,
 			success: false,
@@ -235,6 +251,8 @@ export default {
 			MIN_TIMEOUT: 1,
 			MAX_SYNC_TIMEOUT: 5,
 			MAX_ASYNC_TIMEOUT: 72,
+			MIN_CRON_INTERVAL: 1,
+			MAX_CRON_INTERVAL: 15,
 		}
 	},
 	mounted() {
@@ -252,7 +270,9 @@ export default {
 			if (this.syncTimeout < this.MIN_TIMEOUT
 				|| this.syncTimeout > this.MAX_SYNC_TIMEOUT
 				|| this.asyncTimeout < this.MIN_TIMEOUT
-				|| this.asyncTimeout > this.MAX_ASYNC_TIMEOUT) {
+				|| this.asyncTimeout > this.MAX_ASYNC_TIMEOUT
+				|| this.cronInterval < this.MIN_CRON_INTERVAL
+				|| this.cronInterval > this.MAX_CRON_INTERVAL) {
 				this.failure = true
 				return
 			}
@@ -272,6 +292,7 @@ export default {
 				signed_file: this.signedFile,
 				sync_timeout: this.syncTimeout,
 				async_timeout: this.asyncTimeout,
+				cron_interval: this.cronInterval,
 				enable_demo_mode: this.enableDemoMode,
 				watermark_text: this.watermarkText,
 			})
