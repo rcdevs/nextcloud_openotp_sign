@@ -63,10 +63,14 @@ class RequestsController extends Controller {
 	/**
 	 * @NoAdminRequired
 	 */
-	public function getFailedRequests() {
+	public function getFailedRequests(int $page = 0, int $nbItems = 20) {
 
-        $pendingRequests = $this->mapper->findFailedByUid($this->userId);
+		$count = $this->mapper->countFailedByUid($this->userId);
+		$requests = $this->mapper->findFailedByUid($this->userId, $page, $nbItems);
 
-		return new JSONResponse($pendingRequests);
+		return new JSONResponse([
+			'count' => $count,
+			'requests' => $requests,
+		]);
 	}
 }

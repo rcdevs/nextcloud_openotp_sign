@@ -45,7 +45,23 @@ class SignSessionMapper extends QBMapper {
         return $this->findEntities($qb);
     }
 
-    public function findFailedByUid(string $uid) {
+    public function countFailedByUid(string $uid) {
+        $qb = $this->db->getQueryBuilder();
+
+        $qb->select($qb->createFunction('COUNT(*)'))
+           ->from($this->getTableName())
+           ->where('is_pending=false')
+           ->andWhere('is_error=true')
+           ->andWhere($qb->expr()->eq('uid', $qb->createNamedParameter($uid)));
+
+        $result = $qb->executeQuery();
+        $count = $result->fetchOne();
+        $result->closeCursor();
+
+        return $count;
+    }
+
+    public function findFailedByUid(string $uid, int $page = 0, int $nbItems = 20) {
         $qb = $this->db->getQueryBuilder();
 
         $qb->select('*')
@@ -54,6 +70,9 @@ class SignSessionMapper extends QBMapper {
            ->andWhere('is_error=true')
            ->andWhere($qb->expr()->eq('uid', $qb->createNamedParameter($uid)))
            ->orderBy('created', 'desc');
+
+        $qb->setFirstResult($page * $nbItems);
+        $qb->setMaxResults($nbItems);
 
         return $this->findEntities($qb);
     }

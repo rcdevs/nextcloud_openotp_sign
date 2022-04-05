@@ -8,7 +8,8 @@ rm -f .eslintrc.js
 rm -rf .git/
 rm -f .gitignore
 rm -f Makefile
-rm -rf node_modules/
+#rm -rf node_modules/
+find ./node_modules -mindepth 1 ! -regex '^./node_modules/vuejs-paginate\(/.*\)?' -delete
 rm -f package.json
 rm -f package-lock.json
 rm -f phpunit.integration.xml
