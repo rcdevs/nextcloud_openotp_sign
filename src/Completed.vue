@@ -32,33 +32,49 @@
 				</tr>
 			</tbody>
 		</table>
+		<Paginate v-show="pageCount > 1 && requests.length"
+			:page-count="pageCount"
+			:page-range="3"
+			:margin-pages="2"
+			:click-handler="changePage"
+			:prev-text="'Prev'"
+			:next-text="'Next'"
+			:container-class="'pagination'">
+		</Paginate>
 	</div>
 </template>
 <script>
 import axios from '@nextcloud/axios'
 import { generateUrl, generateFilePath } from '@nextcloud/router'
 import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
+import Paginate from 'vuejs-paginate'
 
 export default {
 	name: 'Completed',
 	components: {
 		EmptyContent,
+		Paginate
 	},
 	data() {
 		return {
+			pageCount: null,
 			requesting: false,
 			requests: [],
 		}
+	},
+	created() {
+		this.NB_ITEMS_PER_PAGE = 20
 	},
 	mounted() {
 		this.loadingImg = generateFilePath('core', '', 'img/') + 'loading.gif'
 		this.requesting = true
 
 		const baseUrl = generateUrl('/apps/openotp_sign')
-		axios.get(baseUrl + '/completed_requests')
+		axios.get(baseUrl + '/completed_requests?nbItems=' + this.NB_ITEMS_PER_PAGE)
 			.then(response => {
 				this.requesting = false
-				this.requests = response.data
+				this.pageCount = Math.ceil(response.data.count / this.NB_ITEMS_PER_PAGE)
+				this.requests = response.data.requests
 			})
 			.catch(error => {
 				this.requesting = false
@@ -66,5 +82,25 @@ export default {
 				console.log(error)
 			})
 	},
+	methods: {
+		changePage(pageNum) {
+			this.requesting = true
+			this.requests = []
+
+			const baseUrl = generateUrl('/apps/openotp_sign')
+
+			axios.get(baseUrl + '/completed_requests?page=' + (pageNum - 1) + '&nbItems=' + this.NB_ITEMS_PER_PAGE)
+				.then(response => {
+					this.requesting = false
+					this.pageCount = Math.ceil(response.data.count / this.NB_ITEMS_PER_PAGE)
+					this.requests = response.data.requests
+				})
+				.catch(error => {
+					this.requesting = false
+					// eslint-disable-next-line
+					console.log(error)
+				})
+		}
+	}
 }
 </script>

@@ -43,21 +43,29 @@ class RequestsController extends Controller {
 	/**
 	 * @NoAdminRequired
 	 */
-	public function getPendingRequests() {
+	public function getPendingRequests(int $page = 0, int $nbItems = 20) {
 
-        $pendingRequests = $this->mapper->findPendingsByUid($this->userId);
+		$count = $this->mapper->countPendingsByUid($this->userId);
+		$requests = $this->mapper->findPendingsByUid($this->userId, $page, $nbItems);
 
-		return new JSONResponse($pendingRequests);
+		return new JSONResponse([
+			'count' => $count,
+			'requests' => $requests,
+		]);
 	}
 
 	/**
 	 * @NoAdminRequired
 	 */
-	public function getCompletedRequests() {
+	public function getCompletedRequests(int $page = 0, int $nbItems = 20) {
 
-        $pendingRequests = $this->mapper->findCompletedByUid($this->userId);
+		$count = $this->mapper->countCompletedByUid($this->userId);
+		$requests = $this->mapper->findCompletedByUid($this->userId, $page, $nbItems);
 
-		return new JSONResponse($pendingRequests);
+		return new JSONResponse([
+			'count' => $count,
+			'requests' => $requests,
+		]);
 	}
 
 	/**
