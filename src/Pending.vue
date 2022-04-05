@@ -139,8 +139,3 @@ export default {
 	},
 }
 </script>
-<style scoped>
-td img {
-	margin: 0 auto;
-}
-</style>

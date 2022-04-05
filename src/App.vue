@@ -77,6 +77,10 @@
 	margin: 25px auto;
 }
 
+#app-content >>> td img {
+	margin: 0 auto;
+}
+
 #app-content >>> .component-container {
 	margin: 20px;
 	width: 100%;
