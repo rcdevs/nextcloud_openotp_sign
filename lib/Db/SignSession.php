@@ -8,6 +8,7 @@ use OCP\AppFramework\Db\Entity;
 class SignSession extends Entity implements JsonSerializable {
 
     private static $timeZone;
+    private static $displayTimeZone;
 
     protected $uid;
     protected $path;
@@ -39,7 +40,8 @@ class SignSession extends Entity implements JsonSerializable {
 
     public static function __constructStatic() {
         if (is_callable('shell_exec') && stripos(ini_get('disable_functions'), 'shell_exec') === false) {
-            $timezone = trim(shell_exec('date +%Z'));
+            $timezone = trim(shell_exec('date +%z'));
+            self::$displayTimeZone = trim(shell_exec('date +%Z'));
             self::$timeZone = new \DateTimeZone($timezone);
         }
     }
@@ -53,11 +55,11 @@ class SignSession extends Entity implements JsonSerializable {
             'path' => $this->path,
             'is_qualified' => $this->isQualified,
             'recipient' => $this->recipient,
-            'created' => $this->created->format('Y-m-d H:i:s e'),
+            'created' => $this->created->format('Y-m-d H:i:s ').self::$displayTimeZone,
             'session' => $this->session,
             'message'=> $this->message,
             'is_yumisign' => $this->isYumisign,
-            'expiration_date' => $this->expirationDate->format('Y-m-d H:i:s e')
+            'expiration_date' => $this->expirationDate->format('Y-m-d H:i:s ').self::$displayTimeZone
         ];
     }
 }
