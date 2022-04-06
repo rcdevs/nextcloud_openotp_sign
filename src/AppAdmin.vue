@@ -136,7 +136,7 @@
 		<div id="timeout" class="section">
 			<h2>{{ $t('openotp_sign', 'Signature requests time out') }}</h2>
 			<p>
-				<label for="sync_timeout">{{ $t('openotp_sign', 'Self-signature (1 - 5 minutes)') }}</label>
+				<label for="sync_timeout">{{ $t('openotp_sign', 'Self-signature ({min} - {max} minutes)', {min: MIN_TIMEOUT, max: MAX_SYNC_TIMEOUT}) }}</label>
 				<input id="sync_timeout"
 					v-model="syncTimeout"
 					type="number"
@@ -145,7 +145,7 @@
 					:max="MAX_SYNC_TIMEOUT">
 			</p>
 			<p>
-				<label for="async_timeout">{{ $t('openotp_sign', 'Nextcloud / YumiSign user signature (1 - 30 days)') }}</label>
+				<label for="async_timeout">{{ $t('openotp_sign', 'Nextcloud / YumiSign user signature ({min} - {max} days)', {min: MIN_TIMEOUT, max: MAX_ASYNC_TIMEOUT}) }}</label>
 				<input id="async_timeout"
 					v-model="asyncTimeout"
 					type="number"
@@ -160,7 +160,7 @@
 				+ 'Please note that for this periodicity to be honored, it is necessary to configure NextCloud background\njobs setting with \'Cron\' value and to define the crontab periodicity accordingly.') }}
 			</p>
 			<p>
-				<label for="cron_interval">{{ $t('openotp_sign', 'Background job periodicity (1 - 15 minutes)') }}</label>
+				<label for="cron_interval">{{ $t('openotp_sign', 'Background job periodicity ({min} - {max} minutes)', {min: MIN_CRON_INTERVAL, max: MAX_CRON_INTERVAL}) }}</label>
 				<input id="cron_interval"
 					v-model="cronInterval"
 					type="number"
