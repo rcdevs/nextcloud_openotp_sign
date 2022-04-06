@@ -145,7 +145,7 @@
 					:max="MAX_SYNC_TIMEOUT">
 			</p>
 			<p>
-				<label for="async_timeout">{{ $t('openotp_sign', 'Nextcloud / YumiSign user signature (1 - 72 hours)') }}</label>
+				<label for="async_timeout">{{ $t('openotp_sign', 'Nextcloud / YumiSign user signature (1 - 30 days)') }}</label>
 				<input id="async_timeout"
 					v-model="asyncTimeout"
 					type="number"
@@ -250,7 +250,7 @@ export default {
 			failure: false,
 			MIN_TIMEOUT: 1,
 			MAX_SYNC_TIMEOUT: 5,
-			MAX_ASYNC_TIMEOUT: 72,
+			MAX_ASYNC_TIMEOUT: 30,
 			MIN_CRON_INTERVAL: 1,
 			MAX_CRON_INTERVAL: 15,
 		}
