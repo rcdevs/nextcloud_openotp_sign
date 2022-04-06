@@ -26,11 +26,12 @@
 		<Modal v-if="modal" size="large" @close="closeModal">
 			<div class="modal__content">
 				<h1>{{ $t('openotp_sign', 'OpenOTP Sign') }}</h1>
-				<p v-if="!settingsOk"
+				<img v-if="checkingSettings" :src="loadingImg">
+				<p v-else-if="!settingsOk"
 					id="error_settings"
 					class="alert alert-danger"
 					v-html="$t('openotp_sign', 'You have to enter the <strong>OpenOTP server URL</strong> in the <strong>OpenOTP Sign</strong> settings prior to sign any document.')" />
-				<div v-if="settingsOk">
+				<div v-else>
 					<img v-if="!success" :src="mobileSigningImg" style="max-height: 200px;">
 					<p v-else id="green-tick">
 						&#10003;
@@ -130,6 +131,7 @@ export default {
 	data() {
 		return {
 			modal: false,
+			checkingSettings: true,
 			requesting: false,
 			success: false,
 			error: false,
@@ -168,6 +170,7 @@ export default {
 				cancelToken: this.source.token,
 			})
 				.then(response => {
+					this.checkingSettings = false
 					this.settingsOk = response.data
 				})
 				.catch(error => {
