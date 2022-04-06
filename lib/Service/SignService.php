@@ -21,7 +21,7 @@ use nusoap_client;
 class SignService {
     use GetsFile;
 
-	const CNX_TIME_OUT = 1;
+	const CNX_TIME_OUT = 3;
 
     /** @var IL10N */
     private $l;
