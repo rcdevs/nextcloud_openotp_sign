@@ -46,8 +46,8 @@
 			:page-range="3"
 			:margin-pages="2"
 			:click-handler="changePage"
-			:prev-text="'Prev'"
-			:next-text="'Next'"
+			:prev-text="$t('openotp_sign', 'Previous')"
+			:next-text="$t('openotp_sign', 'Next')"
 			:container-class="'pagination'">
 		</Paginate>
 	</div>
