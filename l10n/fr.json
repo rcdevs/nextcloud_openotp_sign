@@ -17,7 +17,7 @@
     "Overwrite the original PDF file with its signed / sealed copy" : "Écraser le fichier PDF original avec sa copie signée / scellée",
     "Signature requests time out" : "Délai d’expiration des demandes de signature",
     "Self-signature ({min} - {max} minutes)" : "Auto-signature ({min} - {max} minutes)",
-    "Nextcloud / YumiSign user signature ({min} - {max} days)" : "Signature pour un utilisateur Nextcloud / YumiSign ({min} - {max} heures)",
+    "Nextcloud / YumiSign user signature ({min} - {max} days)" : "Signature pour un utilisateur Nextcloud / YumiSign ({min} - {max} jours)",
     "Completion check of pending asynchronous signatures" : "Vérification de l’achèvement des signatures asynchrones en attente",
     "Define the execution periodicity of the background job that checks for completed signature requests.\nPlease note that for this periodicity to be honored, it is necessary to configure NextCloud background\njobs setting with 'Cron' value and to define the crontab periodicity accordingly." : "Ce paramètre définit la périodicité d’exécution de la tâche en arrière-plan qui vérifie les demandes de signature terminées.\nVeuillez noter que pour que cette périodicité soit respectée, il est nécessaire de configurer le paramètre des tâches de fond de NextCloud\navec la valeur 'Cron' et de définir la périodicité de la crontab en conséquence.",
     "Background job periodicity ({min} - {max} minutes)" : "Périodicité de la tâche en arrière-plan ({min} - {max} minutes)",
