@@ -25,7 +25,7 @@
 			<tbody>
 				<tr v-for="(request, index) in requests" :key="index">
 					<td>{{ request.created }}</td>
-					<td>{{ request.is_advanced ? 'advanced' : 'mobile' }}</td>
+					<td>{{ request.is_advanced ? $t('openotp_sign', 'advanced') : $t('openotp_sign', 'mobile') }}</td>
 					<td>{{ request.recipient }}</td>
 					<td>{{ request.is_yumisign ? 'YumiSign' : 'Nextcloud' }}</td>
 					<td>{{ request.path }}</td>

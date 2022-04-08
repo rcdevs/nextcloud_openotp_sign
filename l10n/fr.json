@@ -70,6 +70,8 @@
     "Demo mode enabled. It is only possible to sign PDF files." : "Mode démonstration activé. Il est uniquement possible de signer des fichiers PDF.",
     "Sign" : "Signature",
     "Nextcloud app to sign your documents with OpenOTP" : "Application Nextcloud pour signer vos documents avec OpenOTP",
+    "advanced" : "avancé",
+    "mobile" : "mobile",
     "Ignore SSL/TLS certificate errors" : "Ignorer les erreurs de certificat SSL/TLS"
 },"pluralForm" :"nplurals=2; plural=(n > 1);"
 }
