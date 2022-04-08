@@ -41,6 +41,7 @@ class SignService {
 	private $proxyPort;
 	private $proxyUsername;
 	private $proxyPassword;
+	private $signScope;
 	private $signedFile;
 	private $syncTimeout;
 	private $asyncTimeout;
@@ -70,6 +71,7 @@ class SignService {
 		$this->proxyPort = $config->getAppValue('openotp_sign', 'proxy_port');
 		$this->proxyUsername = $config->getAppValue('openotp_sign', 'proxy_username');
 		$this->proxyPassword = $config->getAppValue('openotp_sign', 'proxy_password');
+		$this->signScope = $config->getAppValue('openotp_sign', 'sign_scope', 'Global');
 		$this->signedFile = $config->getAppValue('openotp_sign', 'signed_file');
 		$this->syncTimeout = (int) $config->getAppValue('openotp_sign', 'sync_timeout') * 60;
 		$this->asyncTimeout = (int) $config->getAppValue('openotp_sign', 'async_timeout') * 86400;
@@ -479,7 +481,7 @@ class SignService {
 				'issuer' => $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
 				'client' => $this->clientId,
 				'source' => $remoteAddress,
-				'settings' => $this->userSettings,
+				'settings' => "SignScope={$this->signScope},".$this->userSettings,
 				'virtual' => null
 			), 'urn:openotp', '', false, null, 'rpc', 'literal');
 
@@ -568,7 +570,7 @@ class SignService {
 				'issuer' => $sender,
 				'client' => $this->clientId,
 				'source' => $remoteAddress,
-				'settings' => $this->userSettings,
+				'settings' => "SignScope={$this->signScope},".$this->userSettings,
 				'virtual' => null
 			), 'urn:openotp', '', false, null, 'rpc', 'literal');
 
@@ -661,7 +663,7 @@ class SignService {
 				'issuer' => $sender,
 				'client' => $this->clientId,
 				'source' => $remoteAddress,
-				'settings' => $this->userSettings
+				'settings' => "SignScope={$this->signScope},".$this->userSettings
 			), 'urn:openotp', '', false, null, 'rpc', 'literal');
 
 			if ($client->fault) {

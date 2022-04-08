@@ -116,6 +116,30 @@
 					:disabled="!useProxy">
 			</p>
 		</div>
+		<div id="sign_scope" class="section">
+			<h2>{{ $t('openotp_sign', 'Signature scope') }}</h2>
+			<CheckboxRadioSwitch
+				:checked.sync="signScope"
+				value="Local"
+				name="sign_scope_radio"
+				type="radio">
+				{{ $t('openotp_sign', 'Local: Advanced signature with user certificates issued by internal WebADM CA') }}
+			</CheckboxRadioSwitch>
+			<CheckboxRadioSwitch
+				:checked.sync="signScope"
+				value="Global"
+				name="sign_scope_radio"
+				type="radio">
+				{{ $t('openotp_sign', 'Global: Advanced signature with user certificates issued by RCDevs Root CA') }}
+			</CheckboxRadioSwitch>
+			<CheckboxRadioSwitch
+				:checked.sync="signScope"
+				value="eIDAS"
+				name="sign_scope_radio"
+				type="radio">
+				{{ $t('openotp_sign', 'eIDAS: Qualified signature with external eIDAS signing devices (ex. eID Cards)') }}
+			</CheckboxRadioSwitch>
+		</div>
 		<div id="signed_file" class="section">
 			<h2>{{ $t('openotp_sign', 'Signed / sealed PDF File') }}</h2>
 			<CheckboxRadioSwitch
@@ -240,6 +264,7 @@ export default {
 			proxyPort: this.$parent.proxyPort,
 			proxyUsername: this.$parent.proxyUsername,
 			proxyPassword: this.$parent.proxyPassword,
+			signScope: this.$parent.signScope,
 			signedFile: this.$parent.signedFile,
 			syncTimeout: this.$parent.syncTimeout,
 			asyncTimeout: this.$parent.asyncTimeout,
@@ -289,6 +314,7 @@ export default {
 				proxy_port: this.proxyPort,
 				proxy_username: this.proxyUsername,
 				proxy_password: this.proxyPassword,
+				sign_scope: this.signScope,
 				signed_file: this.signedFile,
 				sync_timeout: this.syncTimeout,
 				async_timeout: this.asyncTimeout,

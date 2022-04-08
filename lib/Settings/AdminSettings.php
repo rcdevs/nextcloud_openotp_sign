@@ -52,6 +52,7 @@ class AdminSettings implements ISettings {
             'proxy_port' => $this->config->getAppValue('openotp_sign', 'proxy_port'),
             'proxy_username' => $this->config->getAppValue('openotp_sign', 'proxy_username'),
             'proxy_password' => $this->config->getAppValue('openotp_sign', 'proxy_password'),
+            'sign_scope' => $this->config->getAppValue('openotp_sign', 'sign_scope', 'Global'),
             'signed_file' => $this->config->getAppValue('openotp_sign', 'signed_file', 'copy'),
             'sync_timeout' => $this->config->getAppValue('openotp_sign', 'sync_timeout', 2),
             'async_timeout' => $this->config->getAppValue('openotp_sign', 'async_timeout', 1),
