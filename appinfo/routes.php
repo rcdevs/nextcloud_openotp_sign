@@ -10,12 +10,12 @@
 return [
     'routes' => [
 	   ['name' => 'sign#index', 'url' => '/', 'verb' => 'GET'],
+	   ['name' => 'sign#mobileSign', 'url' => '/mobile_sign', 'verb' => 'POST'],
+	   ['name' => 'sign#asyncLocalMobileSign', 'url' => '/async_local_mobile_sign', 'verb' => 'POST'],
+	   ['name' => 'sign#asyncExternalMobileSign', 'url' => '/async_external_mobile_sign', 'verb' => 'POST'],
 	   ['name' => 'sign#advancedSign', 'url' => '/advanced_sign', 'verb' => 'POST'],
 	   ['name' => 'sign#asyncLocalAdvancedSign', 'url' => '/async_local_advanced_sign', 'verb' => 'POST'],
 	   ['name' => 'sign#asyncExternalAdvancedSign', 'url' => '/async_external_advanced_sign', 'verb' => 'POST'],
-	   ['name' => 'sign#qualifiedSign', 'url' => '/qualified_sign', 'verb' => 'POST'],
-	   ['name' => 'sign#asyncLocalQualifiedSign', 'url' => '/async_local_qualified_sign', 'verb' => 'POST'],
-	   ['name' => 'sign#asyncExternalQualifiedSign', 'url' => '/async_external_qualified_sign', 'verb' => 'POST'],
 	   ['name' => 'sign#seal', 'url' => '/seal', 'verb' => 'POST'],
 	   ['name' => 'sign#getLocalUsers', 'url' => '/get_local_users', 'verb' => 'GET'],
 	   ['name' => 'sign#cancelSignRequest', 'url' => '/cancel_sign_request', 'verb' => 'PUT'],

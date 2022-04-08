@@ -158,7 +158,7 @@ class SignService {
 		return $pdf->Output('S');
 	}
 
-    public function advancedSign($path, $userId, $remoteAddress) {
+    public function mobileSign($path, $userId, $remoteAddress) {
 
 		$isPdf = str_ends_with(strtolower($path), ".pdf");
 
@@ -247,7 +247,7 @@ class SignService {
         return $resp;
     }
 
-    public function asyncLocalAdvancedSign($path, $username, $userId, $remoteAddress, $email) {
+    public function asyncLocalMobileSign($path, $username, $userId, $remoteAddress, $email) {
 
 		$isPdf = str_ends_with(strtolower($path), ".pdf");
 
@@ -341,14 +341,14 @@ class SignService {
 					'qrSizing' => 5,
 					'qrMargin' => 3
 				), 'urn:openotp', '', false, null, 'rpc', 'literal');
-				$this->sendQRCodeByEmail('advanced', $sender, $email, base64_decode($resp2['qrImage']), $resp2['message']);
+				$this->sendQRCodeByEmail('mobile', $sender, $email, base64_decode($resp2['qrImage']), $resp2['message']);
 			}
 		}
 
         return $resp;
     }
 
-	public function asyncExternalAdvancedSign($path, $email, $userId, $remoteAddress) {
+	public function asyncExternalMobileSign($path, $email, $userId, $remoteAddress) {
 
 		$isPdf = str_ends_with(strtolower($path), ".pdf");
 
@@ -428,7 +428,7 @@ class SignService {
         return $resp;
 	}
 
-    public function qualifiedSign($path, $userId, $remoteAddress) {
+    public function advancedSign($path, $userId, $remoteAddress) {
 
 		$isPdf = str_ends_with(strtolower($path), ".pdf");
 
@@ -516,7 +516,7 @@ class SignService {
         return $resp;
     }
 
-    public function asyncLocalQualifiedSign($path, $username, $userId, $remoteAddress, $email) {
+    public function asyncLocalAdvancedSign($path, $username, $userId, $remoteAddress, $email) {
 
 		$isPdf = str_ends_with(strtolower($path), ".pdf");
 
@@ -592,7 +592,7 @@ class SignService {
 			$signSession = new SignSession();
 			$signSession->setUid($userId);
 			$signSession->setPath($path);
-			$signSession->setIsQualified(true);
+			$signSession->setIsAdvanced(true);
 			$signSession->setRecipient($username);
 			$signSession->setSession($resp['session']);
 
@@ -610,14 +610,14 @@ class SignService {
 					'qrSizing' => 5,
 					'qrMargin' => 3
 				), 'urn:openotp', '', false, null, 'rpc', 'literal');
-				$this->sendQRCodeByEmail('qualified', $sender, $email, base64_decode($resp2['qrImage']), $resp2['message']);
+				$this->sendQRCodeByEmail('advanced', $sender, $email, base64_decode($resp2['qrImage']), $resp2['message']);
 			}
 		}
 
         return $resp;
     }
 
-    public function asyncExternalQualifiedSign($path, $email, $userId, $remoteAddress) {
+    public function asyncExternalAdvancedSign($path, $email, $userId, $remoteAddress) {
 
 		$isPdf = str_ends_with(strtolower($path), ".pdf");
 
@@ -684,7 +684,7 @@ class SignService {
 			$signSession = new SignSession();
 			$signSession->setUid($userId);
 			$signSession->setPath($path);
-			$signSession->setIsQualified(true);
+			$signSession->setIsAdvanced(true);
 			$signSession->setRecipient($email);
 			$signSession->setSession($resp['session']);
 			$signSession->setIsYumisign(true);
@@ -804,7 +804,7 @@ class SignService {
 			$client->soap_defencoding = 'UTF-8';
 			$client->decode_utf8 = FALSE;
 
-			if (!$signSession->getIsQualified()) {
+			if (!$signSession->getIsAdvanced()) {
 				$resp = $client->call('openotpCancelConfirm', array(
 					$session
 				), 'urn:openotp', '', false, null, 'rpc', 'literal');
@@ -862,7 +862,7 @@ class SignService {
 
 			$signSessions = $this->mapper->findAllPending();
 			foreach ($signSessions as $signSession) {
-				if (!$signSession->getIsQualified()) {
+				if (!$signSession->getIsAdvanced()) {
 					$resp = $client->call('openotpCheckConfirm', array(
 						$signSession->getSession()
 					), 'urn:openotp', '', false, null, 'rpc', 'literal');

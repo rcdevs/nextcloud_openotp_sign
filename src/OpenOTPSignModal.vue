@@ -90,11 +90,11 @@
 								placeholder="email_address@domain.tld"
 								@input="checkExternalRadio">
 						</div>
+						<button type="button" @click="mobileSignature">
+							{{ $t('openotp_sign', 'Mobile signature') }}
+						</button>
 						<button type="button" @click="advancedSignature">
 							{{ $t('openotp_sign', 'Advanced signature') }}
-						</button>
-						<button type="button" @click="qualifiedSignature">
-							{{ $t('openotp_sign', 'Qualified signature') }}
 						</button>
 					</div>
 					<div v-if="requesting">
@@ -226,12 +226,113 @@ export default {
 
 			this.modal = false
 		},
-		advancedSignature() {
+		mobileSignature() {
 			if (!this.filename.toLowerCase().endsWith('.pdf')) {
-				alert(t('openotp_sign', 'Advanced signature is possible only with PDF files'))
+				alert(t('openotp_sign', 'Mobile signature is possible only with PDF files'))
 				return
 			}
 
+			if (this.recipientType === 'self') {
+				this.syncMobileSignature()
+			} else if (this.recipientType === 'nextcloud') {
+				this.asyncLocalMobileSignature()
+			} else {
+				this.asyncExternalMobileSignature()
+			}
+		},
+		syncMobileSignature() {
+			this.error = false
+			this.requesting = true
+			const baseUrl = generateUrl('/apps/openotp_sign')
+
+			const CancelToken = axios.CancelToken
+			this.source = CancelToken.source()
+			axios.post(baseUrl + '/mobile_sign', {
+				path: this.getFilePath(),
+			}, {
+				cancelToken: this.source.token,
+			})
+				.then(response => {
+					this.requesting = false
+					if (response.data.code === '1') {
+						this.success = true
+					} else {
+						this.error = true
+						this.errorMessage = 'Error: ' + response.data.message
+					}
+				})
+				.catch(error => {
+					this.requesting = false
+					this.error = true
+					this.errorMessage = error
+				})
+		},
+		asyncLocalMobileSignature() {
+			if (this.recipientType === 'nextcloud' && !this.localUser) {
+				return
+			}
+
+			this.error = false
+			this.requesting = true
+			const baseUrl = generateUrl('/apps/openotp_sign')
+
+			const CancelToken = axios.CancelToken
+			this.source = CancelToken.source()
+			axios.post(baseUrl + '/async_local_mobile_sign', {
+				path: this.getFilePath(),
+				username: this.localUser.uid,
+				email: this.localUser.subtitle,
+			}, {
+				cancelToken: this.source.token,
+			})
+				.then(response => {
+					this.requesting = false
+					if (response.data.code === '2') {
+						this.success = true
+					} else {
+						this.error = true
+						this.errorMessage = 'Error: ' + response.data.message
+					}
+				})
+				.catch(error => {
+					this.requesting = false
+					this.error = true
+					this.errorMessage = error
+				})
+		},
+		asyncExternalMobileSignature() {
+			if (this.recipientType === 'external' && !this.externalUserEmail) {
+				return
+			}
+
+			this.error = false
+			this.requesting = true
+			const baseUrl = generateUrl('/apps/openotp_sign')
+
+			const CancelToken = axios.CancelToken
+			this.source = CancelToken.source()
+			axios.post(baseUrl + '/async_external_mobile_sign', {
+				path: this.getFilePath(),
+				email: this.externalUserEmail,
+			}, {
+				cancelToken: this.source.token,
+			})
+				.then(response => {
+					this.requesting = false
+					if (response.data.code === '2') {
+						this.success = true
+					} else {
+						this.error = true
+						this.errorMessage = 'Error: ' + response.data.message
+					}
+				})
+				.catch(error => {
+					this.requesting = false
+					this.error = true
+					this.errorMessage = error
+				})
+		},
+		advancedSignature() {
 			if (this.recipientType === 'self') {
 				this.syncAdvancedSignature()
 			} else if (this.recipientType === 'nextcloud') {
@@ -312,107 +413,6 @@ export default {
 			const CancelToken = axios.CancelToken
 			this.source = CancelToken.source()
 			axios.post(baseUrl + '/async_external_advanced_sign', {
-				path: this.getFilePath(),
-				email: this.externalUserEmail,
-			}, {
-				cancelToken: this.source.token,
-			})
-				.then(response => {
-					this.requesting = false
-					if (response.data.code === '2') {
-						this.success = true
-					} else {
-						this.error = true
-						this.errorMessage = 'Error: ' + response.data.message
-					}
-				})
-				.catch(error => {
-					this.requesting = false
-					this.error = true
-					this.errorMessage = error
-				})
-		},
-		qualifiedSignature() {
-			if (this.recipientType === 'self') {
-				this.syncQualifiedSignature()
-			} else if (this.recipientType === 'nextcloud') {
-				this.asyncLocalQualifiedSignature()
-			} else {
-				this.asyncExternalQualifiedSignature()
-			}
-		},
-		syncQualifiedSignature() {
-			this.error = false
-			this.requesting = true
-			const baseUrl = generateUrl('/apps/openotp_sign')
-
-			const CancelToken = axios.CancelToken
-			this.source = CancelToken.source()
-			axios.post(baseUrl + '/qualified_sign', {
-				path: this.getFilePath(),
-			}, {
-				cancelToken: this.source.token,
-			})
-				.then(response => {
-					this.requesting = false
-					if (response.data.code === '1') {
-						this.success = true
-					} else {
-						this.error = true
-						this.errorMessage = 'Error: ' + response.data.message
-					}
-				})
-				.catch(error => {
-					this.requesting = false
-					this.error = true
-					this.errorMessage = error
-				})
-		},
-		asyncLocalQualifiedSignature() {
-			if (this.recipientType === 'nextcloud' && !this.localUser) {
-				return
-			}
-
-			this.error = false
-			this.requesting = true
-			const baseUrl = generateUrl('/apps/openotp_sign')
-
-			const CancelToken = axios.CancelToken
-			this.source = CancelToken.source()
-			axios.post(baseUrl + '/async_local_qualified_sign', {
-				path: this.getFilePath(),
-				username: this.localUser.uid,
-				email: this.localUser.subtitle,
-			}, {
-				cancelToken: this.source.token,
-			})
-				.then(response => {
-					this.requesting = false
-					if (response.data.code === '2') {
-						this.success = true
-					} else {
-						this.error = true
-						this.errorMessage = 'Error: ' + response.data.message
-					}
-				})
-				.catch(error => {
-					this.requesting = false
-					this.error = true
-					this.errorMessage = error
-				})
-		},
-		asyncExternalQualifiedSignature() {
-			if (this.recipientType === 'external' && !this.externalUserEmail) {
-				return
-			}
-
-			this.error = false
-			this.requesting = true
-			const baseUrl = generateUrl('/apps/openotp_sign')
-
-			const CancelToken = axios.CancelToken
-			this.source = CancelToken.source()
-			axios.post(baseUrl + '/async_external_qualified_sign', {
 				path: this.getFilePath(),
 				email: this.externalUserEmail,
 			}, {

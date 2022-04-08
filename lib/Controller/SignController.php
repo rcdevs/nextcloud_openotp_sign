@@ -47,6 +47,42 @@ class SignController extends Controller {
 	/**
 	 * @NoAdminRequired
 	 */
+	public function mobileSign() {
+		$resp = $this->signService->mobileSign($this->request->getParam('path'), $this->userId, $this->request->getRemoteAddress());
+
+		return new JSONResponse([
+			'code' => $resp['code'],
+			'message' => $resp['message']
+		]);
+	}
+
+	/**
+	 * @NoAdminRequired
+	 */
+	public function asyncLocalMobileSign() {
+		$resp = $this->signService->asyncLocalMobileSign($this->request->getParam('path'), $this->request->getParam('username'), $this->userId, $this->request->getRemoteAddress(), $this->request->getParam('email'));
+
+		return new JSONResponse([
+			'code' => $resp['code'],
+			'message' => $resp['message'],
+		]);
+	}
+
+	/**
+	 * @NoAdminRequired
+	 */
+	public function asyncExternalMobileSign() {
+		$resp = $this->signService->asyncExternalMobileSign($this->request->getParam('path'), $this->request->getParam('email'), $this->userId, $this->request->getRemoteAddress());
+
+		return new JSONResponse([
+			'code' => $resp['code'],
+			'message' => $resp['message'],
+		]);
+	}
+
+	/**
+	 * @NoAdminRequired
+	 */
 	public function advancedSign() {
 		$resp = $this->signService->advancedSign($this->request->getParam('path'), $this->userId, $this->request->getRemoteAddress());
 
@@ -64,7 +100,7 @@ class SignController extends Controller {
 
 		return new JSONResponse([
 			'code' => $resp['code'],
-			'message' => $resp['message'],
+			'message' => $resp['message']
 		]);
 	}
 
@@ -73,42 +109,6 @@ class SignController extends Controller {
 	 */
 	public function asyncExternalAdvancedSign() {
 		$resp = $this->signService->asyncExternalAdvancedSign($this->request->getParam('path'), $this->request->getParam('email'), $this->userId, $this->request->getRemoteAddress());
-
-		return new JSONResponse([
-			'code' => $resp['code'],
-			'message' => $resp['message'],
-		]);
-	}
-
-	/**
-	 * @NoAdminRequired
-	 */
-	public function qualifiedSign() {
-		$resp = $this->signService->qualifiedSign($this->request->getParam('path'), $this->userId, $this->request->getRemoteAddress());
-
-		return new JSONResponse([
-			'code' => $resp['code'],
-			'message' => $resp['message']
-		]);
-	}
-
-	/**
-	 * @NoAdminRequired
-	 */
-	public function asyncLocalQualifiedSign() {
-		$resp = $this->signService->asyncLocalQualifiedSign($this->request->getParam('path'), $this->request->getParam('username'), $this->userId, $this->request->getRemoteAddress(), $this->request->getParam('email'));
-
-		return new JSONResponse([
-			'code' => $resp['code'],
-			'message' => $resp['message']
-		]);
-	}
-
-	/**
-	 * @NoAdminRequired
-	 */
-	public function asyncExternalQualifiedSign() {
-		$resp = $this->signService->asyncExternalQualifiedSign($this->request->getParam('path'), $this->request->getParam('email'), $this->userId, $this->request->getRemoteAddress());
 
 		return new JSONResponse([
 			'code' => $resp['code'],

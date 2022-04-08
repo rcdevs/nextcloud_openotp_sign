@@ -12,7 +12,7 @@ class SignSession extends Entity implements JsonSerializable {
 
     protected $uid;
     protected $path;
-    protected $isQualified;
+    protected $isAdvanced;
     protected $recipient;
     protected $created;
     protected $session;
@@ -24,14 +24,14 @@ class SignSession extends Entity implements JsonSerializable {
 
     public function __construct() {
         $this->addType('id','integer');
-        $this->addType('isQualified', 'boolean');
+        $this->addType('isAdvanced', 'boolean');
         $this->addType('created', 'datetime');
         $this->addType('isPending', 'boolean');
         $this->addType('isError', 'boolean');
         $this->addType('isYumisign', 'boolean');
         $this->addType('expirationDate', 'datetime');
 
-        $this->setIsQualified(false);
+        $this->setIsAdvanced(false);
         $this->setCreated(new \DateTime());
         $this->setIsPending(true);
         $this->setIsError(false);
@@ -53,7 +53,7 @@ class SignSession extends Entity implements JsonSerializable {
         return [
             'id' => $this->id,
             'path' => $this->path,
-            'is_qualified' => $this->isQualified,
+            'is_advanced' => $this->isAdvanced,
             'recipient' => $this->recipient,
             'created' => $this->created->format('Y-m-d H:i:s ').self::$displayTimeZone,
             'session' => $this->session,

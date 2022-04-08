@@ -28,7 +28,7 @@
 				<tr v-for="(request, index) in requests" :key="index">
 					<td>{{ request.created }}</td>
 					<td>{{ request.expiration_date }}</td>
-					<td>{{ request.is_qualified ? 'qualified' : 'advanced' }}</td>
+					<td>{{ request.is_advanced ? 'advanced' : 'mobile' }}</td>
 					<td>{{ request.recipient }}</td>
 					<td>{{ request.is_yumisign ? 'YumiSign' : 'Nextcloud' }}</td>
 					<td>{{ request.path }}</td>
