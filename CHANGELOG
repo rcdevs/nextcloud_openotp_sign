@@ -1,6 +1,7 @@
 1.3.1
 	- Add sign scope setting
 	- Rename signature types (advanced -> mobile, qualified -> advanced)
+	- Fix signature requests not displayed if shell_exec is disabled on PHP 8
 1.3.0
 	- Extend the async signature time out setting up to 30 days
 	- Add a setting to set the periodicity of the background job that
