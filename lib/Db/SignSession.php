@@ -43,12 +43,16 @@ class SignSession extends Entity implements JsonSerializable {
             $timezone = trim(shell_exec('date +%z'));
             self::$displayTimeZone = trim(shell_exec('date +%Z'));
             self::$timeZone = new \DateTimeZone($timezone);
+        } else {
+            self::$displayTimeZone = date('T');
         }
     }
 
     public function jsonSerialize() {
-        $this->created->setTimezone(self::$timeZone);
-        $this->expirationDate->setTimezone(self::$timeZone);
+        if (self::$timeZone != NULL) {
+            $this->created->setTimezone(self::$timeZone);
+            $this->expirationDate->setTimezone(self::$timeZone);
+        }
 
         return [
             'id' => $this->id,
