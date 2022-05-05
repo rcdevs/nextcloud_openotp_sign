@@ -17,7 +17,7 @@ secure and compliant with the eIDAS regulation.
 ]]></description>
     <screenshot>https://raw.githubusercontent.com/rcdevs/nextcloud_openotp_sign/master/img/screenshots/screenshot-modal.png</screenshot>
     <screenshot>https://raw.githubusercontent.com/rcdevs/nextcloud_openotp_sign/master/img/screenshots/screenshot-menu.png</screenshot>
-    <version>1.3.1</version>
+    <version>1.3.2</version>
     <licence>agpl</licence>
     <author mail="info@rcdevs.com" >RCDevs</author>
     <namespace>OpenOTPSign</namespace>
