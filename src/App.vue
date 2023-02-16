@@ -1,6 +1,10 @@
 <template>
+	<!--
+	SPDX-FileCopyrightText: RCDevs <netadm@rcdevs.com>
+	SPDX-License-Identifier: AGPL-3.0-or-later
+	-->
 	<div class="app-container">
-		<div id="app-navigation">
+		<div id="app-navigation" role="navigation">
 			<ul>
 				<li>
 					<router-link to="/">
@@ -27,16 +31,31 @@
 				</div>
 			</div>
 		</div>
-
-		<div id="app-content">
+		<div id="app-content" tabindex="0" touch-action="pan-y">
 			<div id="app-content-wrapper">
 				<router-view />
 			</div>
 		</div>
 	</div>
 </template>
+
 <style scoped>
+.flex-container {
+	display: flex;
+}
+
+.flex-child {
+	flex: 1;
+	border: 2px solid yellow;
+}
+
+.flex-child:first-child {
+	margin-right: 20px;
+}
+
 .app-container {
+	margin-top: 0px;
+	display: flex;
 	width: 100%;
 }
 

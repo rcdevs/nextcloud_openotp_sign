@@ -3,3 +3,8 @@ vendor
 build
 js
 translationfiles/templates/
+*.code-workspace
+Ω*.*
+*.url
+/*.gz
+/*.7z

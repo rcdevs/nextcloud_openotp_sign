@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<info xmlns:xsi= "http://www.w3.org/2001/XMLSchema-instance"
-      xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
     <id>openotp_sign</id>
     <name>OpenOTP Sign</name>
     <summary>Nextcloud app to sign your documents with OpenOTP</summary>
@@ -15,19 +15,23 @@ secure and compliant with the eIDAS regulation.
 * Qualified Electronic Signature with our YumiSign Card Reader for IOS & Android
 * Sealing by YumiSign HSMs
 ]]></description>
-    <screenshot>https://raw.githubusercontent.com/rcdevs/nextcloud_openotp_sign/master/img/screenshots/screenshot-modal.png</screenshot>
-    <screenshot>https://raw.githubusercontent.com/rcdevs/nextcloud_openotp_sign/master/img/screenshots/screenshot-menu.png</screenshot>
-    <version>1.3.2</version>
+    <screenshot>
+        https://raw.githubusercontent.com/rcdevs/nextcloud_openotp_sign/master/img/screenshots/screenshot-modal.png
+    </screenshot>
+    <screenshot>
+        https://raw.githubusercontent.com/rcdevs/nextcloud_openotp_sign/master/img/screenshots/screenshot-menu.png
+    </screenshot>
+    <version>1.3.3</version>
     <licence>agpl</licence>
-    <author mail="info@rcdevs.com" >RCDevs</author>
+    <author mail="info@rcdevs.com">RCDevs</author>
     <namespace>OpenOTPSign</namespace>
     <category>files</category>
     <category>office</category>
     <category>tools</category>
     <bugs>https://github.com/rcdevs/nextcloud_openotp_sign/issues</bugs>
     <dependencies>
-        <php min-version="7.3"/>
-        <nextcloud min-version="22" max-version="24"/>
+        <php min-version="7.3" />
+        <nextcloud min-version="24" max-version="25" />
     </dependencies>
     <navigations>
         <navigation>
@@ -40,6 +44,6 @@ secure and compliant with the eIDAS regulation.
         <admin-section>OCA\OpenOTPSign\Settings\AdminSection</admin-section>
     </settings>
     <background-jobs>
-                <job>OCA\OpenOTPSign\Cron\CheckAsyncSignatureTask</job>
+        <job>OCA\OpenOTPSign\Cron\CheckAsyncSignatureTask</job>
     </background-jobs>
 </info>

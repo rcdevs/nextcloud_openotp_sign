@@ -48,8 +48,7 @@
 			:click-handler="changePage"
 			:prev-text="$t('openotp_sign', 'Previous')"
 			:next-text="$t('openotp_sign', 'Next')"
-			:container-class="'pagination'">
-		</Paginate>
+			:container-class="'pagination'" />
 	</div>
 </template>
 <script>
@@ -63,7 +62,7 @@ export default {
 	name: 'Pending',
 	components: {
 		EmptyContent,
-		Paginate
+		Paginate,
 	},
 	data() {
 		return {
@@ -135,7 +134,7 @@ export default {
 					// eslint-disable-next-line
 					console.log(error)
 				})
-		}
+		},
 	},
 }
 </script>

@@ -20,9 +20,6 @@
 	*
 	-->
 	<div>
-		<button @click="showModal">
-			Show Modal
-		</button>
 		<Modal v-if="modal" size="large" @close="closeModal">
 			<div class="modal__content">
 				<h1>{{ $t('openotp_sign', 'OpenOTP Sign') }}</h1>

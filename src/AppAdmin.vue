@@ -180,8 +180,9 @@
 		</div>
 		<div id="crontab" class="section">
 			<h2>{{ $t('openotp_sign', 'Completion check of pending asynchronous signatures') }}</h2>
-			<p style="white-space: pre;">{{ $t('openotp_sign', 'Define the execution periodicity of the background job that checks for completed signature requests.\n'
-				+ 'Please note that for this periodicity to be honored, it is necessary to configure NextCloud background\njobs setting with \'Cron\' value and to define the crontab periodicity accordingly.') }}
+			<p style="white-space: pre;">
+				{{ $t('openotp_sign', 'Define the execution periodicity of the background job that checks for completed signature requests.\n'
+					+ 'Please note that for this periodicity to be honored, it is necessary to configure NextCloud background\njobs setting with \'Cron\' value and to define the crontab periodicity accordingly.') }}
 			</p>
 			<p>
 				<label for="cron_interval">{{ $t('openotp_sign', 'Background job periodicity ({min} - {max} minutes)', {min: MIN_CRON_INTERVAL, max: MAX_CRON_INTERVAL}) }}</label>

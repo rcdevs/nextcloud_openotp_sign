@@ -206,7 +206,6 @@ class SignService {
 				'data' => $data,
 				'file' => base64_encode($this->addWatermark($fileContent, $fileName, $isPdf)),
 				'form' => null,
-				'scan' => false,
 				'async' => false,
 				'timeout' => $this->syncTimeout,
 				'issuer' => $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
@@ -237,7 +236,7 @@ class SignService {
 				if ($this->signedFile == "overwrite") {
 					$newPath = $path;
 				} else {
-					$newPath = substr_replace($path, sprintf('-%s-signed', date('Ymdhis')), strrpos($path, '.'), 0);
+					$newPath = substr_replace($path, sprintf('_signed_%s', date('Y-m-d_H.i.s')), strrpos($path, '.'), 0);
 				}
 			} else {
 				$newPath = $path . ".p7s";
@@ -296,7 +295,6 @@ class SignService {
 				'data' => $data,
 				'file' => base64_encode($this->addWatermark($fileContent, $fileName, $isPdf)),
 				'form' => null,
-				'scan' => false,
 				'async' => true,
 				'timeout' => $this->asyncTimeout,
 				'issuer' => $sender,
@@ -388,7 +386,6 @@ class SignService {
 			$resp = $client->call('openotpExternConfirm', array(
 				'recipient' => $email,
 				'file' => base64_encode($this->addWatermark($fileContent, $fileName, $isPdf)),
-				'scan' => false,
 				'async' => true,
 				'timeout' => $this->asyncTimeout,
 				'issuer' => $sender,
@@ -506,7 +503,7 @@ class SignService {
 				if ($this->signedFile == "overwrite") {
 					$newPath = $path;
 				} else {
-					$newPath = substr_replace($path, sprintf('-%s-signed', date('Ymdhis')), strrpos($path, '.'), 0);
+					$newPath = substr_replace($path, sprintf('_signed_%s', date('Y-m-d_H.i.s')), strrpos($path, '.'), 0);
 				}
 			} else {
 				$newPath = $path . ".p7s";
@@ -760,7 +757,7 @@ class SignService {
 				if ($this->signedFile == "overwrite") {
 					$newPath = $path;
 				} else {
-					$newPath = substr_replace($path, sprintf('-%s-sealed', date('Ymdhis')), strrpos($path, '.'), 0);
+					$newPath = substr_replace($path, sprintf('_sealed_%s', date('Y-m-d_H.i.s')), strrpos($path, '.'), 0);
 				}
 			} else {
 				$newPath = $path . ".p7s";
@@ -893,7 +890,7 @@ class SignService {
 						if ($this->signedFile == "overwrite") {
 							$newPath = $path;
 						} else {
-							$newPath = substr_replace($path, sprintf('-%s-%s-signed', $signSession->getRecipient(), date('Ymdhis')), strrpos($path, '.'), 0);
+							$newPath = substr_replace($path, sprintf('_signed_%s-%s', $signSession->getRecipient(), date('Y-m-d_H.i.s')), strrpos($path, '.'), 0);
 						}
 					} else {
 						$newPath = $path . ".p7s";
