@@ -79,9 +79,6 @@ class SettingsController extends Controller {
 		]);
 	}
 
-	/**
-	 * @NoAdminRequired
-	 */
 	public function checkSettings() {
 		$serverUrls = json_decode($this->config->getAppValue('openotp_sign', 'server_urls', '[]'));
 		$empty = true;
