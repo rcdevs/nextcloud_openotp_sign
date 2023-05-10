@@ -45,8 +45,7 @@ class AdminSettings implements ISettings {
         return new TemplateResponse('openotp_sign', 'settings/admin', [
             'server_urls' => $this->config->getAppValue('openotp_sign', 'server_urls', '[]'),
             'client_id' => $this->config->getAppValue('openotp_sign', 'client_id', 'Nextcloud'),
-            'default_domain' => $this->config->getAppValue('openotp_sign', 'default_domain'),
-            'user_settings' => $this->config->getAppValue('openotp_sign', 'user_settings'),
+            'api_key' => $this->config->getAppValue('openotp_sign', 'api_key'),
             'use_proxy' => $this->config->getAppValue('openotp_sign', 'use_proxy'),
             'proxy_host' => $this->config->getAppValue('openotp_sign', 'proxy_host'),
             'proxy_port' => $this->config->getAppValue('openotp_sign', 'proxy_port'),

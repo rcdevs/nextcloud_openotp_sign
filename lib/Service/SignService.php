@@ -34,8 +34,7 @@ class SignService {
     // Settings
 	private $serverUrls;
 	private $clientId;
-	private $defaultDomain;
-	private $userSettings;
+	private $apiKey;
 	private $useProxy;
 	private $proxyHost;
 	private $proxyPort;
@@ -64,8 +63,7 @@ class SignService {
 
 		$this->serverUrls = json_decode($config->getAppValue('openotp_sign', 'server_urls', '[]'));
 		$this->clientId = $config->getAppValue('openotp_sign', 'client_id');
-		$this->defaultDomain = $config->getAppValue('openotp_sign', 'default_domain');
-		$this->userSettings = $config->getAppValue('openotp_sign', 'user_settings');
+		$this->apiKey = $config->getAppValue('openotp_sign', 'api_key');
 		$this->useProxy = $config->getAppValue('openotp_sign', 'use_proxy');
 		$this->proxyHost = $config->getAppValue('openotp_sign', 'proxy_host');
 		$this->proxyPort = $config->getAppValue('openotp_sign', 'proxy_port');
@@ -200,9 +198,14 @@ class SignService {
 			$client->soap_defencoding = 'UTF-8';
 			$client->decode_utf8 = FALSE;
 
+			$client->setUseCurl(true);
+			$client->setCurlOption(CURLOPT_HTTPHEADER, [
+				"Content-type: text/xml;charset=\"utf-8\"",
+				"WA-API-Key: {$this->apiKey}",
+			]);
+	
 			$resp = $client->call('openotpNormalConfirm', array(
 				'username' => $userId,
-				'domain' => $this->defaultDomain,
 				'data' => $data,
 				'file' => base64_encode($this->addWatermark($fileContent, $fileName, $isPdf)),
 				'form' => null,
@@ -211,7 +214,6 @@ class SignService {
 				'issuer' => $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
 				'client' => $this->clientId,
 				'source' => $remoteAddress,
-				'settings' => $this->userSettings,
 				'virtual' => null
 			), 'urn:openotp', '', false, null, 'rpc', 'literal');
 
@@ -289,9 +291,14 @@ class SignService {
 			$client->soap_defencoding = 'UTF-8';
 			$client->decode_utf8 = FALSE;
 
+			$client->setUseCurl(true);
+			$client->setCurlOption(CURLOPT_HTTPHEADER, [
+				"Content-type: text/xml;charset=\"utf-8\"",
+				"WA-API-Key: {$this->apiKey}",
+			]);
+	
 			$resp = $client->call('openotpNormalConfirm', array(
 				'username' => $username,
-				'domain' => $this->defaultDomain,
 				'data' => $data,
 				'file' => base64_encode($this->addWatermark($fileContent, $fileName, $isPdf)),
 				'form' => null,
@@ -300,7 +307,6 @@ class SignService {
 				'issuer' => $sender,
 				'client' => $this->clientId,
 				'source' => $remoteAddress,
-				'settings' => $this->userSettings,
 				'virtual' => null
 			), 'urn:openotp', '', false, null, 'rpc', 'literal');
 
@@ -383,6 +389,12 @@ class SignService {
 			$client->soap_defencoding = 'UTF-8';
 			$client->decode_utf8 = FALSE;
 
+			$client->setUseCurl(true);
+			$client->setCurlOption(CURLOPT_HTTPHEADER, [
+				"Content-type: text/xml;charset=\"utf-8\"",
+				"WA-API-Key: {$this->apiKey}",
+			]);
+	
 			$resp = $client->call('openotpExternConfirm', array(
 				'recipient' => $email,
 				'file' => base64_encode($this->addWatermark($fileContent, $fileName, $isPdf)),
@@ -391,7 +403,6 @@ class SignService {
 				'issuer' => $sender,
 				'client' => $this->clientId,
 				'source' => $remoteAddress,
-				'settings' => $this->userSettings
 			), 'urn:openotp', '', false, null, 'rpc', 'literal');
 
 			if ($client->fault) {
@@ -467,9 +478,14 @@ class SignService {
 			$client->soap_defencoding = 'UTF-8';
 			$client->decode_utf8 = FALSE;
 
+			$client->setUseCurl(true);
+			$client->setCurlOption(CURLOPT_HTTPHEADER, [
+				"Content-type: text/xml;charset=\"utf-8\"",
+				"WA-API-Key: {$this->apiKey}",
+			]);
+	
 			$resp = $client->call('openotpNormalSign', array(
 				'username' => $userId,
-				'domain' => $this->defaultDomain,
 				'data' => $data,
 				'file' => base64_encode($this->addWatermark($fileContent, $fileName, $isPdf)),
 				'mode' => '',
@@ -478,7 +494,6 @@ class SignService {
 				'issuer' => $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
 				'client' => $this->clientId,
 				'source' => $remoteAddress,
-				'settings' => "SignScope={$this->signScope},".$this->userSettings,
 				'virtual' => null
 			), 'urn:openotp', '', false, null, 'rpc', 'literal');
 
@@ -556,9 +571,14 @@ class SignService {
 			$client->soap_defencoding = 'UTF-8';
 			$client->decode_utf8 = FALSE;
 
+			$client->setUseCurl(true);
+			$client->setCurlOption(CURLOPT_HTTPHEADER, [
+				"Content-type: text/xml;charset=\"utf-8\"",
+				"WA-API-Key: {$this->apiKey}",
+			]);
+	
 			$resp = $client->call('openotpNormalSign', array(
 				'username' => $username,
-				'domain' => $this->defaultDomain,
 				'data' => $data,
 				'file' => base64_encode($this->addWatermark($fileContent, $fileName, $isPdf)),
 				'mode' => '',
@@ -567,7 +587,6 @@ class SignService {
 				'issuer' => $sender,
 				'client' => $this->clientId,
 				'source' => $remoteAddress,
-				'settings' => "SignScope={$this->signScope},".$this->userSettings,
 				'virtual' => null
 			), 'urn:openotp', '', false, null, 'rpc', 'literal');
 
@@ -651,6 +670,12 @@ class SignService {
 			$client->soap_defencoding = 'UTF-8';
 			$client->decode_utf8 = FALSE;
 
+			$client->setUseCurl(true);
+			$client->setCurlOption(CURLOPT_HTTPHEADER, [
+				"Content-type: text/xml;charset=\"utf-8\"",
+				"WA-API-Key: {$this->apiKey}",
+			]);
+	
 			$resp = $client->call('openotpExternSign', array(
 				'recipient' => $email,
 				'file' => base64_encode($this->addWatermark($fileContent, $fileName, $isPdf)),
@@ -660,7 +685,6 @@ class SignService {
 				'issuer' => $sender,
 				'client' => $this->clientId,
 				'source' => $remoteAddress,
-				'settings' => "SignScope={$this->signScope},".$this->userSettings
 			), 'urn:openotp', '', false, null, 'rpc', 'literal');
 
 			if ($client->fault) {
@@ -728,12 +752,17 @@ class SignService {
 			$client->soap_defencoding = 'UTF-8';
 			$client->decode_utf8 = FALSE;
 
+			$client->setUseCurl(true);
+			$client->setCurlOption(CURLOPT_HTTPHEADER, [
+				"Content-type: text/xml;charset=\"utf-8\"",
+				"WA-API-Key: {$this->apiKey}",
+			]);
+	
 			$resp = $client->call('openotpSeal', array(
 				'file' => base64_encode($this->addWatermark($fileContent, $fileName, $isPdf)),
 				'mode' => '',
 				'client' => $this->clientId,
 				'source' => $remoteAddress,
-				'settings' => 'CaDESMode=Detached,'.$this->userSettings
 			), 'urn:openotp', '', false, null, 'rpc', 'literal');
 
 			if ($client->fault) {
@@ -803,6 +832,12 @@ class SignService {
 			$client->soap_defencoding = 'UTF-8';
 			$client->decode_utf8 = FALSE;
 
+			$client->setUseCurl(true);
+			$client->setCurlOption(CURLOPT_HTTPHEADER, [
+				"Content-type: text/xml;charset=\"utf-8\"",
+				"WA-API-Key: {$this->apiKey}",
+			]);
+	
 			if (!$signSession->getIsAdvanced()) {
 				$resp = $client->call('openotpCancelConfirm', array(
 					$session
@@ -859,6 +894,12 @@ class SignService {
 			$client->soap_defencoding = 'UTF-8';
 			$client->decode_utf8 = FALSE;
 
+			$client->setUseCurl(true);
+			$client->setCurlOption(CURLOPT_HTTPHEADER, [
+				"Content-type: text/xml;charset=\"utf-8\"",
+				"WA-API-Key: {$this->apiKey}",
+			]);
+	
 			$signSessions = $this->mapper->findAllPending();
 			foreach ($signSessions as $signSession) {
 				if (!$signSession->getIsAdvanced()) {
@@ -929,6 +970,12 @@ class SignService {
 		$client->setDebugLevel(0);
 		$client->soap_defencoding = 'UTF-8';
 		$client->decode_utf8 = FALSE;
+
+		$client->setUseCurl(true);
+		$client->setCurlOption(CURLOPT_HTTPHEADER, [
+			"Content-type: text/xml;charset=\"utf-8\"",
+			"WA-API-Key: {$request->getParam('api_key')}",
+		]);
 
 		return $client->call('openotpStatus', array());
 	}

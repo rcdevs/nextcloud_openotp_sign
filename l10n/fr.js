@@ -23,7 +23,7 @@ OC.L10N.register(
     "Overwrite the original PDF file with its signed / sealed copy" : "Écraser le fichier PDF original avec sa copie signée / scellée",
     "Signature requests time out" : "Délai d’expiration des demandes de signature",
     "Self-signature ({min} - {max} minutes)" : "Auto-signature ({min} - {max} minutes)",
-    "Nextcloud / YumiSign user signature ({min} - {max} days)" : "Signature pour un utilisateur Nextcloud / YumiSign ({min} - {max} jours)",
+    "Nextcloud user signature ({min} - {max} days)" : "Signature pour un utilisateur Nextcloud ({min} - {max} jours)",
     "Completion check of pending asynchronous signatures" : "Vérification de l’achèvement des signatures asynchrones en attente",
     "Define the execution periodicity of the background job that checks for completed signature requests.\nPlease note that for this periodicity to be honored, it is necessary to configure NextCloud background\njobs setting with 'Cron' value and to define the crontab periodicity accordingly." : "Ce paramètre définit la périodicité d’exécution de la tâche en arrière-plan qui vérifie les demandes de signature terminées.\nVeuillez noter que pour que cette périodicité soit respectée, il est nécessaire de configurer le paramètre des tâches de fond de NextCloud\navec la valeur 'Cron' et de définir la périodicité de la crontab en conséquence.",
     "Background job periodicity ({min} - {max} minutes)" : "Périodicité de la tâche en arrière-plan ({min} - {max} minutes)",
@@ -74,6 +74,13 @@ OC.L10N.register(
     "Nextcloud app to sign your documents with OpenOTP" : "Application Nextcloud pour signer vos documents avec OpenOTP",
     "advanced" : "avancé",
     "mobile" : "mobile",
-    "Ignore SSL/TLS certificate errors" : "Ignorer les erreurs de certificat SSL/TLS"
+    "OpenOTP API key" : "Clé d'API OpenOTP",
+    "The cron job is activated" : "La tâche cron est activée",
+    "The cron job is activated; the last time the job ran was at %s" : "La tâche cron est activée ; la dernière exécution du processus était à %s",
+    "The cron job was disabled at %s" : "La tâche cron a été désactivée à %s",
+    "Checking process failed at %s" : "Le processus de vérification a échoué à %s",
+    "Checking Cron" : "Vérification du Cron",
+    "The cron job has been activated at %s" : "La tâche cron a été activée à %s",
+    "Reset cron" : "Réactiver cron"
 },
 "nplurals=2; plural=(n > 1);");
