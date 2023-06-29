@@ -13,7 +13,7 @@ secure and compliant with the eIDAS regulation.
 * Strong Authentication
 * Advanced Signature
 ]]></description>
-    <version>1.4.0</version>
+    <version>1.4.1</version>
 
     <licence>agpl</licence>
     <author mail="info@rcdevs.com">RCDevs</author>

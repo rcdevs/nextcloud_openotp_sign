@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @copyright Copyright (c) 2021, RCDevs (info@rcdevs.com)
@@ -29,18 +30,21 @@ use OCP\IConfig;
 
 use OCA\OpenOTPSign\Service\SignService;
 
-class SettingsController extends Controller {
+class SettingsController extends Controller
+{
 
 	private $config;
 	private $signService;
 
-	public function __construct($AppName, IRequest $request, IConfig $config, SignService $signService){
+	public function __construct($AppName, IRequest $request, IConfig $config, SignService $signService)
+	{
 		parent::__construct($AppName, $request);
 		$this->config = $config;
 		$this->signService = $signService;
 	}
 
-	public function saveSettings() {
+	public function saveSettings()
+	{
 		$this->config->setAppValue('openotp_sign', 'server_urls', json_encode($this->request->getParam('server_urls')));
 		$this->config->setAppValue('openotp_sign', 'client_id', $this->request->getParam('client_id'));
 		$this->config->setAppValue('openotp_sign', 'api_key', $this->request->getParam('api_key'));
@@ -62,7 +66,8 @@ class SettingsController extends Controller {
 		]);
 	}
 
-	public function checkServerUrl() {
+	public function checkServerUrl()
+	{
 		$resp = $this->signService->openotpStatus($this->request);
 
 		if (isset($resp['status'])) {
@@ -78,7 +83,11 @@ class SettingsController extends Controller {
 		]);
 	}
 
-	public function checkSettings() {
+	/**
+	 * @NoAdminRequired
+	 */
+	public function checkSettings()
+	{
 		$serverUrls = json_decode($this->config->getAppValue('openotp_sign', 'server_urls', '[]'));
 		$empty = true;
 
