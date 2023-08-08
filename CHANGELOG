@@ -1,5 +1,8 @@
+1.5.0
+	- Simplification of administration settings
+	- Modifications about application information (add links, using conditions)
 1.4.1
-	- issue with check settings
+	- Issue with check settings
 1.4.0
 	- Add API Key
 	- Remove useless parameters
@@ -12,7 +15,7 @@
 	- Add compatibility for NextCloud v24
 1.3.1
 	- Add sign scope setting
-	- Rename signature types (advanced -> mobile, qualified -> advanced)
+	- Rename signature types (advanced -> standard, qualified -> advanced)
 	- Fix signature requests not displayed if shell_exec is disabled on PHP 8
 1.3.0
 	- Extend the async signature time out setting up to 30 days

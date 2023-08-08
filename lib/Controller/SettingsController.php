@@ -2,7 +2,7 @@
 
 /**
  *
- * @copyright Copyright (c) 2021, RCDevs (info@rcdevs.com)
+ * @copyright Copyright (c) 2023, RCDevs (info@rcdevs.com)
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -45,21 +45,24 @@ class SettingsController extends Controller
 
 	public function saveSettings()
 	{
-		$this->config->setAppValue('openotp_sign', 'server_urls', json_encode($this->request->getParam('server_urls')));
-		$this->config->setAppValue('openotp_sign', 'client_id', $this->request->getParam('client_id'));
-		$this->config->setAppValue('openotp_sign', 'api_key', $this->request->getParam('api_key'));
-		$this->config->setAppValue('openotp_sign', 'use_proxy', $this->request->getParam('use_proxy'));
-		$this->config->setAppValue('openotp_sign', 'proxy_host', $this->request->getParam('proxy_host'));
-		$this->config->setAppValue('openotp_sign', 'proxy_port', $this->request->getParam('proxy_port'));
-		$this->config->setAppValue('openotp_sign', 'proxy_username', $this->request->getParam('proxy_username'));
-		$this->config->setAppValue('openotp_sign', 'proxy_password', $this->request->getParam('proxy_password'));
-		$this->config->setAppValue('openotp_sign', 'sign_scope', $this->request->getParam('sign_scope'));
-		$this->config->setAppValue('openotp_sign', 'signed_file', $this->request->getParam('signed_file'));
-		$this->config->setAppValue('openotp_sign', 'sync_timeout', $this->request->getParam('sync_timeout'));
-		$this->config->setAppValue('openotp_sign', 'async_timeout', $this->request->getParam('async_timeout'));
-		$this->config->setAppValue('openotp_sign', 'cron_interval', $this->request->getParam('cron_interval'));
-		$this->config->setAppValue('openotp_sign', 'enable_demo_mode', $this->request->getParam('enable_demo_mode'));
-		$this->config->setAppValue('openotp_sign', 'watermark_text', $this->request->getParam('watermark_text'));
+		$this->config->setAppValue('openotp_sign', 'server_urls',			json_encode($this->request->getParam('server_urls')));
+		$this->config->setAppValue('openotp_sign', 'client_id',				$this->request->getParam('client_id'));
+		$this->config->setAppValue('openotp_sign', 'api_key',				$this->request->getParam('api_key'));
+		$this->config->setAppValue('openotp_sign', 'use_proxy',				$this->request->getParam('use_proxy'));
+		$this->config->setAppValue('openotp_sign', 'proxy_host',			$this->request->getParam('proxy_host'));
+		$this->config->setAppValue('openotp_sign', 'proxy_port',			$this->request->getParam('proxy_port'));
+		$this->config->setAppValue('openotp_sign', 'proxy_username',		$this->request->getParam('proxy_username'));
+		$this->config->setAppValue('openotp_sign', 'proxy_password',		$this->request->getParam('proxy_password'));
+		$this->config->setAppValue('openotp_sign', 'enable_otp_sign',		$this->request->getParam('enable_otp_sign'));
+		$this->config->setAppValue('openotp_sign', 'enable_otp_seal',		$this->request->getParam('enable_otp_seal'));
+		$this->config->setAppValue('openotp_sign', 'sign_type_standard',	$this->request->getParam('sign_type_standard'));
+		$this->config->setAppValue('openotp_sign', 'sign_type_advanced',	$this->request->getParam('sign_type_advanced'));
+		$this->config->setAppValue('openotp_sign', 'signed_file',			$this->request->getParam('signed_file'));
+		$this->config->setAppValue('openotp_sign', 'sync_timeout',			$this->request->getParam('sync_timeout'));
+		$this->config->setAppValue('openotp_sign', 'async_timeout',			$this->request->getParam('async_timeout'));
+		$this->config->setAppValue('openotp_sign', 'cron_interval',			$this->request->getParam('cron_interval'));
+		$this->config->setAppValue('openotp_sign', 'enable_demo_mode',		$this->request->getParam('enable_demo_mode'));
+		$this->config->setAppValue('openotp_sign', 'watermark_text',		$this->request->getParam('watermark_text'));
 
 		return new JSONResponse([
 			'code' => 1,
@@ -99,5 +102,27 @@ class SettingsController extends Controller
 		}
 
 		return new JSONResponse(!$empty);
+	}
+
+	/**
+	 * @NoAdminRequired
+	 */
+	public function checkSignTypes()
+	{
+		$signTypes['sign_type_standard'] = $this->config->getAppValue('openotp_sign', 'sign_type_standard');
+		$signTypes['sign_type_advanced'] = $this->config->getAppValue('openotp_sign', 'sign_type_advanced');
+
+		return new JSONResponse($signTypes);
+	}
+
+	/**
+	 * @NoAdminRequired
+	 */
+	public function checkEnabledOtp()
+	{
+		$signTypes['enable_otp_sign'] = $this->config->getAppValue('openotp_sign', 'enable_otp_sign');
+		$signTypes['enable_otp_seal'] = $this->config->getAppValue('openotp_sign', 'enable_otp_seal');
+
+		return new JSONResponse($signTypes);
 	}
 }

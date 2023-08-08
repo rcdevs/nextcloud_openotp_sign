@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * @copyright Copyright (c) 2021, RCDevs (info@rcdevs.com)
+ * @copyright Copyright (c) 2023, RCDevs (info@rcdevs.com)
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -43,21 +43,24 @@ class AdminSettings implements ISettings {
      */
     public function getForm() {
         return new TemplateResponse('openotp_sign', 'settings/admin', [
-            'server_urls' => $this->config->getAppValue('openotp_sign', 'server_urls', '[]'),
-            'client_id' => $this->config->getAppValue('openotp_sign', 'client_id', 'Nextcloud'),
-            'api_key' => $this->config->getAppValue('openotp_sign', 'api_key'),
-            'use_proxy' => $this->config->getAppValue('openotp_sign', 'use_proxy'),
-            'proxy_host' => $this->config->getAppValue('openotp_sign', 'proxy_host'),
-            'proxy_port' => $this->config->getAppValue('openotp_sign', 'proxy_port'),
-            'proxy_username' => $this->config->getAppValue('openotp_sign', 'proxy_username'),
-            'proxy_password' => $this->config->getAppValue('openotp_sign', 'proxy_password'),
-            'sign_scope' => $this->config->getAppValue('openotp_sign', 'sign_scope', 'Global'),
-            'signed_file' => $this->config->getAppValue('openotp_sign', 'signed_file', 'copy'),
-            'sync_timeout' => $this->config->getAppValue('openotp_sign', 'sync_timeout', 2),
-            'async_timeout' => $this->config->getAppValue('openotp_sign', 'async_timeout', 1),
-            'cron_interval' => $this->config->getAppValue('openotp_sign', 'cron_interval', 5),
-            'enable_demo_mode' => $this->config->getAppValue('openotp_sign', 'enable_demo_mode'),
-            'watermark_text' => $this->config->getAppValue('openotp_sign', 'watermark_text', 'RCDEVS - SPECIMEN - OPENOTP'),
+            'server_urls'           => $this->config->getAppValue('openotp_sign', 'server_urls', '[]'),
+            'client_id'             => $this->config->getAppValue('openotp_sign', 'client_id', 'Nextcloud'),
+            'api_key'               => $this->config->getAppValue('openotp_sign', 'api_key'),
+            'use_proxy'             => $this->config->getAppValue('openotp_sign', 'use_proxy'),
+            'proxy_host'            => $this->config->getAppValue('openotp_sign', 'proxy_host'),
+            'proxy_port'            => $this->config->getAppValue('openotp_sign', 'proxy_port'),
+            'proxy_username'        => $this->config->getAppValue('openotp_sign', 'proxy_username'),
+            'proxy_password'        => $this->config->getAppValue('openotp_sign', 'proxy_password'),
+            'enable_otp_sign'       => $this->config->getAppValue('openotp_sign', 'enable_otp_sign'),
+            'enable_otp_seal'       => $this->config->getAppValue('openotp_sign', 'enable_otp_seal'),
+            'sign_type_standard'    => $this->config->getAppValue('openotp_sign', 'sign_type_standard'),
+            'sign_type_advanced'    => $this->config->getAppValue('openotp_sign', 'sign_type_advanced'),
+            'signed_file'           => $this->config->getAppValue('openotp_sign', 'signed_file', 'copy'),
+            'sync_timeout'          => $this->config->getAppValue('openotp_sign', 'sync_timeout', 2),
+            'async_timeout'         => $this->config->getAppValue('openotp_sign', 'async_timeout', 1),
+            'cron_interval'         => $this->config->getAppValue('openotp_sign', 'cron_interval', 5),
+            'enable_demo_mode'      => $this->config->getAppValue('openotp_sign', 'enable_demo_mode'),
+            'watermark_text'        => $this->config->getAppValue('openotp_sign', 'watermark_text', 'RCDEVS - SPECIMEN - OPENOTP'),
         ], 'blank');
     }
 

@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * @copyright Copyright (c) 2021, RCDevs (info@rcdevs.com)
+ * @copyright Copyright (c) 2023, RCDevs (info@rcdevs.com)
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -27,19 +27,22 @@ OCP\Util::addscript($appId, 'openotp_sign-adminSettings');
 ?>
 <div
   id="openotp_sign-admin-root"
-  data-server-urls="<?php echo htmlspecialchars($_['server_urls']) ?>"
-  data-client-id="<?php echo $_['client_id'] ?>"
-  data-api-key="<?php echo $_['api_key'] ?>"
-  data-use-proxy="<?php echo $_['use_proxy'] ?>"
-  data-proxy-host="<?php echo $_['proxy_host'] ?>"
-  data-proxy-port="<?php echo $_['proxy_port'] ?>"
-  data-proxy-username="<?php echo $_['proxy_username'] ?>"
-  data-proxy-password="<?php echo $_['proxy_password'] ?>"
-  data-sign-scope="<?php echo $_['sign_scope'] ?>"
-  data-signed-file="<?php echo $_['signed_file'] ?>"
-  data-sync-timeout="<?php echo $_['sync_timeout'] ?>"
-  data-async-timeout="<?php echo $_['async_timeout'] ?>"
-  data-cron-interval="<?php echo $_['cron_interval'] ?>"
-  data-enable-demo-mode="<?php echo $_['enable_demo_mode'] ?>"
-  data-watermark-text="<?php echo $_['watermark_text'] ?>"
+  data-server-urls        = "<?php echo htmlspecialchars($_['server_urls']) ?>"
+  data-client-id          = "<?php echo $_['client_id'] ?>"
+  data-api-key            = "<?php echo $_['api_key'] ?>"
+  data-use-proxy          = "<?php echo $_['use_proxy'] ?>"
+  data-proxy-host         = "<?php echo $_['proxy_host'] ?>"
+  data-proxy-port         = "<?php echo $_['proxy_port'] ?>"
+  data-proxy-username     = "<?php echo $_['proxy_username'] ?>"
+  data-proxy-password     = "<?php echo $_['proxy_password'] ?>"
+  data-enable-otp-sign    = "<?php echo $_['enable_otp_sign'] ?>"
+  data-enable-otp-seal    = "<?php echo $_['enable_otp_seal'] ?>"
+  data-sign-type-standard = "<?php echo $_['sign_type_standard'] ?>"
+  data-sign-type-advanced = "<?php echo $_['sign_type_advanced'] ?>"
+  data-signed-file        = "<?php echo $_['signed_file'] ?>"
+  data-sync-timeout       = "<?php echo $_['sync_timeout'] ?>"
+  data-async-timeout      = "<?php echo $_['async_timeout'] ?>"
+  data-cron-interval      = "<?php echo $_['cron_interval'] ?>"
+  data-enable-demo-mode   = "<?php echo $_['enable_demo_mode'] ?>"
+  data-watermark-text     = "<?php echo $_['watermark_text'] ?>"
 ></div>

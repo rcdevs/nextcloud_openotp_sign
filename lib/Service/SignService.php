@@ -40,7 +40,10 @@ class SignService {
 	private $proxyPort;
 	private $proxyUsername;
 	private $proxyPassword;
-	private $signScope;
+	private $enableOtpSign;
+	private $enableOtpSeal;
+	private $signTypeStandard;
+	private $signTypeAdvanced;
 	private $signedFile;
 	private $syncTimeout;
 	private $asyncTimeout;
@@ -61,20 +64,23 @@ class SignService {
 		$this->userManager = $userManager;
 		$this->l = $l;
 
-		$this->serverUrls = json_decode($config->getAppValue('openotp_sign', 'server_urls', '[]'));
-		$this->clientId = $config->getAppValue('openotp_sign', 'client_id');
-		$this->apiKey = $config->getAppValue('openotp_sign', 'api_key');
-		$this->useProxy = $config->getAppValue('openotp_sign', 'use_proxy');
-		$this->proxyHost = $config->getAppValue('openotp_sign', 'proxy_host');
-		$this->proxyPort = $config->getAppValue('openotp_sign', 'proxy_port');
-		$this->proxyUsername = $config->getAppValue('openotp_sign', 'proxy_username');
-		$this->proxyPassword = $config->getAppValue('openotp_sign', 'proxy_password');
-		$this->signScope = $config->getAppValue('openotp_sign', 'sign_scope', 'Global');
-		$this->signedFile = $config->getAppValue('openotp_sign', 'signed_file');
-		$this->syncTimeout = (int) $config->getAppValue('openotp_sign', 'sync_timeout') * 60;
-		$this->asyncTimeout = (int) $config->getAppValue('openotp_sign', 'async_timeout') * 86400;
-		$this->enableDemoMode = $config->getAppValue('openotp_sign', 'enable_demo_mode');
-		$this->watermarkText = $config->getAppValue('openotp_sign', 'watermark_text');
+		$this->serverUrls		= json_decode($config->getAppValue('openotp_sign', 'server_urls', '[]'));
+		$this->clientId			= $config->getAppValue('openotp_sign', 'client_id');
+		$this->apiKey			= $config->getAppValue('openotp_sign', 'api_key');
+		$this->useProxy			= $config->getAppValue('openotp_sign', 'use_proxy');
+		$this->proxyHost		= $config->getAppValue('openotp_sign', 'proxy_host');
+		$this->proxyPort		= $config->getAppValue('openotp_sign', 'proxy_port');
+		$this->proxyUsername	= $config->getAppValue('openotp_sign', 'proxy_username');
+		$this->proxyPassword	= $config->getAppValue('openotp_sign', 'proxy_password');
+		$this->enableOtpSign	= $config->getAppValue('openotp_sign', 'enable_otp_sign');
+		$this->enableOtpSeal	= $config->getAppValue('openotp_sign', 'enable_otp_seal');
+		$this->signTypeStandard	= $config->getAppValue('openotp_sign', 'sign_type_standard');
+		$this->signTypeAdvanced = $config->getAppValue('openotp_sign', 'sign_type_advanced');
+		$this->signedFile		= $config->getAppValue('openotp_sign', 'signed_file');
+		$this->syncTimeout		= (int) $config->getAppValue('openotp_sign', 'sync_timeout') * 60;
+		$this->asyncTimeout		= (int) $config->getAppValue('openotp_sign', 'async_timeout') * 86400;
+		$this->enableDemoMode	= $config->getAppValue('openotp_sign', 'enable_demo_mode');
+		$this->watermarkText	= $config->getAppValue('openotp_sign', 'watermark_text');
     }
 
 	private function addWatermark(&$fileContent, $fileName, $isPdf) {
@@ -158,7 +164,7 @@ class SignService {
 		return $pdf->Output('S');
 	}
 
-    public function mobileSign($path, $userId, $remoteAddress) {
+    public function standardSign($path, $userId, $remoteAddress) {
 
 		$isPdf = str_ends_with(strtolower($path), ".pdf");
 
@@ -250,7 +256,7 @@ class SignService {
         return $resp;
     }
 
-    public function asyncLocalMobileSign($path, $username, $userId, $remoteAddress, $email) {
+    public function asyncLocalStandardSign($path, $username, $userId, $remoteAddress, $email) {
 
 		$isPdf = str_ends_with(strtolower($path), ".pdf");
 
@@ -347,96 +353,12 @@ class SignService {
 					'qrSizing' => 5,
 					'qrMargin' => 3
 				), 'urn:openotp', '', false, null, 'rpc', 'literal');
-				$this->sendQRCodeByEmail('mobile', $sender, $email, base64_decode($resp2['qrImage']), $resp2['message']);
+				$this->sendQRCodeByEmail('standard', $sender, $email, base64_decode($resp2['qrImage']), $resp2['message']);
 			}
 		}
 
         return $resp;
     }
-
-	public function asyncExternalMobileSign($path, $email, $userId, $remoteAddress) {
-
-		$isPdf = str_ends_with(strtolower($path), ".pdf");
-
-		if ($this->enableDemoMode && !$isPdf) {
-			$resp['code'] = 0;
-			$resp['message'] = $this->l->t("Demo mode enabled. It is only possible to sign PDF files.");
-			return $resp;
-		}
-
-		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
-
-		if ($this->useProxy) {
-			$proxyHost = $this->proxyHost;
-			$proxyPort = $this->proxyPort;
-			$proxyUsername = $this->proxyUsername;
-			$proxyPassword = $this->proxyPassword;
-		} else {
-			$proxyHost = false;
-			$proxyPort = false;
-			$proxyUsername = false;
-			$proxyPassword = false;
-		}
-
-		$user = $this->userManager->get($userId);
-		$account = $this->accountManager->getAccount($user);
-		$sender = $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue();
-
-		$nbServers = count($this->serverUrls);
-		for ($i = 0; $i < $nbServers; ++$i) {
-			$client = new nusoap_client($this->serverUrls[$i], false, $proxyHost, $proxyPort, $proxyUsername, $proxyPassword, self::CNX_TIME_OUT);
-			$client->setDebugLevel(0);
-			$client->soap_defencoding = 'UTF-8';
-			$client->decode_utf8 = FALSE;
-
-			$client->setUseCurl(true);
-			$client->setCurlOption(CURLOPT_HTTPHEADER, [
-				"Content-type: text/xml;charset=\"utf-8\"",
-				"WA-API-Key: {$this->apiKey}",
-			]);
-	
-			$resp = $client->call('openotpExternConfirm', array(
-				'recipient' => $email,
-				'file' => base64_encode($this->addWatermark($fileContent, $fileName, $isPdf)),
-				'async' => true,
-				'timeout' => $this->asyncTimeout,
-				'issuer' => $sender,
-				'client' => $this->clientId,
-				'source' => $remoteAddress,
-			), 'urn:openotp', '', false, null, 'rpc', 'literal');
-
-			if ($client->fault) {
-				$resp['code'] = 0;
-				$resp['message'] = $resp['faultcode'].' / '.$resp['faultstring'];
-				break;
-			}
-
-			$err = $client->getError();
-			if ($err) {
-				$resp['code'] = 0;
-				$resp['message'] = $err;
-				continue;
-			}
-
-			break;
-		}
-
-		if ($resp['code'] === '2') {
-			$signSession = new SignSession();
-			$signSession->setUid($userId);
-			$signSession->setPath($path);
-			$signSession->setRecipient($email);
-			$signSession->setSession($resp['session']);
-			$signSession->setIsYumisign(true);
-
-			$expirationDate = new \DateTime();
-			$signSession->setExpirationDate($expirationDate->add(new \DateInterval('PT'.$this->asyncTimeout.'S')));
-
-			$this->mapper->insert($signSession);
-		}
-
-        return $resp;
-	}
 
     public function advancedSign($path, $userId, $remoteAddress) {
 
@@ -630,92 +552,6 @@ class SignService {
 				), 'urn:openotp', '', false, null, 'rpc', 'literal');
 				$this->sendQRCodeByEmail('advanced', $sender, $email, base64_decode($resp2['qrImage']), $resp2['message']);
 			}
-		}
-
-        return $resp;
-    }
-
-    public function asyncExternalAdvancedSign($path, $email, $userId, $remoteAddress) {
-
-		$isPdf = str_ends_with(strtolower($path), ".pdf");
-
-		if ($this->enableDemoMode && !$isPdf) {
-			$resp['code'] = 0;
-			$resp['message'] = $this->l->t("Demo mode enabled. It is only possible to sign PDF files.");
-			return $resp;
-		}
-
-		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
-
-		if ($this->useProxy) {
-			$proxyHost = $this->proxyHost;
-			$proxyPort = $this->proxyPort;
-			$proxyUsername = $this->proxyUsername;
-			$proxyPassword = $this->proxyPassword;
-		} else {
-			$proxyHost = false;
-			$proxyPort = false;
-			$proxyUsername = false;
-			$proxyPassword = false;
-		}
-
-		$user = $this->userManager->get($userId);
-		$account = $this->accountManager->getAccount($user);
-		$sender = $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue();
-
-		$nbServers = count($this->serverUrls);
-		for ($i = 0; $i < $nbServers; ++$i) {
-			$client = new nusoap_client($this->serverUrls[$i], false, $proxyHost, $proxyPort, $proxyUsername, $proxyPassword, self::CNX_TIME_OUT);
-			$client->setDebugLevel(0);
-			$client->soap_defencoding = 'UTF-8';
-			$client->decode_utf8 = FALSE;
-
-			$client->setUseCurl(true);
-			$client->setCurlOption(CURLOPT_HTTPHEADER, [
-				"Content-type: text/xml;charset=\"utf-8\"",
-				"WA-API-Key: {$this->apiKey}",
-			]);
-	
-			$resp = $client->call('openotpExternSign', array(
-				'recipient' => $email,
-				'file' => base64_encode($this->addWatermark($fileContent, $fileName, $isPdf)),
-				'mode' => '',
-				'async' => true,
-				'timeout' => $this->asyncTimeout,
-				'issuer' => $sender,
-				'client' => $this->clientId,
-				'source' => $remoteAddress,
-			), 'urn:openotp', '', false, null, 'rpc', 'literal');
-
-			if ($client->fault) {
-				$resp['code'] = 0;
-				$resp['message'] = $resp['faultcode'].' / '.$resp['faultstring'];
-				break;
-			}
-
-			$err = $client->getError();
-			if ($err) {
-				$resp['code'] = 0;
-				$resp['message'] = $err;
-				continue;
-			}
-
-			break;
-		}
-
-		if ($resp['code'] === '2') {
-			$signSession = new SignSession();
-			$signSession->setUid($userId);
-			$signSession->setPath($path);
-			$signSession->setIsAdvanced(true);
-			$signSession->setRecipient($email);
-			$signSession->setSession($resp['session']);
-			$signSession->setIsYumisign(true);
-
-			$expirationDate = new \DateTime();
-			$signSession->setExpirationDate($expirationDate->add(new \DateInterval('PT'.$this->asyncTimeout.'S')));
-
-			$this->mapper->insert($signSession);
 		}
 
         return $resp;

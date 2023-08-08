@@ -1,7 +1,8 @@
 <?php
+
 /**
  *
- * @copyright Copyright (c) 2021, RCDevs (info@rcdevs.com)
+ * @copyright Copyright (c) 2023, RCDevs (info@rcdevs.com)
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -30,25 +31,56 @@ use Psr\Log\LoggerInterface;
 use OCP\Util;
 
 use OCA\OpenOTPSign\Service\SignService;
+use OCP\IConfig;
 
-class SignController extends Controller {
-	private $userId;
-	private $signService;
+class SignController extends Controller
+{
+	private $config;
 	private $logger;
+	private $signService;
+	private $userId;
+	private $signEnabled;
+	private $signTypeStandard;
+	private $signTypeAdvanced;
 
-	public function __construct($AppName, IRequest $request, SignService $signService, $UserId, LoggerInterface $logger)
+	public function __construct($AppName, IRequest $request, IConfig $config, SignService $signService, $UserId, LoggerInterface $logger)
 	{
 		parent::__construct($AppName, $request);
-		$this->userId = $UserId;
-		$this->signService = $signService;
+		$this->config = $config;
 		$this->logger = $logger;
+		$this->signService = $signService;
+		$this->userId = $UserId;
+		// Check enabled OTP
+		$this->signEnabled = ($this->config->getAppValue('openotp_sign', 'enable_otp_sign') === '1');
+		$this->signTypeStandard = $this->config->getAppValue('openotp_sign', 'sign_type_standard') === '1';
+		$this->signTypeAdvanced = $this->config->getAppValue('openotp_sign', 'sign_type_advanced') === '1';
 	}
 
 	/**
 	 * @NoAdminRequired
 	 */
-	public function mobileSign() {
-		$resp = $this->signService->mobileSign($this->request->getParam('path'), $this->userId, $this->request->getRemoteAddress());
+	public function standardSign()
+	{
+		switch (true) {
+			case $this->signEnabled && $this->signTypeStandard:
+				$resp = $this->signService->standardSign($this->request->getParam('path'), $this->userId, $this->request->getRemoteAddress());
+				break;
+			
+			case !$this->signEnabled:
+				$resp['code'] = false;
+				$resp['message'] = 'Sign process is disabled';
+				break;
+			
+			case !$this->signTypeStandard:
+				$resp['code'] = false;
+				$resp['message'] = 'Cannot sign with disabled Sign type';
+				break;
+			
+			default:
+				$resp['code'] = false;
+				$resp['message'] = 'Something went wrong during this process';
+				break;
+		}
 
 		return new JSONResponse([
 			'code' => $resp['code'],
@@ -59,8 +91,28 @@ class SignController extends Controller {
 	/**
 	 * @NoAdminRequired
 	 */
-	public function asyncLocalMobileSign() {
-		$resp = $this->signService->asyncLocalMobileSign($this->request->getParam('path'), $this->request->getParam('username'), $this->userId, $this->request->getRemoteAddress(), $this->request->getParam('email'));
+	public function asyncLocalStandardSign()
+	{
+		switch (true) {
+			case $this->signEnabled && $this->signTypeStandard:
+				$resp = $this->signService->asyncLocalStandardSign($this->request->getParam('path'), $this->request->getParam('username'), $this->userId, $this->request->getRemoteAddress(), $this->request->getParam('email'));
+				break;
+			
+			case !$this->signEnabled:
+				$resp['code'] = false;
+				$resp['message'] = 'Sign process is disabled';
+				break;
+			
+			case !$this->signTypeStandard:
+				$resp['code'] = false;
+				$resp['message'] = 'Cannot sign with disabled Sign type';
+				break;
+			
+			default:
+				$resp['code'] = false;
+				$resp['message'] = 'Something went wrong during this process';
+				break;
+		}
 
 		return new JSONResponse([
 			'code' => $resp['code'],
@@ -71,32 +123,28 @@ class SignController extends Controller {
 	/**
 	 * @NoAdminRequired
 	 */
-	public function asyncExternalMobileSign() {
-		$resp = $this->signService->asyncExternalMobileSign($this->request->getParam('path'), $this->request->getParam('email'), $this->userId, $this->request->getRemoteAddress());
-
-		return new JSONResponse([
-			'code' => $resp['code'],
-			'message' => $resp['message'],
-		]);
-	}
-
-	/**
-	 * @NoAdminRequired
-	 */
-	public function advancedSign() {
-		$resp = $this->signService->advancedSign($this->request->getParam('path'), $this->userId, $this->request->getRemoteAddress());
-
-		return new JSONResponse([
-			'code' => $resp['code'],
-			'message' => $resp['message']
-		]);
-	}
-
-	/**
-	 * @NoAdminRequired
-	 */
-	public function asyncLocalAdvancedSign() {
-		$resp = $this->signService->asyncLocalAdvancedSign($this->request->getParam('path'), $this->request->getParam('username'), $this->userId, $this->request->getRemoteAddress(), $this->request->getParam('email'));
+	public function advancedSign()
+	{
+		switch (true) {
+			case $this->signEnabled && $this->signTypeAdvanced:
+				$resp = $this->signService->advancedSign($this->request->getParam('path'), $this->userId, $this->request->getRemoteAddress());
+				break;
+			
+			case !$this->signEnabled:
+				$resp['code'] = false;
+				$resp['message'] = 'Sign process is disabled';
+				break;
+			
+			case !$this->signTypeAdvanced:
+				$resp['code'] = false;
+				$resp['message'] = 'Cannot sign with disabled Sign type';
+				break;
+			
+			default:
+				$resp['code'] = false;
+				$resp['message'] = 'Something went wrong during this process';
+				break;
+		}
 
 		return new JSONResponse([
 			'code' => $resp['code'],
@@ -107,8 +155,29 @@ class SignController extends Controller {
 	/**
 	 * @NoAdminRequired
 	 */
-	public function asyncExternalAdvancedSign() {
-		$resp = $this->signService->asyncExternalAdvancedSign($this->request->getParam('path'), $this->request->getParam('email'), $this->userId, $this->request->getRemoteAddress());
+	public function asyncLocalAdvancedSign()
+	{
+		switch (true) {
+			case $this->signEnabled && $this->signTypeAdvanced:
+				$resp = $this->signService->asyncLocalAdvancedSign($this->request->getParam('path'), $this->request->getParam('username'), $this->userId, $this->request->getRemoteAddress(), $this->request->getParam('email'));
+				break;
+			
+			case !$this->signEnabled:
+				$resp['code'] = false;
+				$resp['message'] = 'Sign process is disabled';
+				break;
+			
+			case !$this->signTypeAdvanced:
+				$resp['code'] = false;
+				$resp['message'] = 'Cannot sign with disabled Sign type';
+				break;
+			
+			default:
+				$resp['code'] = false;
+				$resp['message'] = 'Something went wrong during this process';
+				break;
+		}
+
 
 		return new JSONResponse([
 			'code' => $resp['code'],
@@ -119,8 +188,14 @@ class SignController extends Controller {
 	/**
 	 * @NoAdminRequired
 	 */
-	public function seal() {
-		$resp = $this->signService->seal($this->request->getParam('path'), $this->userId, $this->request->getRemoteAddress());
+	public function seal()
+	{
+		if ($this->config->getAppValue('openotp_sign', 'enable_otp_seal') === '1') {
+			$resp = $this->signService->seal($this->request->getParam('path'), $this->userId, $this->request->getRemoteAddress());
+		} else {
+			$resp['code'] = false;
+			$resp['message'] = 'Seal process is disabled';
+		}
 
 		return new JSONResponse([
 			'code' => $resp['code'],
@@ -131,7 +206,8 @@ class SignController extends Controller {
 	/**
 	 * @NoAdminRequired
 	 */
-	public function cancelSignRequest() {
+	public function cancelSignRequest()
+	{
 		$resp = $this->signService->cancelSignRequest($this->request->getParam('session'), $this->userId);
 
 		return new JSONResponse([
@@ -143,7 +219,8 @@ class SignController extends Controller {
 	/**
 	 * @NoAdminRequired
 	 */
-	public function getLocalUsers() {
+	public function getLocalUsers()
+	{
 		$cm = \OC::$server->getContactsManager();
 
 		// The API is not active -> nothing to do
@@ -155,7 +232,7 @@ class SignController extends Controller {
 		$result = $cm->search($this->request->getParam('searchQuery'), array('FN', 'EMAIL'));
 
 		$contacts = array();
-		foreach ($result as $raw_contact){
+		foreach ($result as $raw_contact) {
 			$contact = array();
 			$contact['uid'] = $raw_contact['UID'];
 			$contact['display_name'] = $raw_contact['FN'];
@@ -180,7 +257,8 @@ class SignController extends Controller {
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 */
-	public function index() {
+	public function index()
+	{
 		Util::addScript('openotp_sign', 'openotp_sign-index');
 		return new TemplateResponse('openotp_sign', 'index');
 	}
