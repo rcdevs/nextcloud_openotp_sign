@@ -5,7 +5,7 @@
     <name>OpenOTP Sign</name>
     <summary>Nextcloud app to sign your documents with OpenOTP</summary>
     <description><![CDATA[# Electronic Signature
-        [OpenOTP Security Suite](https://www.rcdevs.com/downloads/download/?file=Enterprise%2Fwebadm_all_in_one) (edited by [RCDevs Security](https://www.rcdevs.com/)) combined with our [Nextcloud plugin](https://www.rcdevs.com/downloads/download/?file=Plugins%2FOpenOTP_NextCloud_Sign) allows you to sign (standard or advanced e-signatures) and/or seal documents within your organization (between colleagues). Workflow requests are received through Push Notifications on your mobile through the [OpenOTP Token App](https://www.rcdevs.com/products/openotp-token-app/). Once the document is signed, it can be found in that same folder in Nextcloud.
+[OpenOTP Security Suite](https://www.rcdevs.com/downloads/download/?file=Enterprise%2Fwebadm_all_in_one) (edited by [RCDevs Security](https://www.rcdevs.com/)) combined with our [Nextcloud plugin](https://www.rcdevs.com/downloads/download/?file=Plugins%2FOpenOTP_NextCloud_Sign) allows you to sign (standard or advanced e-signatures) and/or seal documents within your organization (between colleagues). Workflow requests are received through Push Notifications on your mobile through the [OpenOTP Token App](https://www.rcdevs.com/products/openotp-token-app/). Once the document is signed, it can be found in that same folder in Nextcloud.
 
 # Features
 Seal with a certificate
@@ -31,7 +31,7 @@ Please contact RCDevs’ sales team [info@rcdevs.com](mailto:info@rcdevs.com) to
 [Open OTP Token Electronic Signature](https://youtu.be/qRBoLn9tdfY)
 [Nextcloud plugin for e-Signature with OpenOTP - RCDevs](https://youtu.be/M_MvmO0Mb1g)
         ]]></description>
-    <version>1.5.1</version>
+    <version>1.5.2</version>
 
     <licence>agpl</licence>
     <author mail="info@rcdevs.com">RCDevs</author>
