@@ -1,0 +1,69 @@
+<?php
+
+namespace OCA\OpenOTPSign\Migration;
+
+use Closure;
+use Doctrine\DBAL\Types\Type;
+use Exception;
+use OCP\DB\ISchemaWrapper;
+use OCP\Migration\SimpleMigrationStep;
+use OCP\Migration\IOutput;
+use OCP\IDBConnection;
+
+class Version000099_2024_05_15_11_msg_date_00 extends SimpleMigrationStep
+{
+    const created               = 'created';
+    const msg_date              = 'msg_date';
+    const openotp_sign_sessions = 'openotp_sign_sessions';
+
+    public function __construct(
+        private IDBConnection $connection,
+    ) {
+    }
+
+    public function changeSchema(IOutput $output, Closure $schemaClosure, array $options): null|ISchemaWrapper
+    {
+        /** @var ISchemaWrapper $schema */
+        $schema = $schemaClosure();
+
+        if ($schema->hasTable(self::openotp_sign_sessions)) {
+            $table = $schema->getTable(self::openotp_sign_sessions);
+
+            // Add column if needed, otherwise modify it
+            if (!$table->hasColumn(self::msg_date)) {
+                $table->addColumn(self::msg_date, 'bigint', [
+                    'length'    => 20,
+                    'unsigned'  => true,
+                    'notnull'   => false,
+                ]);
+            } else {
+                $table->modifyColumn(self::msg_date, [
+                    'type'      => Type::getType('bigint'),
+                    'length'    => 20,
+                    'unsigned'  => true,
+                    'notnull'   => false,
+                ]);
+            }
+        }
+
+        return $schema;
+    }
+
+    public function postSchemaChange(IOutput $output, Closure $schemaClosure, array $options)
+    {
+        // Add `created` data inside column
+        /** @var ISchemaWrapper $schema */
+        $schema = $schemaClosure();
+        if (!$schema->hasTable(self::openotp_sign_sessions)) {
+            throw new Exception("Table openotp_sign_sessions is missing", 1);;
+        }
+
+        $update = $this->connection->getQueryBuilder();
+        $update
+            ->update(self::openotp_sign_sessions)
+            ->set(self::msg_date, self::created);
+            //
+        ;
+        $update->executeStatement();
+    }
+}
