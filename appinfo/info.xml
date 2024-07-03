@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+    <id>openotp_sign</id>
+    <name>OpenOTP Sign</name>
+
+    <summary>Nextcloud app to sign your documents with OpenOTP</summary>
+    <description><![CDATA[# Electronic Signature
+[OpenOTP Security Suite](https://www.rcdevs.com/downloads/download/?file=Enterprise%2Fwebadm_all_in_one) (edited by [RCDevs Security](https://www.rcdevs.com/)) combined with our [Nextcloud plugin](https://www.rcdevs.com/downloads/download/?file=Plugins%2FOpenOTP_NextCloud_Sign) allows you to sign (standard or advanced e-signatures) and/or seal documents within your organization (between colleagues). Workflow requests are received through Push Notifications on your mobile through the [OpenOTP Token App](https://www.rcdevs.com/products/openotp-token-app/). Once the document is signed, it can be found in that same folder in Nextcloud.
+
+# Features
+Seal with a certificate
+Signatures types
+* Standard signature (handwritten signature)
+* Advanced signature
+    * with a certificate
+    * with an eIDAS
+
+# Requirements
+Please note that this plugin cannot be used as a standalone product. This plugin can only be used with a valid OpenOTP Enterprise License, and the installation of OpenOTP Token app on your mobile (free on iOS and Google Play). The purchase of e-signature credits is also a requirement.
+
+# Contact us
+Please contact RCDevs sales team [info@rcdevs.com](mailto:info@rcdevs.com) to purchase an OpenOTP Enterprise License and/or e-signature credits.
+
+# Documentation
+[Homepage](https://www.rcdevs.com/)
+[User documentation](https://www.rcdevs.com/products/openotp-electronic-signature/)
+[Admin documentation](https://docs.rcdevs.com/howtos/nextcloud/signature/nextcloudsignature/)
+
+# Watch demos
+
+[Open OTP Token Electronic Signature](https://youtu.be/qRBoLn9tdfY)
+[Nextcloud plugin for e-Signature with OpenOTP - RCDevs](https://youtu.be/M_MvmO0Mb1g)
+        ]]></description>
+
+    <version>1.30.0</version>
+    <licence>agpl</licence>
+
+    <author mail="info@rcdevs.com">RCDevs</author>
+    <namespace>OpenOTPSign</namespace>
+
+    <documentation>
+        <user>https://www.rcdevs.com/products/openotp-electronic-signature/</user>
+        <admin>https://docs.rcdevs.com/howtos/nextcloud/signature/nextcloudsignature/</admin>
+    </documentation>
+
+    <category>files</category>
+    <category>office</category>
+    <category>tools</category>
+    <category>security</category>
+
+    <website>https://rcdevs.com</website>
+    <bugs>https://github.com/rcdevs/nextcloud_openotp_sign/issues</bugs>
+    <repository>https://github.com/rcdevs/nextcloud_openotp_sign.git</repository>
+
+    <screenshot>
+        https://raw.githubusercontent.com/rcdevs/nextcloud_openotp_sign/N30/screenshots/openotp_sign_admin.png
+    </screenshot>
+    <screenshot>
+        https://raw.githubusercontent.com/rcdevs/nextcloud_openotp_sign/N30/screenshots/openotp_sign_menu.png
+    </screenshot>
+    <screenshot>
+        https://raw.githubusercontent.com/rcdevs/nextcloud_openotp_sign/N30/screenshots/openotp_sign_modal.png
+    </screenshot>
+
+    <dependencies>
+        <php min-version="8.2" />
+        <nextcloud min-version="30" max-version="30" />
+    </dependencies>
+
+    <background-jobs>
+        <job>OCA\OpenOTPSign\BackgroundJob\CheckAsyncSignatureTask</job>
+    </background-jobs>
+
+    <settings>
+        <admin>OCA\OpenOTPSign\Settings\Admin\AdminSettings</admin>
+        <admin-section>OCA\OpenOTPSign\Settings\Admin\AdminSection</admin-section>
+    </settings>
+</info>

@@ -1,0 +1,10 @@
+.icon-openotp_sign {
+	/* background-repeat: no-repeat;
+	background-image: url(../img/app-dark.svg);
+	filter: var(--background-invert-if-dark); */
+	background-color: var(--color-main-text);
+	mask: url("../img/app-dark.svg") no-repeat 50% 50%;
+	mask-size: 16px 16px;
+	-webkit-mask: url("../img/app-dark.svg") no-repeat 50% 50%;
+	-webkit-mask-size: 16px 16px;
+}
