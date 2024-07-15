@@ -1,0 +1,25 @@
+{
+    "name": "rcdevs/openotp_sign",
+    "description": "Nextcloud app to sign your documents with OpenOTP",
+    "type": "project",
+    "require": {
+        "econea/nusoap": "^0.9.17"
+    },
+    "license": "AGPL-3.0-only",
+    "autoload": {
+        "psr-4": {
+            "Rcdevs\\OpenOTPSign\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "RCDevs",
+            "email": "info@rcdevs.com"
+        }
+    ],
+    "config": {
+        "allow-plugins": {
+            "bamarni/composer-bin-plugin": true
+        }
+    }
+}

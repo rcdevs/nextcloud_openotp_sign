@@ -1,0 +1,9 @@
+:root {
+	--color-error-back: #f8d7da;
+	--color-error-border: #f5c6cb;
+	--color-error-front: #721c24;
+	--color-success-back: #c6efce;
+	--color-success-front: #006100;
+	--color-warning: #c69347;
+}
+

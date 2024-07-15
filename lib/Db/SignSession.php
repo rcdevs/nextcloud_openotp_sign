@@ -51,12 +51,23 @@ class SignSession extends Entity implements JsonSerializable
 
 	public function __construct()
 	{
-		$this->addType('id',				'integer');
-		$this->addType('advanced',			'integer');
-		// $this->addType('created',		   'datetime');
-		// $this->addType('isPending',		 'boolean');
-		// $this->addType('isError',		   'boolean');
-		// $this->addType('expirationDate',	'datetime');
+		$this->addType('id',			'integer');
+		$this->addType('advanced',		'integer');
+
+		$this->addType('applicantId',	'string');
+		$this->addType('changeStatus',	'integer');
+		$this->addType('created',		'integer');
+		$this->addType('expiryDate',	'integer');
+		$this->addType('fileId',		'integer');
+		$this->addType('filePath',		'string');
+		$this->addType('globalStatus',	'string');
+		$this->addType('message',		'string');
+		$this->addType('msgDate',		'integer');
+		$this->addType('mutex',			'string');
+		$this->addType('overwrite',		'integer');
+		$this->addType('recipient',		'string');
+		$this->addType('session',		'string');
+
 		$this->setCreated(new \DateTime());
 	}
 

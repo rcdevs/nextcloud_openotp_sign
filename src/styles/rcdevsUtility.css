@@ -1,0 +1,66 @@
+/* CHECK CONNECTION */
+.rcdevsStatusLoader {
+    width: 28px;
+    height: 28px;
+}
+
+.rcdevsStatusRequest {
+    animation: fadeIn 1s ease-in infinite alternate;
+}
+
+.rcdevsTestConnection {
+	max-width: 180px;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 0.5;
+	}
+}
+
+/* ALERTS */
+.rcdevsAlert {
+	border-radius: .25rem;
+	border: 1px solid transparent;
+	margin-bottom: 1rem;
+	padding: .75rem 1.25rem;
+	position: relative;
+}
+
+.rcdevsAlertDanger {
+	background-color: var(--color-error-back);
+	border-color: var(--color-error-border);
+	color: var(--color-error-front);
+}
+
+#rcdevsrrorSettings {
+	margin-top: 50px;
+	width: 400px;
+}
+
+.rcdevsSuccess {
+	color: var(--color-success);
+}
+
+.rcdevsWarning {
+	color: var(--color-warning);
+}
+
+.rcdevsError {
+	color: var(--color-error-front);
+}
+
+.rcdevsRedNote {
+	color: darkred;
+	font-weight: 500;
+	margin: 20px 0 5px 0;
+}
+
+.rcdevsReadMore {
+	font-size: 16px;
+	font-weight: 700;
+}

@@ -23,7 +23,6 @@
 
 namespace OCA\OpenOTPSign\Db;
 
-use OC\SystemConfig;
 use OCA\OpenOTPSign\AppInfo\Application as RCDevsApp;
 use OCA\OpenOTPSign\Utils\Constante;
 use OCA\OpenOTPSign\Utils\CstDatabase;
@@ -41,7 +40,6 @@ class SignSessionMapper extends QBMapper
 {
 	public int $maxItems = 50;
 	public int $backInTime = 3600; // Use to find users' last activity and to reduce the number of retrieved transactions
-	private string $tablesPrefix;
 	private string $tableAlias = 'ymsSess';
 	private string $nxcToken = '';
 
@@ -55,7 +53,6 @@ class SignSessionMapper extends QBMapper
 			SignSession::class
 		);
 		$this->db = $db;
-		$this->tablesPrefix = \OC::$server->get(SystemConfig::class)->getValue('dbtableprefix', 'oc_');
 	}
 
 	/**
@@ -347,22 +344,7 @@ class SignSessionMapper extends QBMapper
 	{
 		$queryBuilder = $this->db->getQueryBuilder();
 
-		$queryBuilder->select(
-			'advanced',
-			'applicant_id',
-			'change_status',
-			'created',
-			'expiry_date',
-			'file_id',
-			'file_path',
-			'global_status',
-			'id',
-			'message',
-			'msg_date',
-			'mutex',
-			'recipient',
-			'session',
-		)
+		$queryBuilder->select('*')
 			->from($this->getTableName(), $this->tableAlias)
 			// Add order by to display on WebUI
 			->orderBy('change_status', 'desc')
@@ -427,75 +409,6 @@ class SignSessionMapper extends QBMapper
 		return $returned;
 	}
 
-	public function findAll(int $page = -1, int $nbItems = -1): array
-	{
-		$queryBuilder = $this->db->getQueryBuilder();
-
-		$queryBuilder->select('id', 'applicant_id', 'file_path', 'workspace_id', 'workflow_id', 'workflow_name', 'session', 'status', 'expiry_date', 'created', 'change_status', 'recipient', 'global_status', 'msg_date', 'file_id')
-			->from($this->getTableName())
-			->orderBy('change_status', 'desc')
-			->addOrderBy('created', 'desc');
-
-		if ($page !== -1 && $nbItems !== -1) {
-			$queryBuilder->setFirstResult($page * $nbItems);
-			$queryBuilder->setMaxResults($nbItems);
-		}
-
-		return $this->findEntities($queryBuilder);
-	}
-
-	public function findAllEnvelopesIds(int $rightNow, string $applicantId = null, int $page = -1, int $nbItems = -1): array
-	{
-		$queryBuilder = $this->db->getQueryBuilder();
-
-		$queryBuilder->select('applicant_id', 'session')
-			->from($this->getTableName(), $this->tableAlias)
-			// Add order by to display on WebUI
-			->orderBy('change_status', 'desc')
-			->addOrderBy('created', 'desc')
-			//
-		;
-
-		// Junctions
-		$this->joinActivity($queryBuilder);
-
-		// Add more filters to prevent huge data
-		$this->whereApplicantIfExists($applicantId, $queryBuilder);
-		$this->whereLastActivity($rightNow, $queryBuilder);
-		$this->whereGlobalStatusActive($queryBuilder);
-		$this->whereExpiryDate($rightNow, $queryBuilder);
-		$this->whereChangeStatus($rightNow, $queryBuilder);
-
-		// Set pages
-		if ($page !== -1 && $nbItems !== -1) {
-			$queryBuilder->setFirstResult($page * $nbItems);
-			$queryBuilder->setMaxResults($nbItems);
-		}
-
-		return $this->findEntities($queryBuilder);
-	}
-
-	// public function findAllActiveEnvelopesIds(string $applicantId = null, int $limit = null)
-	// {
-	// 	$queryBuilder = $this->db->getQueryBuilder();
-
-	// 	$queryBuilder->select('id', 'applicant_id', 'file_path', 'workspace_id', 'session')
-	// 		->from($this->getTableName())
-	// 		->setMaxResults($limit)
-	// 		->orderBy('change_status', 'desc')
-	// 		->addOrderBy('created', 'desc')
-	// 		->where(
-	// 			$queryBuilder->expr()->neq('global_status', $queryBuilder->createNamedParameter(Constante::cst(CstCommon::ARCHIVED)))
-	// 		)
-	// 		->andWhere($queryBuilder->expr()->neq('global_status', $queryBuilder->createNamedParameter(Constante::status(CstStatus::NOT_APPLICABLE))));
-
-	// 	if (!is_null($applicantId)) {
-	// 		$queryBuilder->andWhere($queryBuilder->expr()->eq('applicant_id', $queryBuilder->createNamedParameter($applicantId)));
-	// 	}
-
-	// 	return $this->findEntities($queryBuilder);
-	// }
-
 	public function countPendingsByApplicant(int $rightNow, string $applicantId)
 	{
 		$queryBuilder = $this->db->getQueryBuilder();
@@ -517,27 +430,11 @@ class SignSessionMapper extends QBMapper
 		return $count;
 	}
 
-
 	public function findPendingsByApplicant(int $rightNow, string|null $applicantId, bool $ignoreExpiryDate = false, int $page = 0, int $nbItems = 20): array
 	{
 		$queryBuilder = $this->db->getQueryBuilder();
 
-		$queryBuilder->select(
-			'advanced',
-			'applicant_id',
-			'change_status',
-			'created',
-			'expiry_date',
-			'file_id',
-			'file_path',
-			'global_status',
-			'id',
-			'message',
-			'msg_date',
-			'mutex',
-			'recipient',
-			'session',
-		)
+		$queryBuilder->select('*')
 			->from($this->getTableName(), $this->tableAlias)
 			// Add order by to display on WebUI
 			->orderBy('change_status', 'desc')
@@ -590,26 +487,6 @@ class SignSessionMapper extends QBMapper
 		$this->whereApplicantIfExists($applicantId, $queryBuilder);
 
 		return $this->findEntity($queryBuilder);
-	}
-
-	public function findTransactions(string $session = '', string $applicant = ''): array
-	{
-		$queryBuilder = $this->db->getQueryBuilder();
-
-		$queryBuilder->select('*')
-			->from($this->getTableName());
-
-		$whereCommand = 'where';
-
-		if ($session !== '') {
-			$queryBuilder->where($queryBuilder->expr()->eq('session', $queryBuilder->createNamedParameter($session)));
-			$whereCommand = 'andWhere';
-		}
-		if ($applicant !== '') {
-			$queryBuilder->$whereCommand($queryBuilder->expr()->eq('applicant_id', $queryBuilder->createNamedParameter($applicant)));
-		}
-
-		return $this->findEntities($queryBuilder);
 	}
 
 	public function resetJob()
@@ -680,74 +557,6 @@ class SignSessionMapper extends QBMapper
 		}
 	}
 
-	public function updateTransactionStatus(string $session, string $newStatus)
-	{
-		$queryBuilder = $this->db->getQueryBuilder();
-		$queryBuilder->update($this->getTableName())
-			->set('status', $queryBuilder->createParameter('status'))
-			->setParameter('status', $newStatus)
-			->where($queryBuilder->expr()->eq('session', $queryBuilder->createNamedParameter($session)));
-		$queryBuilder->executeStatement();
-	}
-
-	public function updateTransactionsStatus(array $transactionsToUpdate): int
-	{
-		$realTransactionUpdated = 0;
-		try {
-			foreach ($transactionsToUpdate as $unitTransactionToUpdate) {
-				$queryBuilder = $this->db->getQueryBuilder();
-				$queryBuilder->update($this->getTableName())
-					->set(Constante::entity(CstEntity::CHANGE_STATUS), $queryBuilder->createParameter(Constante::entity(CstEntity::CHANGE_STATUS)))
-					->setParameter(Constante::entity(CstEntity::CHANGE_STATUS), time())
-
-					->where($queryBuilder->expr()->eq(Constante::entity(CstEntity::SESSION), $queryBuilder->createNamedParameter($unitTransactionToUpdate[Constante::entity(CstEntity::SESSION)])));
-
-				// Add set parameters
-				$this->setStatusIfExists($unitTransactionToUpdate, $queryBuilder);
-				$this->setGlobalStatusIfExists($unitTransactionToUpdate, $queryBuilder);
-
-
-				$this->whereApplicantIfExists(Helpers::getIfExists(Constante::entity(CstEntity::APPLICANT_ID), $unitTransactionToUpdate), $queryBuilder);
-
-				$this->whereRecipientIfExists(Helpers::getIfExists(Constante::entity(CstEntity::RECIPIENT), $unitTransactionToUpdate), $queryBuilder);
-
-				$queryBuilder->executeStatement();
-				$realTransactionUpdated++;
-			}
-		} catch (\Throwable $th) {
-			$this->logRCDevs->error(sprintf("Exception during updating status with message: %s", $th->getMessage()), __FUNCTION__ . DIRECTORY_SEPARATOR . __CLASS__ . DIRECTORY_SEPARATOR . __FILE__ . ':' . __LINE__);
-
-			throw $th;
-		}
-
-		return $realTransactionUpdated;
-	}
-
-	public function updateTransactionsStatusExpired(): void
-	{
-		try {
-			$queryBuilder = $this->db->getQueryBuilder();
-			$queryBuilder->update($this->getTableName())
-				// status
-				->set(Constante::entity(CstEntity::STATUS), $queryBuilder->createParameter(Constante::entity(CstEntity::STATUS)))
-				->setParameter(Constante::entity(CstEntity::STATUS), Constante::status(CstStatus::EXPIRED))
-				// global status
-				->set(Constante::entity(CstEntity::GLOBAL_STATUS), $queryBuilder->createParameter(Constante::entity(CstEntity::GLOBAL_STATUS)))
-				->setParameter(Constante::entity(CstEntity::GLOBAL_STATUS), Constante::status(CstStatus::EXPIRED))
-				// change_status
-				->set(Constante::entity(CstEntity::CHANGE_STATUS), $queryBuilder->createParameter(Constante::entity(CstEntity::CHANGE_STATUS)))
-				->setParameter(Constante::entity(CstEntity::CHANGE_STATUS), time())
-
-				->where($queryBuilder->expr()->lt(Constante::entity(CstEntity::EXPIRY_DATE), $queryBuilder->createNamedParameter(intval(time()))));
-
-			$queryBuilder->executeStatement();
-		} catch (\Throwable $th) {
-			$this->logRCDevs->error(sprintf("Exception during updating status with message: %s", $th->getMessage()), __FUNCTION__ . DIRECTORY_SEPARATOR . __CLASS__ . DIRECTORY_SEPARATOR . __FILE__ . ':' . __LINE__);
-
-			throw $th;
-		}
-	}
-
 	public function updateTransactionsMutex(string $threadId, string $session): void
 	{
 		// Not needed to use transactional query
@@ -756,10 +565,9 @@ class SignSessionMapper extends QBMapper
 			$queryBuilder->select('*')
 				->from($this->getTableName())
 				->where($queryBuilder->expr()->eq(Constante::entity(CstEntity::SESSION), $queryBuilder->createNamedParameter($session)))
-				// ->andWhere($queryBuilder->expr()->eq(Constante::entity(CstEntity::MUTEX), $queryBuilder->createNamedParameter('')))
 				->andWhere($queryBuilder->expr()->isNull(Constante::entity(CstEntity::MUTEX)))
 				//
-				;
+			;
 
 			$resp = $this->findEntities($queryBuilder);
 
@@ -768,12 +576,10 @@ class SignSessionMapper extends QBMapper
 				// mutex
 				->set(Constante::entity(CstEntity::MUTEX), $queryBuilder->createParameter(Constante::entity(CstEntity::MUTEX)))
 				->setParameter(Constante::entity(CstEntity::MUTEX), $threadId)
-
 				->where($queryBuilder->expr()->eq(Constante::entity(CstEntity::SESSION), $queryBuilder->createNamedParameter($session)))
-				// ->andWhere($queryBuilder->expr()->eq(Constante::entity(CstEntity::MUTEX), $queryBuilder->createNamedParameter('')))
 				->andWhere($queryBuilder->expr()->isNull(Constante::entity(CstEntity::MUTEX)))
 				//
-				;
+			;
 
 			$resp = $queryBuilder->executeStatement();
 
