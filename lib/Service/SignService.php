@@ -1,870 +1,860 @@
 <?php
+
+/**
+ *
+ * @copyright Copyright (c) 2024, RCDevs (info@rcdevs.com)
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+declare(strict_types=1);
+
 namespace OCA\OpenOTPSign\Service;
 
-use OCA\OpenOTPSign\Commands\GetsFile;
-use OCP\IRequest;
-use OCP\IUserManager;
-use OCP\Accounts\IAccountManager;
+require_once __DIR__ . '/../../vendor/autoload.php';
 
-use OCP\Files\IRootFolder;
-use OCP\IConfig;
-use OCP\IL10N;
-
+use DateTime;
+use Exception;
+use nusoap_client;
+use OCA\OpenOTPSign\AppInfo\Application as RCDevsApp;
+use OCA\OpenOTPSign\OOtpResponse;
 use OCA\OpenOTPSign\Db\SignSession;
 use OCA\OpenOTPSign\Db\SignSessionMapper;
-use OCP\AppFramework\Db\DoesNotExistException;
+use OCA\OpenOTPSign\User;
+use OCA\OpenOTPSign\Utils\Constante;
+use OCA\OpenOTPSign\Utils\CstConfig;
+use OCA\OpenOTPSign\Utils\CstDatabase;
+use OCA\OpenOTPSign\Utils\CstEntity;
+use OCA\OpenOTPSign\Utils\CstException;
+use OCA\OpenOTPSign\Utils\CstFile;
+use OCA\OpenOTPSign\Utils\CstRequest;
+use OCA\OpenOTPSign\Utils\CstStatus;
+use OCA\OpenOTPSign\Utils\Helpers;
+use OCA\OpenOTPSign\Utils\LogRCDevs;
+use OCP\Accounts\IAccountManager;
+use OCP\Files\File;
+use OCP\Files\IRootFolder;
+use OCP\FilesMetadata\IFilesMetadataManager;
+use OCP\IConfig;
+use OCP\IDateTimeFormatter;
+use OCP\IL10N;
+use OCP\IUserManager;
+use OCP\IUserSession;
+use OCP\L10N\IFactory;
 
-use setasign\Fpdi\Fpdi;
-use setasign\Fpdi\PdfParser\StreamReader;
-use nusoap_client;
-
-class SignService {
-    use GetsFile;
-
+class SignService
+{
 	const CNX_TIME_OUT = 3;
 
-    /** @var IL10N */
-    private $l;
-
-	private $mapper;
-	private $storage;
-	private $accountManager;
-	private $userManager;
-
-    // Settings
-	private $serverUrls;
-	private $clientId;
+	// Settings
 	private $apiKey;
-	private $useProxy;
-	private $proxyHost;
-	private $proxyPort;
-	private $proxyUsername;
-	private $proxyPassword;
-	private $enableOtpSign;
-	private $enableOtpSeal;
-	private $signTypeStandard;
-	private $signTypeAdvanced;
-	private $signedFile;
-	private $syncTimeout;
 	private $asyncTimeout;
-	private $enableDemoMode;
-	private $watermarkText;
+	private $syncTimeout;
+	private $useProxy;
 
 	public function __construct(
-        IRootFolder $storage,
-		IConfig $config,
-		IUserManager $userManager,
-		IAccountManager $accountManager,
-		SignSessionMapper $mapper,
-		IL10N $l)
-	{
-		$this->mapper = $mapper;
-		$this->storage = $storage;
-		$this->accountManager = $accountManager;
-		$this->userManager = $userManager;
-		$this->l = $l;
+		private ConfigurationService $configurationService,
+		private IAccountManager $accountManager,
+		private IConfig $config,
+		private IConfig $systemConfig,
+		private IDateTimeFormatter $formatter,
+		private IFactory $l10nFactory,
+		private IL10N $l,
+		private IL10N $l10n,
+		private IRootFolder $rootFolder,
+		private IUserManager $userManager,
+		private IUserSession $userSession,
+		private LogRCDevs $logRCDevs,
+		private SignSessionMapper $mapper,
+		private UserService $currentUser,
+		private IFilesMetadataManager $filesMetadataManager,
+	) {
+		Helpers::$l = $l;
 
-		$this->serverUrls		= json_decode($config->getAppValue('openotp_sign', 'server_urls', '[]'));
-		$this->clientId			= $config->getAppValue('openotp_sign', 'client_id');
-		$this->apiKey			= $config->getAppValue('openotp_sign', 'api_key');
-		$this->useProxy			= $config->getAppValue('openotp_sign', 'use_proxy');
-		$this->proxyHost		= $config->getAppValue('openotp_sign', 'proxy_host');
-		$this->proxyPort		= $config->getAppValue('openotp_sign', 'proxy_port');
-		$this->proxyUsername	= $config->getAppValue('openotp_sign', 'proxy_username');
-		$this->proxyPassword	= $config->getAppValue('openotp_sign', 'proxy_password');
-		$this->enableOtpSign	= $config->getAppValue('openotp_sign', 'enable_otp_sign');
-		$this->enableOtpSeal	= $config->getAppValue('openotp_sign', 'enable_otp_seal');
-		$this->signTypeStandard	= $config->getAppValue('openotp_sign', 'sign_type_standard');
-		$this->signTypeAdvanced = $config->getAppValue('openotp_sign', 'sign_type_advanced');
-		$this->signedFile		= $config->getAppValue('openotp_sign', 'signed_file');
-		$this->syncTimeout		= (int) $config->getAppValue('openotp_sign', 'sync_timeout') * 60;
-		$this->asyncTimeout		= (int) $config->getAppValue('openotp_sign', 'async_timeout') * 86400;
-		$this->enableDemoMode	= $config->getAppValue('openotp_sign', 'enable_demo_mode');
-		$this->watermarkText	= $config->getAppValue('openotp_sign', 'watermark_text');
-    }
+		$this->useProxy			= $config->getAppValue(RCDevsApp::APP_ID, 'use_proxy');
 
-	private function addWatermark(&$fileContent, $fileName, $isPdf) {
-
-		if (!$this->enableDemoMode || !$isPdf) {
-			return $fileContent;
-		}
-
-		// Source file and watermark config
-		$imgPath = __DIR__.'/../../../../data/';
-		$font = __DIR__.'/DejaVuSans-Bold.ttf';
-		$opacity = 100;
-
-		// Set source PDF file
-		$pdf = new Fpdi();
-		$pagecount = $pdf->setSourceFile(StreamReader::createByString($fileContent));
-
-		// Add watermark to PDF pages
-		for ($i = 1; $i <= $pagecount; $i++) {
-			$tpl = $pdf->importPage($i);
-			$size = $pdf->getTemplateSize($tpl);
-			$pdf->addPage();
-			$pdf->useTemplate($tpl, 1, 1, $size['width'], $size['height'], TRUE);
-
-			$name = uniqid();
-
-			// Convert dimensions of the page from millimeters to pixels
-			$width  = $size['width'] * 3.7795275591;
-			$height = $size['height'] * 3.7795275591;
-
-			// Find angle of the diagonal and convert it from radians to degrees
-			$angle = atan($height / $width) * (180.0 / M_PI);
-
-			// Find max font size to fit the page
-			$font_size = 1;
-			$box = null;
-
-			while (true) {
-				$box = imagettfbbox($font_size, $angle, $font, $this->watermarkText);
-				$text_width = abs($box[6]) + $box[2];
-				if ($text_width > $width) {
-					$font_size--;
-					break;
-				}
-
-				$text_height = abs($box[5]) - $box[1];
-				if ($text_height > $height) {
-					$font_size--;
-					break;
-				}
-
-				$font_size++;
-			}
-
-			$img = imagecreatetruecolor($width, $height);
-
-			// Background color
-			$bg = imagecolorallocate($img, 255, 255, 255);
-			imagefilledrectangle($img, 0, 0, $width, $height, $bg);
-
-			// Font color settings
-			$color = imagecolorallocate($img, 255, 0, 0);
-
-			imagettftext($img, $font_size, $angle, abs($box[6]), $height, $color, $font, $this->watermarkText);
-			imagecolortransparent($img, $bg);
-			$blank = imagecreatetruecolor($width, $height);
-			$tbg = imagecolorallocate($blank, 255, 255, 255);
-			imagefilledrectangle($blank, 0, 0, $width, $height, $tbg);
-			imagecolortransparent($blank, $tbg);
-
-			// Create watermark image
-			imagecopymerge($blank, $img, 0, 0, 0, 0, $width, $height, $opacity);
-			imagepng($blank, $imgPath.$name.".png");
-
-			//Put the watermark
-			$pdf->Image($imgPath.$name.'.png', 0, 0, 0, 0, 'png');
-			@unlink($imgPath.$name.'.png');
-		}
-
-		// Return PDF with watermark
-		return $pdf->Output('S');
+		$this->apiKey			= $config->getAppValue(RCDevsApp::APP_ID, 'api_key');
+		$this->asyncTimeout		= (int) $config->getAppValue(RCDevsApp::APP_ID, 'async_timeout') * 86400; // in days * seconds/day
+		$this->syncTimeout		= (int) $config->getAppValue(RCDevsApp::APP_ID, 'sync_timeout') * 60;
 	}
 
-    public function standardSign($path, $userId, $remoteAddress) {
+	/** ******************************************************************************************
+	 * PRIVATE
+	 ****************************************************************************************** */
 
-		$isPdf = str_ends_with(strtolower($path), ".pdf");
+	private function commonAsyncLocalSign(User $recipient, string $path, int $fileId, $remoteAddress, bool $advanced): array
+	{
+		$returned = [];
 
-		if ($this->enableDemoMode && !$isPdf) {
-			$resp['code'] = 0;
-			$resp['message'] = $this->l->t("Demo mode enabled. It is only possible to sign PDF files.");
-			return $resp;
-		}
-
-		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
-
-		if ($this->useProxy) {
-			$proxyHost = $this->proxyHost;
-			$proxyPort = $this->proxyPort;
-			$proxyUsername = $this->proxyUsername;
-			$proxyPassword = $this->proxyPassword;
-		} else {
-			$proxyHost = false;
-			$proxyPort = false;
-			$proxyUsername = false;
-			$proxyPassword = false;
-		}
-
-		$data  = '<div style="color: white;">';
-		$data .= "<strong>Name: </strong>$fileName";
-		$data .= "<br><strong>Size: </strong>".$this->humanFileSize($fileSize);
-		$data .= "<br><strong>Modified: </strong>".date('m/d/Y H:i:s', $lastModified);
-		$data .= '</div>';
-
-		$user = $this->userManager->get($userId);
-		$account = $this->accountManager->getAccount($user);
-
-		$nbServers = count($this->serverUrls);
-		for ($i = 0; $i < $nbServers; ++$i) {
-			$client = new nusoap_client($this->serverUrls[$i], false, $proxyHost, $proxyPort, $proxyUsername, $proxyPassword, self::CNX_TIME_OUT, $this->syncTimeout);
-			$client->setDebugLevel(0);
-			$client->soap_defencoding = 'UTF-8';
-			$client->decode_utf8 = FALSE;
-
-			$client->setUseCurl(true);
-			$client->setCurlOption(CURLOPT_HTTPHEADER, [
-				"Content-type: text/xml;charset=\"utf-8\"",
-				"WA-API-Key: {$this->apiKey}",
-			]);
-	
-			$resp = $client->call('openotpNormalConfirm', array(
-				'username' => $userId,
-				'data' => $data,
-				'file' => base64_encode($this->addWatermark($fileContent, $fileName, $isPdf)),
-				'form' => null,
-				'async' => false,
-				'timeout' => $this->syncTimeout,
-				'issuer' => $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
-				'client' => $this->clientId,
-				'source' => $remoteAddress,
-				'virtual' => null
-			), 'urn:openotp', '', false, null, 'rpc', 'literal');
-
-			if ($client->fault) {
-				$resp['code'] = 0;
-				$resp['message'] = $resp['faultcode'].' / '.$resp['faultstring'];
-				break;
-			}
-
-			$err = $client->getError();
-			if ($err) {
-				$resp['code'] = 0;
-				$resp['message'] = $err;
-				continue;
-			}
-
-			break;
-		}
-
-		if ($resp['code'] === '1') {
-			if (str_ends_with(strtolower($path), ".pdf")) {
-				if ($this->signedFile == "overwrite") {
-					$newPath = $path;
-				} else {
-					$newPath = substr_replace($path, sprintf('_signed_%s', date('Y-m-d_H.i.s')), strrpos($path, '.'), 0);
-				}
-			} else {
-				$newPath = $path . ".p7s";
-			}
-
-			$this->saveContainer($userId, base64_decode($resp['file']), $newPath);
-		}
-
-        return $resp;
-    }
-
-    public function asyncLocalStandardSign($path, $username, $userId, $remoteAddress, $email) {
-
-		$isPdf = str_ends_with(strtolower($path), ".pdf");
-
-		if ($this->enableDemoMode && !$isPdf) {
-			$resp['code'] = 0;
-			$resp['message'] = $this->l->t("Demo mode enabled. It is only possible to sign PDF files.");
-			return $resp;
-		}
-
-		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
-
-		if ($this->useProxy) {
-			$proxyHost = $this->proxyHost;
-			$proxyPort = $this->proxyPort;
-			$proxyUsername = $this->proxyUsername;
-			$proxyPassword = $this->proxyPassword;
-		} else {
-			$proxyHost = false;
-			$proxyPort = false;
-			$proxyUsername = false;
-			$proxyPassword = false;
-		}
-
-		$data  = '<div style="color: white;">';
-		$data .= "<strong>Name: </strong>$fileName";
-		$data .= "<br><strong>Size: </strong>".$this->humanFileSize($fileSize);
-		$data .= "<br><strong>Modified: </strong>".date('m/d/Y H:i:s', $lastModified);
-		$data .= '</div>';
-
-		$user = $this->userManager->get($userId);
-		$account = $this->accountManager->getAccount($user);
-		$sender = $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue();
-
-		$nbServers = count($this->serverUrls);
-		for ($i = 0; $i < $nbServers; ++$i) {
-			$client = new nusoap_client($this->serverUrls[$i], false, $proxyHost, $proxyPort, $proxyUsername, $proxyPassword, self::CNX_TIME_OUT);
-			$client->setDebugLevel(0);
-			$client->soap_defencoding = 'UTF-8';
-			$client->decode_utf8 = FALSE;
-
-			$client->setUseCurl(true);
-			$client->setCurlOption(CURLOPT_HTTPHEADER, [
-				"Content-type: text/xml;charset=\"utf-8\"",
-				"WA-API-Key: {$this->apiKey}",
-			]);
-	
-			$resp = $client->call('openotpNormalConfirm', array(
-				'username' => $username,
-				'data' => $data,
-				'file' => base64_encode($this->addWatermark($fileContent, $fileName, $isPdf)),
-				'form' => null,
-				'async' => true,
-				'timeout' => $this->asyncTimeout,
-				'issuer' => $sender,
-				'client' => $this->clientId,
-				'source' => $remoteAddress,
-				'virtual' => null
-			), 'urn:openotp', '', false, null, 'rpc', 'literal');
-
-			if ($client->fault) {
-				$resp['code'] = 0;
-				$resp['message'] = $resp['faultcode'].' / '.$resp['faultstring'];
-				break;
-			}
-
-			$err = $client->getError();
-			if ($err) {
-				$resp['code'] = 0;
-				$resp['message'] = $err;
-				continue;
-			}
-
-			break;
-		}
-
-		if ($resp['code'] === '2') {
-			$signSession = new SignSession();
-			$signSession->setUid($userId);
-			$signSession->setPath($path);
-			$signSession->setRecipient($username);
-			$signSession->setSession($resp['session']);
-
-			$expirationDate = new \DateTime();
-			$signSession->setExpirationDate($expirationDate->add(new \DateInterval('PT'.$this->asyncTimeout.'S')));
-
-			$this->mapper->insert($signSession);
-
-			// Generate and send QR Code
-			if (!empty($email)) {
-				$resp2 = $client->call('openotpTouchConfirm', array(
-					'session' => $resp['session'],
-					'sendPush' => false,
-					'qrFormat' => 'PNG',
-					'qrSizing' => 5,
-					'qrMargin' => 3
-				), 'urn:openotp', '', false, null, 'rpc', 'literal');
-				$this->sendQRCodeByEmail('standard', $sender, $email, base64_decode($resp2['qrImage']), $resp2['message']);
-			}
-		}
-
-        return $resp;
-    }
-
-    public function advancedSign($path, $userId, $remoteAddress) {
-
-		$isPdf = str_ends_with(strtolower($path), ".pdf");
-
-		if ($this->enableDemoMode && !$isPdf) {
-			$resp['code'] = 0;
-			$resp['message'] = $this->l->t("Demo mode enabled. It is only possible to sign PDF files.");
-			return $resp;
-		}
-
-		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
-
-		if ($this->useProxy) {
-			$proxyHost = $this->proxyHost;
-			$proxyPort = $this->proxyPort;
-			$proxyUsername = $this->proxyUsername;
-			$proxyPassword = $this->proxyPassword;
-		} else {
-			$proxyHost = false;
-			$proxyPort = false;
-			$proxyUsername = false;
-			$proxyPassword = false;
-		}
-
-		$data  = '<div style="color: white;">';
-		$data .= "<strong>Name: </strong>$fileName";
-		$data .= "<br><strong>Size: </strong>".$this->humanFileSize($fileSize);
-		$data .= "<br><strong>Modified: </strong>".date('m/d/Y H:i:s', $lastModified);
-		$data .= '</div>';
-
-		$user = $this->userManager->get($userId);
-		$account = $this->accountManager->getAccount($user);
-
-		$nbServers = count($this->serverUrls);
-		for ($i = 0; $i < $nbServers; ++$i) {
-			$client = new nusoap_client($this->serverUrls[$i], false, $proxyHost, $proxyPort, $proxyUsername, $proxyPassword, self::CNX_TIME_OUT, $this->syncTimeout);
-			$client->setDebugLevel(0);
-			$client->soap_defencoding = 'UTF-8';
-			$client->decode_utf8 = FALSE;
-
-			$client->setUseCurl(true);
-			$client->setCurlOption(CURLOPT_HTTPHEADER, [
-				"Content-type: text/xml;charset=\"utf-8\"",
-				"WA-API-Key: {$this->apiKey}",
-			]);
-	
-			$resp = $client->call('openotpNormalSign', array(
-				'username' => $userId,
-				'data' => $data,
-				'file' => base64_encode($this->addWatermark($fileContent, $fileName, $isPdf)),
-				'mode' => '',
-				'async' => false,
-				'timeout' => $this->syncTimeout,
-				'issuer' => $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
-				'client' => $this->clientId,
-				'source' => $remoteAddress,
-				'virtual' => null
-			), 'urn:openotp', '', false, null, 'rpc', 'literal');
-
-			if ($client->fault) {
-				$resp['code'] = 0;
-				$resp['message'] = $resp['faultcode'].' / '.$resp['faultstring'];
-				break;
-			}
-
-			$err = $client->getError();
-			if ($err) {
-				$resp['code'] = 0;
-				$resp['message'] = $err;
-				continue;
-			}
-
-			break;
-		}
-
-		if ($resp['code'] === '1') {
-			if (str_ends_with(strtolower($path), ".pdf")) {
-				if ($this->signedFile == "overwrite") {
-					$newPath = $path;
-				} else {
-					$newPath = substr_replace($path, sprintf('_signed_%s', date('Y-m-d_H.i.s')), strrpos($path, '.'), 0);
-				}
-			} else {
-				$newPath = $path . ".p7s";
-			}
-
-			$this->saveContainer($userId, base64_decode($resp['file']), $newPath);
-		}
-
-        return $resp;
-    }
-
-    public function asyncLocalAdvancedSign($path, $username, $userId, $remoteAddress, $email) {
-
-		$isPdf = str_ends_with(strtolower($path), ".pdf");
-
-		if ($this->enableDemoMode && !$isPdf) {
-			$resp['code'] = 0;
-			$resp['message'] = $this->l->t("Demo mode enabled. It is only possible to sign PDF files.");
-			return $resp;
-		}
-
-		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
-
-		if ($this->useProxy) {
-			$proxyHost = $this->proxyHost;
-			$proxyPort = $this->proxyPort;
-			$proxyUsername = $this->proxyUsername;
-			$proxyPassword = $this->proxyPassword;
-		} else {
-			$proxyHost = false;
-			$proxyPort = false;
-			$proxyUsername = false;
-			$proxyPassword = false;
-		}
-
-		$data  = '<div style="color: white;">';
-		$data .= "<strong>Name: </strong>$fileName";
-		$data .= "<br><strong>Size: </strong>".$this->humanFileSize($fileSize);
-		$data .= "<br><strong>Modified: </strong>".date('m/d/Y H:i:s', $lastModified);
-		$data .= '</div>';
-
-		$user = $this->userManager->get($userId);
-		$account = $this->accountManager->getAccount($user);
-		$sender = $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue();
-
-		$nbServers = count($this->serverUrls);
-		for ($i = 0; $i < $nbServers; ++$i) {
-			$client = new nusoap_client($this->serverUrls[$i], false, $proxyHost, $proxyPort, $proxyUsername, $proxyPassword, self::CNX_TIME_OUT);
-			$client->setDebugLevel(0);
-			$client->soap_defencoding = 'UTF-8';
-			$client->decode_utf8 = FALSE;
-
-			$client->setUseCurl(true);
-			$client->setCurlOption(CURLOPT_HTTPHEADER, [
-				"Content-type: text/xml;charset=\"utf-8\"",
-				"WA-API-Key: {$this->apiKey}",
-			]);
-	
-			$resp = $client->call('openotpNormalSign', array(
-				'username' => $username,
-				'data' => $data,
-				'file' => base64_encode($this->addWatermark($fileContent, $fileName, $isPdf)),
-				'mode' => '',
-				'async' => true,
-				'timeout' => $this->asyncTimeout,
-				'issuer' => $sender,
-				'client' => $this->clientId,
-				'source' => $remoteAddress,
-				'virtual' => null
-			), 'urn:openotp', '', false, null, 'rpc', 'literal');
-
-			if ($client->fault) {
-				$resp['code'] = 0;
-				$resp['message'] = $resp['faultcode'].' / '.$resp['faultstring'];
-				break;
-			}
-
-			$err = $client->getError();
-			if ($err) {
-				$resp['code'] = 0;
-				$resp['message'] = $err;
-				continue;
-			}
-
-			break;
-		}
-
-		if ($resp['code'] === '2') {
-			$signSession = new SignSession();
-			$signSession->setUid($userId);
-			$signSession->setPath($path);
-			$signSession->setIsAdvanced(true);
-			$signSession->setRecipient($username);
-			$signSession->setSession($resp['session']);
-
-			$expirationDate = new \DateTime();
-			$signSession->setExpirationDate($expirationDate->add(new \DateInterval('PT'.$this->asyncTimeout.'S')));
-
-			$this->mapper->insert($signSession);
-
-			// Generate and send QR Code
-			if (!empty($email)) {
-				$resp2 = $client->call('openotpTouchSign', array(
-					'session' => $resp['session'],
-					'sendPush' => false,
-					'qrFormat' => 'PNG',
-					'qrSizing' => 5,
-					'qrMargin' => 3
-				), 'urn:openotp', '', false, null, 'rpc', 'literal');
-				$this->sendQRCodeByEmail('advanced', $sender, $email, base64_decode($resp2['qrImage']), $resp2['message']);
-			}
-		}
-
-        return $resp;
-    }
-
-    public function seal($path, $userId, $remoteAddress) {
-
-		$isPdf = str_ends_with(strtolower($path), ".pdf");
-
-		if ($this->enableDemoMode && !$isPdf) {
-			$resp['code'] = 0;
-			$resp['message'] = $this->l->t("Demo mode enabled. It is only possible to sign PDF files.");
-			return $resp;
-		}
-
-		list($fileContent, $fileName, $fileSize, $lastModified) = $this->getFile($path, $userId);
-
-		if ($this->useProxy) {
-			$proxyHost = $this->proxyHost;
-			$proxyPort = $this->proxyPort;
-			$proxyUsername = $this->proxyUsername;
-			$proxyPassword = $this->proxyPassword;
-		} else {
-			$proxyHost = false;
-			$proxyPort = false;
-			$proxyUsername = false;
-			$proxyPassword = false;
-		}
-
-		$nbServers = count($this->serverUrls);
-		for ($i = 0; $i < $nbServers; ++$i) {
-			$client = new nusoap_client($this->serverUrls[$i], false, $proxyHost, $proxyPort, $proxyUsername, $proxyPassword, self::CNX_TIME_OUT);
-			$client->setDebugLevel(0);
-			$client->soap_defencoding = 'UTF-8';
-			$client->decode_utf8 = FALSE;
-
-			$client->setUseCurl(true);
-			$client->setCurlOption(CURLOPT_HTTPHEADER, [
-				"Content-type: text/xml;charset=\"utf-8\"",
-				"WA-API-Key: {$this->apiKey}",
-			]);
-	
-			$resp = $client->call('openotpSeal', array(
-				'file' => base64_encode($this->addWatermark($fileContent, $fileName, $isPdf)),
-				'mode' => '',
-				'client' => $this->clientId,
-				'source' => $remoteAddress,
-			), 'urn:openotp', '', false, null, 'rpc', 'literal');
-
-			if ($client->fault) {
-				$resp['code'] = 0;
-				$resp['message'] = $resp['faultcode'].' / '.$resp['faultstring'];
-				break;
-			}
-
-			$err = $client->getError();
-			if ($err) {
-				$resp['code'] = 0;
-				$resp['message'] = $err;
-				continue;
-			}
-
-			break;
-		}
-
-		if ($resp['code'] === '1') {
-			if (str_ends_with(strtolower($path), ".pdf")) {
-				if ($this->signedFile == "overwrite") {
-					$newPath = $path;
-				} else {
-					$newPath = substr_replace($path, sprintf('_sealed_%s', date('Y-m-d_H.i.s')), strrpos($path, '.'), 0);
-				}
-			} else {
-				$newPath = $path . ".p7s";
-			}
-
-			$this->saveContainer($userId, base64_decode($resp['file']), $newPath);
-		}
-
-        return $resp;
-    }
-
-	public function cancelSignRequest($session, $userId) {
 		try {
-			$signSession = $this->mapper->findBySession($session);
-		} catch(DoesNotExistException $e) {
-			$resp['code'] = 0;
-			$resp['message'] = "Session not started or timedout";
-			return $resp;
-		}
+			$this->logRCDevs->info(vsprintf('Common asynchronous Local Signature for file #%s: [%s]', [$fileId, json_encode($path)]), __CLASS__ . DIRECTORY_SEPARATOR . __FUNCTION__ . DIRECTORY_SEPARATOR . __FILE__ . ':' . __LINE__);
 
-		if ($signSession->getUid() !== $userId) {
-			$resp['code'] = 403;
-			$resp['message'] = "Forbidden";
-			return $resp;
-		}
+			if (is_null($this->currentUser->id)) {
+				throw new Exception("User ID error", 1);
+			}
 
-		if ($this->useProxy) {
-			$proxyHost = $this->proxyHost;
-			$proxyPort = $this->proxyPort;
-			$proxyUsername = $this->proxyUsername;
-			$proxyPassword = $this->proxyPassword;
-		} else {
-			$proxyHost = false;
-			$proxyPort = false;
-			$proxyUsername = false;
-			$proxyPassword = false;
-		}
+			$resp = new  OOtpResponse($this->commonSign($recipient, $path, $fileId, $remoteAddress, asynchronous: true, advanced: $advanced));
+			if ($resp->isFailed()) {
+				throw new Exception($resp[Constante::request(CstRequest::MESSAGE)]);
+			}
 
-		$nbServers = count($this->serverUrls);
-		for ($i = 0; $i < $nbServers; ++$i) {
-			$client = new nusoap_client($this->serverUrls[$i], false, $proxyHost, $proxyPort, $proxyUsername, $proxyPassword, self::CNX_TIME_OUT, $this->syncTimeout);
-			$client->setDebugLevel(0);
-			$client->soap_defencoding = 'UTF-8';
-			$client->decode_utf8 = FALSE;
+			// Retrive Soap client
+			$soapClient = $resp->getSoap();
 
-			$client->setUseCurl(true);
-			$client->setCurlOption(CURLOPT_HTTPHEADER, [
-				"Content-type: text/xml;charset=\"utf-8\"",
-				"WA-API-Key: {$this->apiKey}",
-			]);
-	
-			if (!$signSession->getIsAdvanced()) {
-				$resp = $client->call('openotpCancelConfirm', array(
-					$session
-				), 'urn:openotp', '', false, null, 'rpc', 'literal');
+			if (!$resp->isCode(2)) {
+				throw new Exception("At this step, returned code should be 2");
 			} else {
-				$resp = $client->call('openotpCancelSign', array(
-					$session
-				), 'urn:openotp', '', false, null, 'rpc', 'literal');
+				$dateFormat = 'Y-m-d H:i:s';
+				$now = new \DateTime();
+				$expiryDate = new \DateTime();
+				$expiryDate->add(new \DateInterval('PT' . $this->asyncTimeout . 'S'));
+				$overwriteDocument = ($this->configurationService->doyouOverwrite() ? 1 : 0);
+
+				$signSession = new SignSession();
+				$signSession->setRecipient(json_encode($recipient));
+				$signSession->setCreated(strtotime($now->format($dateFormat)));
+				$signSession->setSession($resp->getSession());
+				$signSession->setMessage($now->format($dateFormat));
+				$signSession->setAdvanced(($advanced ? 1 : 0));
+				$signSession->setApplicantId($this->currentUser->id);
+				$signSession->setChangeStatus(strtotime($now->format($dateFormat)));
+				$signSession->setExpiryDate(strtotime($expiryDate->format($dateFormat)));
+				$signSession->setFileId($fileId);
+				$signSession->setFilePath($path);
+				$signSession->setGlobalStatus(Constante::status(CstStatus::PENDING));
+				$signSession->setMsgDate(strtotime($now->format($dateFormat)));
+				$signSession->setMutex(null);
+				$signSession->setOverwrite($overwriteDocument);
+
+				$this->mapper->insert($signSession);
+
+				// Generate and send QR Code
+				$resp = new OOtpResponse(
+					$soapClient->call(($advanced ? 'openotpTouchSign' : 'openotpTouchConfirm'), array(
+						'session' => $resp->getSession(),
+						'sendPush' => false, // False will not send push notification but an email by WebADM
+						'qrFormat' => 'PNG',
+						'qrSizing' => 5,
+						'qrMargin' => 3
+					), 'urn:openotp', '', false, null, 'rpc', 'literal')
+				);
 			}
 
-			if ($client->fault) {
-				$resp['code'] = 0;
-				$resp['message'] = $resp['faultcode'].' / '.$resp['faultstring'];
-				break;
+			$returned = [
+				Constante::request(CstRequest::CODE)	=> $resp->getCode(),
+				Constante::request(CstRequest::DATA)	=> null,
+				Constante::request(CstRequest::ERROR)	=> null,
+				Constante::request(CstRequest::MESSAGE)	=> sprintf('Transaction created for %s', $recipient->displayName),
+			];
+		} catch (\Throwable $th) {
+			$this->logRCDevs->error(sprintf("Critical error during process. Error is \"%s\"", $th->getMessage()), __FUNCTION__ . DIRECTORY_SEPARATOR . __CLASS__ . DIRECTORY_SEPARATOR . __FILE__ . ':' . __LINE__);
+
+			$returned = [
+				Constante::request(CstRequest::CODE)	=> 0,
+				Constante::request(CstRequest::DATA)	=> null,
+				Constante::request(CstRequest::ERROR)	=> $th->getCode(),
+				Constante::request(CstRequest::MESSAGE)	=> $th->getMessage(),
+			];
+		}
+
+		return $returned;
+	}
+
+	private function commonSign(User $recipient, string $path, int $fileId, $remoteAddress, bool $asynchronous, bool $toSeal = false, bool $advanced = false): array
+	{
+		$returned = [];
+
+		try {
+			$this->logRCDevs->info(vsprintf('Common Standard Signature for file #%s: [%s]', [$fileId, json_encode($path)]), __CLASS__ . DIRECTORY_SEPARATOR . __FUNCTION__ . DIRECTORY_SEPARATOR . __FILE__ . ':' . __LINE__);
+
+			if (is_null($this->currentUser->id)) {
+				throw new Exception("User ID error", 1);
 			}
 
-			$err = $client->getError();
-			if ($err) {
-				$resp['code'] = 0;
-				$resp['message'] = $err;
-				continue;
+			$fileToSign = new FileService($this->configurationService, $this->filesMetadataManager, $this->logRCDevs, $this->currentUser, $fileId, toSeal: false);
+
+			if ($this->configurationService->isEnabledDemoMode() && !Helpers::isPdf($path)) {
+				throw new Exception('Demo mode enabled. It is only possible to sign PDF files', 1);
 			}
 
-			if ($resp['code'] === '1') {
-				$signSession->setIsPending(false);
-				$signSession->setIsError(true);
-				$signSession->setMessage($resp['message']);
-				$this->mapper->update($signSession);
+			/** @var ProxyService @proxy */
+			$proxy = $this->configurationService->proxy();
+
+			$data = vsprintf('<div style="color: white;"><strong>Name: </strong>%s<br><strong>Size: </strong>%s<br><strong>Modified: </strong>%s</div>', [
+				$fileToSign->getName(),
+				Helpers::humanFileSize($fileToSign->getSize()),
+				date('m/d/Y H:i:s', $fileToSign->getMTime()),
+			]);
+
+			$nbServers = count($this->configurationService->serversUrls());
+			for ($cptServers = 0; $cptServers < $nbServers; ++$cptServers) {
+				if (empty($this->configurationService->serversUrls()[$cptServers])) {
+					$this->logRCDevs->info(sprintf("This server url is empty, ignoed (#%s)", $cptServers), __FUNCTION__ . DIRECTORY_SEPARATOR . __CLASS__ . DIRECTORY_SEPARATOR . __FILE__ . ':' . __LINE__);
+					$resp = new OOtpResponse([]);
+					$client = new nusoap_client($this->configurationService->serversUrls()[$cptServers], false, $proxy->host, $proxy->port, $proxy->username, $proxy->password, self::CNX_TIME_OUT, $this->syncTimeout);
+				} else {
+					$fileB64 = base64_encode($fileToSign->getContent());
+
+					$client = new nusoap_client($this->configurationService->serversUrls()[$cptServers], false, $proxy->host, $proxy->port, $proxy->username, $proxy->password, self::CNX_TIME_OUT, $this->syncTimeout);
+					$client->setDebugLevel(0);
+					$client->soap_defencoding = 'UTF-8';
+					$client->decode_utf8 = FALSE;
+
+					$client->setUseCurl(true);
+					$client->setCurlOption(CURLOPT_HTTPHEADER, [
+						"Content-type: text/xml;charset=\"utf-8\"",
+						"WA-API-Key: {$this->apiKey}",
+					]);
+
+					if ($toSeal) {
+						$resp = new OOtpResponse($client->call('openotpSeal', array(
+							'file' => $fileB64,
+							'mode' => '',
+							'client' => $this->configurationService->clientId(),
+							'source' => $remoteAddress,
+						), 'urn:openotp', '', false, null, 'rpc', 'literal'));
+					} else {
+						if ($advanced) {
+							$resp = new OOtpResponse($client->call('openotpNormalSign', array(
+								'username' => $recipient->username,
+								'data' => $data,
+								'file' => $fileB64,
+								'mode' => '',
+								'async' => $asynchronous,
+								'timeout' => ($asynchronous ? $this->asyncTimeout : $this->syncTimeout),
+								'issuer' => $this->currentUser->account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
+								'client' => $this->configurationService->clientId(),
+								'source' => $remoteAddress,
+								'virtual' => null
+							), 'urn:openotp', '', false, null, 'rpc', 'literal'));
+						} else {
+							$resp = new OOtpResponse($client->call('openotpNormalConfirm', array(
+								'username' => $recipient->username,
+								'data' => $data,
+								'file' => $fileB64,
+								'form' => null,
+								'async' => $asynchronous,
+								'timeout' => $this->configurationService->timeout($asynchronous),
+								'issuer' => $this->currentUser->account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
+								'client' => $this->configurationService->clientId(),
+								'source' => $remoteAddress,
+								'virtual' => null
+							), 'urn:openotp', '', false, null, 'rpc', 'literal'));
+						}
+					}
+
+					if ($client->fault) {
+						throw new Exception($resp->getFaultcode() . ' / ' . $resp->getFaultstring());
+					}
+
+					$err = $client->getError();
+					if ($err) {
+						throw new Exception($err, 1);
+					}
+
+					break;
+				}
 			}
 
-			return $resp;
+			$errMsg = vsprintf(
+				'%s%s',
+				[
+					$resp->getMessage(),
+					(is_null($resp->getComment()) ? '' : sprintf(' / %s', $resp->getComment()))
+				]
+			);
+
+			$message = ($resp->isFailed() ? $errMsg : $resp->getMessage());
+
+			$resp->setSoap($client);
+
+			$returned = $resp->getArray();
+			$returned[Constante::request(CstRequest::ERROR)] = $errMsg;
+			$returned[Constante::request(CstRequest::MESSAGE)] = $message;
+		} catch (\Throwable $th) {
+			$this->logRCDevs->error(sprintf("Critical error during process. Error is \"%s\"", $th->getMessage()), __FUNCTION__ . DIRECTORY_SEPARATOR . __CLASS__ . DIRECTORY_SEPARATOR . __FILE__ . ':' . __LINE__);
+
+			$returned = [
+				Constante::request(CstRequest::CODE)	=> 0,
+				Constante::request(CstRequest::DATA)	=> null,
+				Constante::request(CstRequest::ERROR)	=> $th->getCode(),
+				Constante::request(CstRequest::MESSAGE)	=> $th->getMessage(),
+			];
+		}
+
+		return $returned;
+	}
+
+	private function commonSyncSign(User $recipient, string $path, int $fileId, $remoteAddress, bool $advanced): array
+	{
+		$returned = [];
+
+		try {
+			$this->logRCDevs->info(vsprintf('Common synchronous Signature for file #%s: [%s]', [$fileId, json_encode($path)]), __CLASS__ . DIRECTORY_SEPARATOR . __FUNCTION__ . DIRECTORY_SEPARATOR . __FILE__ . ':' . __LINE__);
+
+			if (is_null($this->currentUser->id)) {
+				throw new Exception("User ID error", 1);
+			}
+
+			$data = [];
+
+			$resp = new OOtpResponse($this->commonSign($recipient, $path, $fileId, $remoteAddress, asynchronous: false, advanced: $advanced));
+			if ($resp->isFailed()) {
+				throw new Exception($resp->getMessage());
+			}
+
+			if (!$resp->isFailed()) {
+				/** @var File $createdFile */
+				$fileToSign = new FileService($this->configurationService, $this->filesMetadataManager, $this->logRCDevs, $this->currentUser, $fileId, toSeal: false);
+				$createdFile = $fileToSign->create(base64_decode($resp->getFile()), $this->configurationService->doyouOverwrite());
+
+				$data = [
+					Constante::entity(CstEntity::NAME)		=> ltrim($createdFile->getInternalPath(), 'files/'),
+					Constante::entity(CstEntity::FILE_ID)	=> $createdFile->getId(),
+					Constante::entity(CstEntity::OVERWRITE)	=> $this->configurationService->doyouOverwrite(),
+					Constante::file(CstFile::SIZE)			=> $createdFile->getSize(),
+					Constante::file(CstFile::PATH)			=> $createdFile->getPath(),
+					Constante::file(CstFile::INTERNAL_PATH)	=> $createdFile->getInternalPath(),
+				];
+			}
+
+			$this->logRCDevs->debug(vsprintf('Returned data : [%s]', [json_encode($data)]), __CLASS__ . DIRECTORY_SEPARATOR . __FUNCTION__ . DIRECTORY_SEPARATOR . __FILE__ . ':' . __LINE__);
+
+			$returned = [
+				Constante::request(CstRequest::CODE)	=> 1,
+				Constante::request(CstRequest::DATA)	=> $data,
+				Constante::request(CstRequest::ERROR)	=> null,
+				Constante::request(CstRequest::MESSAGE)	=> $resp->getMessage(),
+			];
+		} catch (\Throwable $th) {
+			$this->logRCDevs->error(sprintf("Critical error during process. Error is \"%s\"", $th->getMessage()), __FUNCTION__ . DIRECTORY_SEPARATOR . __CLASS__ . DIRECTORY_SEPARATOR . __FILE__ . ':' . __LINE__);
+
+			$returned = [
+				Constante::request(CstRequest::CODE)	=> 0,
+				Constante::request(CstRequest::DATA)	=> null,
+				Constante::request(CstRequest::ERROR)	=> $th->getCode(),
+				Constante::request(CstRequest::MESSAGE)	=> $th->getMessage(),
+			];
+		}
+
+		return $returned;
+	}
+
+	private function getUserLocalesTimestamp(string $userId, \DateTime $date)
+	{
+		$owner = $this->userManager->get($userId);
+		$lang = 'en';
+		$timeZone = $this->systemConfig->getUserValue($owner->getUID(), 'core', 'timezone', null);
+		$timeZone = isset($timeZone) ? new \DateTimeZone($timeZone) : new \DateTimeZone('UTC');
+
+		if ($lang) {
+			$l10n = $this->l10nFactory->get(RCDevsApp::APP_ID, $lang);
+			if (!$l10n) {
+				$l10n = $this->l10n;
+			}
+		} else {
+			$l10n = $this->l10n;
+		}
+		$date->setTimezone($timeZone);
+		return $date->format('Y-m-d H:i:s');
+	}
+
+	/** ******************************************************************************************
+	 * PUBLIC
+	 ****************************************************************************************** */
+
+	public function advancedSign(User $recipient, string $path, int $fileId, $remoteAddress)
+	{
+		$this->logRCDevs->info(vsprintf('Advanced Signature for file #%s: [%s]', [$fileId, json_encode($path)]), __CLASS__ . DIRECTORY_SEPARATOR . __FUNCTION__ . DIRECTORY_SEPARATOR . __FILE__ . ':' . __LINE__);
+		return $this->commonSyncSign($recipient, $path, $fileId, $remoteAddress, advanced: true);
+	}
+
+	public function asyncLocalAdvancedSign(User $recipient, string $path, int $fileId, $remoteAddress)
+	{
+		$this->logRCDevs->info(vsprintf('Asynchronous Local Standard Signature for file #%s: [%s]', [$fileId, json_encode($path)]), __CLASS__ . DIRECTORY_SEPARATOR . __FUNCTION__ . DIRECTORY_SEPARATOR . __FILE__ . ':' . __LINE__);
+		return $this->commonAsyncLocalSign($recipient, $path, $fileId, $remoteAddress, advanced: true);
+	}
+
+	public function asyncLocalStandardSign(User $recipient, string $path, int $fileId, $remoteAddress)
+	{
+		$this->logRCDevs->info(vsprintf('Asynchronous Local Standard Signature for file #%s: [%s]', [$fileId, json_encode($path)]), __CLASS__ . DIRECTORY_SEPARATOR . __FUNCTION__ . DIRECTORY_SEPARATOR . __FILE__ . ':' . __LINE__);
+		return $this->commonAsyncLocalSign($recipient, $path, $fileId, $remoteAddress, advanced: false);
+	}
+
+	public function cancelSignRequest(string $session, string $userId, $forceDeletion = false): array
+	{
+		$returned = [];
+
+		try {
+			// Not needed to contact OTP server if $forceDeletion is true: it means we just delete Issue from the Nextcloud database
+			if ($forceDeletion) {
+				// Just delete the DB record
+				// Change status with "camcelled"
+				$resp = $this->mapper->deleteTransaction($session, $userId);
+				$returned = $resp;
+			} else {
+				// Cancel OTP process
+				$signSession = $this->mapper->findTransaction($session, applicantId: $userId);
+
+				if (is_null($this->currentUser->id)) {
+					throw new Exception("User ID error", 1);
+				}
+
+				/** @var ProxyService @proxy */
+				$proxy = $this->configurationService->proxy();
+
+				$nbServers = count($this->configurationService->serversUrls());
+				for ($cptServers = 0; $cptServers < $nbServers; ++$cptServers) {
+					if (empty($this->configurationService->serversUrls()[$cptServers])) {
+						$this->logRCDevs->info(sprintf("This server url is empty, ignoed (#%s)", $cptServers), __FUNCTION__ . DIRECTORY_SEPARATOR . __CLASS__ . DIRECTORY_SEPARATOR . __FILE__ . ':' . __LINE__);
+						$resp = new OOtpResponse([]);
+					} else {
+						$client = new nusoap_client($this->configurationService->serversUrls()[$cptServers], false, $proxy->host, $proxy->port, $proxy->username, $proxy->password, self::CNX_TIME_OUT, $this->syncTimeout);
+						$client->setDebugLevel(0);
+						$client->soap_defencoding = 'UTF-8';
+						$client->decode_utf8 = FALSE;
+
+						$client->setUseCurl(true);
+						$client->setCurlOption(CURLOPT_HTTPHEADER, [
+							"Content-type: text/xml;charset=\"utf-8\"",
+							"WA-API-Key: {$this->apiKey}",
+						]);
+
+						$resp = new  OOtpResponse($client->call(
+							// $operation,
+							(Helpers::isAdvanced($signSession->getAdvanced()) ? 'openotpCancelSign' : 'openotpCancelConfirm'),
+							array($session),
+							'urn:openotp',
+							'',
+							false,
+							null,
+							'rpc',
+							'literal'
+						));
+
+						if ($client->fault) {
+							throw new Exception($resp->getFaultcode() . ' / ' . $resp->getFaultstring());
+						}
+
+						$err = $client->getError();
+						if ($err) {
+							throw new Exception($err, 1);
+						}
+
+						// if (Helpers::isValidResponse($resp)) {
+						if (!$resp->isFailed()) {
+							// Change status to camcelled
+							$signSession->setChangeStatus(intval(time()));
+							$signSession->setGlobalStatus(Constante::status(CstStatus::CANCELLED));
+							$signSession->setMessage($resp->getMessage());
+							$this->mapper->update($signSession);
+						}
+
+						break;
+					}
+				}
+
+				$errMsg = vsprintf(
+					'%s%s',
+					[
+						$resp->getMessage(),
+						(is_null($resp->getComment()) ? '' : sprintf(' / %s', $resp->getComment()))
+					]
+				);
+
+				$message = ($resp->isFailed() ? $errMsg : $resp->getMessage());
+				$returned = $resp->getArray();
+			}
+
+			// $returned[Constante::request(CstRequest::CODE)] = intval($returned[Constante::request(CstRequest::CODE)]);
+			$returned[Constante::request(CstRequest::ERROR)] = $errMsg;
+			$returned[Constante::request(CstRequest::MESSAGE)] = $message;
+		} catch (\Throwable $th) {
+			$this->logRCDevs->error(sprintf("Critical error during process. Error is \"%s\"", $th->getMessage()), __FUNCTION__ . DIRECTORY_SEPARATOR . __CLASS__ . DIRECTORY_SEPARATOR . __FILE__ . ':' . __LINE__);
+
+			$returned = [
+				Constante::request(CstRequest::CODE)	=> 0,
+				Constante::request(CstRequest::DATA)	=> null,
+				Constante::request(CstRequest::ERROR)	=> $th->getCode(),
+				Constante::request(CstRequest::MESSAGE)	=> $th->getMessage(),
+			];
+		}
+
+		return $returned;
+	}
+
+	public function checkAsyncSignature(string|null $userId = null)
+	{
+		$returned = [];
+
+		try {
+			$this->logRCDevs->info(vsprintf('Checking async signatures', []), __CLASS__ . DIRECTORY_SEPARATOR . __FUNCTION__ . DIRECTORY_SEPARATOR . __FILE__ . ':' . __LINE__);
+
+			$threadId = bin2hex(random_bytes(8));
+			$data = [];
+			$message = '';
+
+			/** @var ProxyService @proxy */
+			$proxy = $this->configurationService->proxy();
+
+			$nbServers = count($this->configurationService->serversUrls());
+			for ($cptServers = 0; $cptServers < $nbServers; ++$cptServers) {
+				if (empty($this->configurationService->serversUrls()[$cptServers])) {
+					$this->logRCDevs->info(sprintf("This server url is empty, ignoed (#%s)", $cptServers), __FUNCTION__ . DIRECTORY_SEPARATOR . __CLASS__ . DIRECTORY_SEPARATOR . __FILE__ . ':' . __LINE__);
+				} else {
+					$client = new nusoap_client($this->configurationService->serversUrls()[$cptServers], false, $proxy->host, $proxy->port, $proxy->username, $proxy->password, self::CNX_TIME_OUT);
+
+					$client->setDebugLevel(0);
+					$client->soap_defencoding = 'UTF-8';
+					$client->decode_utf8 = FALSE;
+
+					$client->setUseCurl(true);
+					$client->setCurlOption(CURLOPT_HTTPHEADER, [
+						"Content-type: text/xml;charset=\"utf-8\"",
+						"WA-API-Key: {$this->apiKey}",
+					]);
+
+					// Get all pending transactions to check (no filter at all)
+					$signSessions = $this->mapper->findPendingsAll($userId, ignoreExpiryDate: true);
+
+					/** @var SignSession  $signSession */
+					foreach ($signSessions as $signSession) {
+						/**
+						 * This "try catch" is needed in case of exception during process: it permits to reset the mutex.
+						 * Without this step, we can have deadlocks with not empty mutex for non processed row in database.
+						 * The result is that the row will never be treated by this async function.
+						 */
+						try {
+							// Set Mutex to prevent multiple processes for the same session
+							$this->mapper->updateTransactionsMutex($threadId, $signSession->getSession());
+
+							// Set current signSession Mutex to "we don't care" value: it will force update because Nextcloud/Doctrine update has a bug...
+							$signSession->setMutex('-1');
+
+							// Check if the Mutex === thread Id; if OK, this thread will save the file (if no exception or sth else...)
+							$oOtpSignSession = $this->mapper->findTransaction($signSession->getSession(), $signSession->getApplicantId());
+
+							$this->logRCDevs->debug(sprintf('Thread is %s', $threadId), __FUNCTION__);
+							$this->logRCDevs->debug(sprintf('Mutex  is %s', $oOtpSignSession->getMutex()), __FUNCTION__);
+							if ($oOtpSignSession->getMutex() === $threadId) {
+								// Initialize the user ID according to the intel from DB table openotp_sign_sessions
+								$this->currentUser->setUserId($signSession->getApplicantId());
+
+								// Check is transaction is an advanced signature or standard
+								if (Helpers::isAdvanced($signSession->getAdvanced())) {
+									$resp = $client->call('openotpCheckSign',		array($signSession->getSession()), 'urn:openotp', '', false, null, 'rpc', 'literal');
+								} else {
+									$resp = $client->call('openotpCheckConfirm',	array($signSession->getSession()), 'urn:openotp', '', false, null, 'rpc', 'literal');
+								}
+
+								if ($client->fault) {
+									throw new Exception($resp['faultcode'] . ' / ' . $resp['faultstring'], 1);
+								}
+
+								$err = $client->getError();
+								if ($err) {
+									throw new Exception($err, 1);
+								}
+
+								if (Helpers::isValidResponse($resp)) {
+									$path = $signSession->getFilePath();
+
+									// Will be used to keep PDF extension or to switch to P7S extension
+									$changeExtension = !Helpers::isPdf($path);
+
+									$fileToSign = new FileService(
+										$this->configurationService,
+										$this->filesMetadataManager,
+										$this->logRCDevs,
+										$this->currentUser,
+										$signSession->getFileId(),
+										toSeal: false,
+										changeExtension: $changeExtension
+									);
+
+									// This "overwrite" comes from the transaction saved in DB openotp_sign_sessions table; this is not the Config's one
+									$doyouOverwrite = ($signSession->isOverwrite());
+
+									$createdFile = $fileToSign->create(base64_decode($resp['file']), $doyouOverwrite);
+
+									$data[] = [
+										Constante::entity(CstEntity::NAME)		=> ltrim($createdFile->getInternalPath(), 'files/'),
+										Constante::entity(CstEntity::FILE_ID)	=> $createdFile->getId(),
+										Constante::entity(CstEntity::OVERWRITE)	=> $this->configurationService->doyouOverwrite(),
+										Constante::file(CstFile::SIZE)			=> $createdFile->getSize(),
+										Constante::file(CstFile::PATH)			=> $createdFile->getPath(),
+										Constante::file(CstFile::INTERNAL_PATH)	=> $createdFile->getInternalPath(),
+									];
+
+									// Delete the signed transaction from DB (useless to keep it)
+									$this->mapper->delete($signSession);
+								} else if ($resp[Constante::request(CstRequest::CODE)] === '0') {
+									$signSession->setGlobalStatus(Constante::status(CstStatus::ERROR));
+									$signSession->setMessage($resp[Constante::entity(CstEntity::MESSAGE)]);
+									// Update Status in DB
+									$this->mapper->update($signSession);
+								} else {
+									$signSession->setMutex(null);
+									// Update Status in DB
+									$this->mapper->update($signSession);
+								}
+
+								$message = $resp[Constante::request(CstRequest::MESSAGE)];
+							}
+						} catch (\Throwable $th) {
+							$signSession->setMutex(null);
+							$this->mapper->update($signSession);
+							throw $th;
+						}
+					}
+				}
+			}
+
+			$returned = [
+				Constante::request(CstRequest::CODE)	=> 1,
+				Constante::request(CstRequest::DATA)	=> $data,
+				Constante::request(CstRequest::ERROR)	=> null,
+				Constante::request(CstRequest::MESSAGE)	=> $message,
+			];
+		} catch (\Throwable $th) {
+			$this->logRCDevs->error(sprintf("Critical error during process. Error is \"%s\"", $th->getMessage()), __FUNCTION__ . DIRECTORY_SEPARATOR . __CLASS__ . DIRECTORY_SEPARATOR . __FILE__ . ':' . __LINE__);
+
+			$returned = [
+				Constante::request(CstRequest::CODE)	=> 0,
+				Constante::request(CstRequest::DATA)	=> null,
+				Constante::request(CstRequest::ERROR)	=> $th->getCode(),
+				Constante::request(CstRequest::MESSAGE)	=> $th->getMessage(),
+			];
+		}
+
+		return $returned;
+	}
+
+	// Get the OTP server url status (OK/KO) for the Settings page
+	public function checkSettings(int $serverIndex)
+	{
+		$returned = [];
+
+		try {
+			$data = [];
+			$message = null;
+
+			// Retrieve connection intel from database
+			$apiKey		 = $this->config->getAppValue(RCDevsApp::APP_ID, 'api_key');
+			$serversUrls	= json_decode($this->config->getAppValue(RCDevsApp::APP_ID, 'servers_urls'), true);
+
+			$serverUrl = $serversUrls[$serverIndex];
+
+			// If server url is empty, not needed to check it => N/A which will return [-1]
+			if (empty($serverUrl)) {
+				$returned = [
+					Constante::request(CstRequest::CODE)	=> -1,
+					Constante::request(CstRequest::DATA)	=> null,
+					Constante::request(CstRequest::ERROR)	=> null,
+					Constante::request(CstRequest::MESSAGE)	=> 'N/A : Empty server URL',
+				];
+			} else {
+				// Call the server
+				$soapClient = new SoapService($this->configurationService, $this->logRCDevs, $serverUrl);
+				$resp = $soapClient->openOtpStatus();
+
+				$message = $resp[Constante::request(CstRequest::MESSAGE)];
+
+				$returned = [
+					Constante::request(CstRequest::CODE)	=> 1,
+					Constante::request(CstRequest::DATA)	=> $data,
+					Constante::request(CstRequest::ERROR)	=> null,
+					Constante::request(CstRequest::MESSAGE)	=> $message,
+				];
+			}
+		} catch (\Throwable $th) {
+			$this->logRCDevs->error(vsprintf('Checking Settings process failed for server #%d [%s]', [$serverIndex, $th->getMessage()]), __CLASS__ . DIRECTORY_SEPARATOR . __FUNCTION__ . DIRECTORY_SEPARATOR . __FILE__ . ':' . __LINE__);
+			$returned = [
+				Constante::request(CstRequest::CODE)	=> 0,
+				Constante::request(CstRequest::DATA)	=> null,
+				Constante::request(CstRequest::ERROR)	=> $th->getCode(),
+				Constante::request(CstRequest::MESSAGE)	=> $th->getMessage(),
+			];
+		}
+
+		return $returned;
+	}
+
+	public function getServersNumber(): array
+	{
+		$returned = [];
+
+		try {
+			// Get servers from Config DB
+			$serversUrls = json_decode($this->config->getAppValue(RCDevsApp::APP_ID, 'servers_urls'), true);
+
+			$data = [];
+
+			if (is_array($serversUrls)) {
+				$data = [
+					Constante::config(CstConfig::SERVERS_NUMBER) => count($serversUrls),
+				];
+			} else {
+				throw new Exception(Constante::exception(CstException::NOT_SERVERS_ARRAY), 1);
+			}
+
+			$returned = [
+				Constante::request(CstRequest::CODE)		=> 1,
+				Constante::request(CstRequest::ERROR)	=> null,
+				Constante::request(CstRequest::DATA)		=> $data,
+			];
+		} catch (\Throwable $th) {
+			$returned = [
+				Constante::request(CstRequest::CODE)		=> 0,
+				Constante::request(CstRequest::ERROR)	=> $th->getMessage(),
+				Constante::request(CstRequest::DATA)		=> null,
+			];
+		}
+
+		return $returned;
+	}
+
+	public function lastRunJob()
+	{
+		$returned = [];
+
+		try {
+			$code = 0;
+			$data = [];
+			$error = null;
+			$message = null;
+
+			$resp = $this->mapper->findJob();
+			if ($resp[Constante::request(CstRequest::CODE)] !== 1) {
+				throw new Exception($resp[Constante::request(CstRequest::ERROR)], 1);
+			}
+
+			$reservedAt = Helpers::getArrayData($resp[Constante::request(CstRequest::DATA)], 'reserved_at', true, 'No "Reservation" column found in query result');
+			$lastRun 	= Helpers::getArrayData($resp[Constante::request(CstRequest::DATA)], 'last_run', true, 'No "Last Run" column found in query result');
+			$data = [
+				Constante::database(CstDatabase::COLUMN_LAST_RUN)		=> $lastRun,
+				Constante::database(CstDatabase::COLUMN_RESERVED_AT)	=> $reservedAt,
+			];
+
+			switch (true) {
+				case $reservedAt === 0 && $lastRun === 0:
+					$code = 1;
+					$message = 'The cron job is activated';
+					break;
+
+				case $reservedAt === 0 && $lastRun !== 0:
+					$code = 1;
+					$message = json_encode(['The cron job is activated; the last time the job ran was at %s', date('Y-m-d_H:i:s', $lastRun)]);
+					break;
+
+				default:
+					$code = 0;
+					$error = $message = json_encode(['The cron job was disabled at %s', date('Y-m-d_H:i:s', $reservedAt)]);
+					$data = null;
+					break;
+			}
+
+			$returned = [
+				Constante::request(CstRequest::CODE)	=> $code,
+				Constante::request(CstRequest::DATA)	=> $data,
+				Constante::request(CstRequest::ERROR)	=> $error,
+				Constante::request(CstRequest::MESSAGE)	=> $message,
+			];
+		} catch (\Throwable $th) {
+			$this->logRCDevs->error(sprintf('Checking Last Run Job process failed [%s]', $th->getMessage()), __CLASS__ . DIRECTORY_SEPARATOR . __FUNCTION__);
+			$returned = [
+				Constante::request(CstRequest::CODE)	=> 0,
+				Constante::request(CstRequest::DATA)	=> null,
+				Constante::request(CstRequest::ERROR)	=> $th->getCode(),
+				Constante::request(CstRequest::MESSAGE)	=> $th->getMessage(),
+			];
+		}
+
+		return $returned;
+	}
+
+	public function resetJob()
+	{
+		$resp = $this->mapper->resetJob();
+		if ($resp[Constante::request(CstRequest::CODE)] === 1) {
+			$resp[Constante::request(CstRequest::MESSAGE)] = json_encode(['The cron job has been activated at %s', date('Y-m-d_H:i:s')]);
 		}
 
 		return $resp;
 	}
 
-    public function checkAsyncSignature() {
-		if ($this->useProxy) {
-			$proxyHost = $this->proxyHost;
-			$proxyPort = $this->proxyPort;
-			$proxyUsername = $this->proxyUsername;
-			$proxyPassword = $this->proxyPassword;
-		} else {
-			$proxyHost = false;
-			$proxyPort = false;
-			$proxyUsername = false;
-			$proxyPassword = false;
-		}
+	public function seal(User $recipient, string $path, int $fileId, $remoteAddress)
+	{
+		$returned = [];
 
-		$nbServers = count($this->serverUrls);
-		for ($i = 0; $i < $nbServers; ++$i) {
-			$client = new nusoap_client($this->serverUrls[$i], false, $proxyHost, $proxyPort, $proxyUsername, $proxyPassword, self::CNX_TIME_OUT);
-			$client->setDebugLevel(0);
-			$client->soap_defencoding = 'UTF-8';
-			$client->decode_utf8 = FALSE;
+		try {
+			$this->logRCDevs->info(vsprintf('Seal for file #%s: [%s]', [$fileId, json_encode($path)]), __CLASS__ . DIRECTORY_SEPARATOR . __FUNCTION__ . DIRECTORY_SEPARATOR . __FILE__ . ':' . __LINE__);
 
-			$client->setUseCurl(true);
-			$client->setCurlOption(CURLOPT_HTTPHEADER, [
-				"Content-type: text/xml;charset=\"utf-8\"",
-				"WA-API-Key: {$this->apiKey}",
-			]);
-	
-			$signSessions = $this->mapper->findAllPending();
-			foreach ($signSessions as $signSession) {
-				if (!$signSession->getIsAdvanced()) {
-					$resp = $client->call('openotpCheckConfirm', array(
-						$signSession->getSession()
-					), 'urn:openotp', '', false, null, 'rpc', 'literal');
-				} else {
-					$resp = $client->call('openotpCheckSign', array(
-						$signSession->getSession()
-					), 'urn:openotp', '', false, null, 'rpc', 'literal');
-				}
-
-				if ($client->fault) {
-					$resp['code'] = 0;
-					$resp['message'] = $resp['faultcode'].' / '.$resp['faultstring'];
-					break 2;
-				}
-
-				$err = $client->getError();
-				if ($err) {
-					$resp['code'] = 0;
-					$resp['message'] = $err;
-					break;
-				}
-
-				if ($resp['code'] === '1') {
-					$path = $signSession->getPath();
-					if (str_ends_with(strtolower($path), ".pdf")) {
-						if ($this->signedFile == "overwrite") {
-							$newPath = $path;
-						} else {
-							$newPath = substr_replace($path, sprintf('_signed_%s-%s', $signSession->getRecipient(), date('Y-m-d_H.i.s')), strrpos($path, '.'), 0);
-						}
-					} else {
-						$newPath = $path . ".p7s";
-					}
-
-					$this->saveContainer($signSession->getUid(), base64_decode($resp['file']), $newPath);
-
-					$signSession->setIsPending(false);
-					$this->mapper->update($signSession);
-				} else if ($resp['code'] === '0') {
-					$signSession->setIsPending(false);
-					$signSession->setIsError(true);
-					$signSession->setMessage($resp['message']);
-					$this->mapper->update($signSession);
-				}
+			if (is_null($this->currentUser->id)) {
+				throw new Exception("User ID error", 1);
 			}
 
-			break;
+			$data = [];
+
+			$resp = $this->commonSign($recipient, $path, $fileId, $remoteAddress, asynchronous: false, toSeal: true);
+			if ($resp[Constante::request(CstRequest::CODE)] !== 1) {
+				throw new Exception($resp[Constante::request(CstRequest::MESSAGE)], 1);
+			}
+
+			if ($resp[Constante::request(CstRequest::CODE)] === 1) {
+				/** @var File $createdFile */
+				$fileToSign = new FileService($this->configurationService, $this->filesMetadataManager, $this->logRCDevs, $this->currentUser, $fileId, toSeal: true);
+				$createdFile = $fileToSign->create(base64_decode($resp['file']), $this->configurationService->doyouOverwrite());
+
+				$data = [
+					Constante::entity(CstEntity::NAME)		=> ltrim($createdFile->getInternalPath(), 'files/'),
+					Constante::entity(CstEntity::FILE_ID)	=> $createdFile->getId(),
+					Constante::entity(CstEntity::OVERWRITE)	=> $this->configurationService->doyouOverwrite(),
+					Constante::file(CstFile::SIZE)			=> $createdFile->getSize(),
+					Constante::file(CstFile::PATH)			=> $createdFile->getPath(),
+					Constante::file(CstFile::INTERNAL_PATH)	=> $createdFile->getInternalPath(),
+				];
+			}
+
+			$this->logRCDevs->debug(vsprintf('Returned data : [%s]', [json_encode($data)]), __CLASS__ . DIRECTORY_SEPARATOR . __FUNCTION__ . DIRECTORY_SEPARATOR . __FILE__ . ':' . __LINE__);
+
+			$returned = [
+				Constante::request(CstRequest::CODE)	=> 1,
+				Constante::request(CstRequest::DATA)	=> $data,
+				Constante::request(CstRequest::ERROR)	=> null,
+				Constante::request(CstRequest::MESSAGE)	=> $resp[Constante::request(CstRequest::MESSAGE)],
+			];
+		} catch (\Throwable $th) {
+			$this->logRCDevs->error(sprintf("Critical error during process. Error is \"%s\"", $th->getMessage()), __FUNCTION__ . DIRECTORY_SEPARATOR . __CLASS__ . DIRECTORY_SEPARATOR . __FILE__ . ':' . __LINE__);
+
+			$returned = [
+				Constante::request(CstRequest::CODE)	=> 0,
+				Constante::request(CstRequest::DATA)	=> null,
+				Constante::request(CstRequest::ERROR)	=> $th->getCode(),
+				Constante::request(CstRequest::MESSAGE)	=> $th->getMessage(),
+			];
 		}
-    }
 
-	public function openotpStatus(IRequest $request) {
-		if ($this->useProxy) {
-			$proxyHost = $this->proxyHost;
-			$proxyPort = $this->proxyPort;
-			$proxyUsername = $this->proxyUsername;
-			$proxyPassword = $this->proxyPassword;
-		} else {
-			$proxyHost = false;
-			$proxyPort = false;
-			$proxyUsername = false;
-			$proxyPassword = false;
-		}
-
-		$client = new nusoap_client($request->getParam('server_url'), false, $proxyHost, $proxyPort, $proxyUsername, $proxyPassword, self::CNX_TIME_OUT);
-		$client->setDebugLevel(0);
-		$client->soap_defencoding = 'UTF-8';
-		$client->decode_utf8 = FALSE;
-
-		$client->setUseCurl(true);
-		$client->setCurlOption(CURLOPT_HTTPHEADER, [
-			"Content-type: text/xml;charset=\"utf-8\"",
-			"WA-API-Key: {$request->getParam('api_key')}",
-		]);
-
-		return $client->call('openotpStatus', array());
+		return $returned;
 	}
 
-	private function sendQRCodeByEmail($signType, $sender, $recipient, $qrCode, $uri) {
-		$boundary = "-----=".md5(uniqid(rand()));
-		$boundary2 = "-----=".md5(uniqid(rand()));
-
-		$headers  = "From: OpenOTP Sign Nextcloud <no-reply>\r\n";
-		$headers .= "Content-Type: multipart/alternative; boundary=\"$boundary\"\r\n";
-		$headers .= "Mime-Version: 1.0\r\n";
-
-		$msg  = "--$boundary\r\n";
-		$msg .= "Content-Transfer-Encoding: 8bit\r\n";
-		$msg .= "Content-Type: text/plain; charset=utf-8\r\n";
-		$msg .= "\r\n";
-
-		$msg .= "A new QuickSign $signType signature request has been sent to your mobile phone.\r\n";
-		$msg .= "The sender is $sender.\r\n";
-		$msg .= "The signature request will expire in ".round($this->asyncTimeout / 3600)." hour(s) (".date("Y-m-d H:i", time() + $this->asyncTimeout).").\r\n\r\n";
-		$msg .= "If you did not receive the mobile push notification, you can scan the attached QRCode.\r\n";
-		$msg .= "\r\n";
-
-		$msg .= "--$boundary\r\n";
-		$msg .= "Content-Type: multipart/related; type=\"text/html\"; boundary=\"$boundary2\"\r\n";
-		$msg .= "\r\n";
-
-		$msg .= "--$boundary2\r\n";
-		$msg .= "Content-Transfer-Encoding: 8bit\r\n";
-		$msg .= "Content-Type: text/html; charset=utf-8\r\n";
-		$msg .= "\r\n";
-
-		$msg .= "<html><body>A new QuickSign $signType signature request has been sent to your mobile phone.<br>";
-		$msg .= "The sender is <b>$sender</b>.<br>";
-		$msg .= "The signature request will expire in ".round($this->asyncTimeout / 3600)." hour(s) (".date("Y-m-d H:i", time() + $this->asyncTimeout).").<br><br>";
-		$msg .= "If you did not receive the mobile push notification, you can scan the following QRCode (or directly tap on it from your phone where the <em>OpenOTP Token</em> app is installed):<br><br>";
-		$msg .= "<a href=\"$uri\"><img src=\"cid:image1\"></a>";
-		$msg .= "</body></html>\r\n";
-		$msg .= "\r\n";
-
-		$msg .= "--$boundary2\r\n";
-		$msg .= "Content-Transfer-Encoding: base64\r\n";
-		$msg .= "Content-Disposition: inline; filename=qrcode.png\r\n";
-		$msg .= "Content-Type: image/png; name=\"qrcode.png\"\r\n";
-		$msg .= "Content-ID: <image1>\r\n";
-		$msg .= "\r\n";
-		$msg .= base64_encode($qrCode) . "\r\n";
-
-		$msg .= "--$boundary2--\r\n";
-		$msg .= "\r\n";
-
-		$msg .= "--$boundary--\r\n";
-
-		mail($recipient, "Signature request invitation", $msg, $headers);
+	public function standardSign(User $recipient, string $path, int $fileId, $remoteAddress)
+	{
+		$this->logRCDevs->info(vsprintf('Standard Signature for file #%s: [%s]', [$fileId, json_encode($path)]), __CLASS__ . DIRECTORY_SEPARATOR . __FUNCTION__ . DIRECTORY_SEPARATOR . __FILE__ . ':' . __LINE__);
+		return $this->commonSyncSign($recipient, $path, $fileId, $remoteAddress, advanced: false);
 	}
 }

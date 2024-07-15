@@ -1,7 +1,8 @@
 <?php
+
 /**
  *
- * @copyright Copyright (c) 2023, RCDevs (info@rcdevs.com)
+ * @copyright Copyright (c) 2024, RCDevs (info@rcdevs.com)
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -12,73 +13,89 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 namespace OCA\OpenOTPSign\Controller;
 
-use OCP\IRequest;
+
+use OCA\OpenOTPSign\Db\SignSessionMapper;
+use OCA\OpenOTPSign\Service\RequestsService;
+use OCA\OpenOTPSign\Service\SignService;
+use OCA\OpenOTPSign\Utils\Constante;
+use OCA\OpenOTPSign\Utils\CstDatabase;
+use OCA\OpenOTPSign\Utils\CstRequest;
+use OCA\OpenOTPSign\Utils\CstStatus;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IRequest;
 
-use OCA\OpenOTPSign\Db\SignSession;
-use OCA\OpenOTPSign\Db\SignSessionMapper;
+class RequestsController extends Controller
+{
 
-class RequestsController extends Controller {
-	private $userId;
-    private $mapper;
-
-	public function __construct($AppName, IRequest $request, $UserId, SignSessionMapper $mapper)
-	{
+	public function __construct(
+		$AppName,
+		IRequest $request,
+		private string $userId,
+		private SignSessionMapper $mapper,
+		private RequestsService $requestsService,
+		private SignService $signService,
+	) {
 		parent::__construct($AppName, $request);
-		$this->userId = $UserId;
-        $this->mapper = $mapper;
+	}
+
+	/** ******************************************************************************************
+	 * PRIVATE
+	 ****************************************************************************************** */
+
+	private function commonGetListRequests(string $list)
+	{
+		$returned = [
+			Constante::database(CstDatabase::COUNT) => 0,
+			Constante::database(CstDatabase::REQUESTS) => [],
+		];
+
+		try {
+			$page 		= $this->request->getParam(Constante::request(CstRequest::PAGE)) ?? 0;
+			$nbItems	= $this->request->getParam(Constante::request(CstRequest::NB_ITEMS));
+
+			if ($nbItems == 0) {
+				$nbItems = 20;
+			}
+
+			$returned = $this->requestsService->getListRequests($this->userId, $page, $nbItems, pending: strcasecmp($list, Constante::status(CstStatus::PENDING)) === 0);
+		} catch (\Throwable $th) {
+			$returned = [
+				Constante::request(CstRequest::CODE)		=> 0,
+				Constante::database(CstDatabase::COUNT)		=> 0,
+				Constante::database(CstDatabase::REQUESTS)	=> null,
+			];
+		}
+		return $returned;
+	}
+
+	/** ******************************************************************************************
+	 * PUBLIC
+	 ****************************************************************************************** */
+
+	/**
+	 * @NoAdminRequired
+	 */
+	public function getIssuesRequests()
+	{
+		return new JSONResponse($this->commonGetListRequests(Constante::status(CstStatus::ISSUE)));
 	}
 
 	/**
 	 * @NoAdminRequired
 	 */
-	public function getPendingRequests(int $page = 0, int $nbItems = 20) {
-
-		$count = $this->mapper->countPendingsByUid($this->userId);
-		$requests = $this->mapper->findPendingsByUid($this->userId, $page, $nbItems);
-
-		return new JSONResponse([
-			'count' => $count,
-			'requests' => $requests,
-		]);
-	}
-
-	/**
-	 * @NoAdminRequired
-	 */
-	public function getCompletedRequests(int $page = 0, int $nbItems = 20) {
-
-		$count = $this->mapper->countCompletedByUid($this->userId);
-		$requests = $this->mapper->findCompletedByUid($this->userId, $page, $nbItems);
-
-		return new JSONResponse([
-			'count' => $count,
-			'requests' => $requests,
-		]);
-	}
-
-	/**
-	 * @NoAdminRequired
-	 */
-	public function getFailedRequests(int $page = 0, int $nbItems = 20) {
-
-		$count = $this->mapper->countFailedByUid($this->userId);
-		$requests = $this->mapper->findFailedByUid($this->userId, $page, $nbItems);
-
-		return new JSONResponse([
-			'count' => $count,
-			'requests' => $requests,
-		]);
+	public function getPendingRequests()
+	{
+		return new JSONResponse($this->commonGetListRequests(Constante::status(CstStatus::PENDING)));
 	}
 }
