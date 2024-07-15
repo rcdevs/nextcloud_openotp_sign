@@ -1,0 +1,121 @@
+rcdevsMain {
+	padding: 16px;
+	display: flex;
+	flex-flow: column;
+}
+
+rcdevsSettingsContainer {
+	display: flex;
+	flex-flow: column;
+	margin-top: 36px;
+}
+
+rcdevsSettingsHeader {
+	display: flex;
+	max-width: 800px;
+	margin-bottom: 18px;
+	flex-flow: column;
+}
+
+rcdevsSettingsTitle {
+	font-weight: bold;
+	font-size: 20px;
+	margin-bottom: 12px;
+	line-height: 30px;
+}
+
+rcdevsSettingsPartsContainer {
+	display: flex;
+	flex-flow: column;
+}
+
+rcdevsSettingsCol {
+	display: flex;
+	flex-flow: column;
+}
+
+rcdevsSettingsRow {
+	display: flex;
+	flex-flow: row;
+}
+
+rcdevsSettingsItem * {
+	width: 100%;
+}
+
+.rcdevsSettingsInput {
+	width: 300px;
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+}
+
+.rcdevsSettingsInput input {
+	padding-right: 18px;
+	box-sizing: border-box;
+}
+
+.rcdevsSettingsInput deleteIcon {
+	position: absolute;
+	display: block;
+	right: 10px;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	color: var(--color-text-maxcontrast);
+	background-color: var(--color-background-dark);
+	font: 13px monospace;
+	text-align: center;
+	line-height: 1em;
+	cursor: pointer;
+}
+
+.templateFilename {
+	display: inline-flex;
+	align-items: center;
+	padding-left: 10px;
+	font-style: italic;
+}
+
+.yesNo span.checkbox-content__text.checkbox-radio-switch__text {
+	width: 50px !important;
+	justify-content: center;
+	text-wrap: nowrap;
+}
+
+.withSimpleBottomMargin {
+	margin-bottom: 4px;
+}
+
+.withDoubleBottomMargin {
+	margin-bottom: 8px;
+}
+
+.rcdevsSettingsLabel {
+	min-width: 300px;
+}
+
+.rcdevsSettingsImage {
+	align-items: center;
+	display: flex;
+	justify-content: center;
+}
+
+.rcdevsClickable {
+	cursor: pointer;
+}
+
+.rcdevsSettingsCheckboxRadioSwitch {
+	flex-flow: column;
+	width: fit-content;
+}
+
+/* When checking process failed */
+.chk_0 {
+	color: var(--color-error-front);
+}
+
+/* When checking process succeeded */
+.chk_1 {
+	color: var(--color-success-front);
+}

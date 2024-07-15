@@ -32,10 +32,27 @@ use OCA\OpenOTPSign\Utils\Helpers;
 
 class OOtpResponse extends ArrayObject
 {
-	function __construct(private $array = array())
+	private array $array;
+
+	function __construct(array|bool $input)
 	{
-		parent::__construct($array, ArrayObject::ARRAY_AS_PROPS);
-		$this->array[Constante::ootpsign(CstOOtpSign::CODE)] = intval($this->array[Constante::ootpsign(CstOOtpSign::CODE)]);
+		switch (true) {
+			case is_array($input):
+				parent::__construct($input, ArrayObject::ARRAY_AS_PROPS);
+				$this->array = $input;
+				$this->array[Constante::ootpsign(CstOOtpSign::CODE)] = intval($this->array[Constante::ootpsign(CstOOtpSign::CODE)]);
+				break;
+
+			case is_bool($input) && !$input:
+				$this->array[Constante::ootpsign(CstOOtpSign::CODE)] = 0;
+				$this->array[Constante::ootpsign(CstOOtpSign::MESSAGE)] = 'Nusoap retuned a false';
+				break;
+
+			default:
+				$this->array[Constante::ootpsign(CstOOtpSign::CODE)] = 0;
+				$this->array[Constante::ootpsign(CstOOtpSign::MESSAGE)] = 'Nusoap retuned an unexpected response';
+				break;
+		}
 	}
 
 	public function getArray(): array
@@ -70,7 +87,6 @@ class OOtpResponse extends ArrayObject
 	public function getError(): string|null
 	{
 		return Helpers::getIfExists(Constante::ootpsign(CstOOtpSign::ERROR), $this->array, returnNull: true);
-
 	}
 
 	public function getFaultcode(): string|null

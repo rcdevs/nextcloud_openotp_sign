@@ -1,0 +1,174 @@
+.rcdevsOosModal .modal-container {
+	width: fit-content !important;
+}
+
+rcdevsOosModalContent,
+rcdevsOosModalContent * {
+	display: flex;
+}
+
+rcdevsOosModalContent {
+	flex-flow: column;
+	padding: 50px;
+	align-items: center;
+	justify-content: center;
+}
+
+rcdevsOosLogo {
+	height: 44px;
+	left: 15px;
+	position: absolute;
+	top: 15px;
+	width: 96px;
+}
+
+rcdevsOosLogo img {
+	object-fit: contain;
+}
+
+rcdevsOosModalTitle {
+	font-size: 30px;
+	font-weight: 700;
+}
+
+rcdevsOosModalMainContainer {
+	align-items: center;
+	flex-flow: column;
+	justify-content: center;
+}
+
+greenTick {
+	display: inline-block;
+	font-size: 150px;
+	color: green;
+	margin-top: 100px;
+	margin-bottom: 100px;
+}
+
+greenTick img {
+	height: 120px;
+	margin: auto;
+}
+
+.greenTick {
+	flex-flow: column;
+}
+
+rcdevsOosRow.chosenFile {
+	flex-flow: row;
+}
+
+rcdevsOosItem.filename {
+	font-weight: bold;
+	margin-left: 10px;
+	font-weight: 600;
+}
+
+rcdevsOosRecipientsChoices {
+	flex-flow: column;
+}
+
+recipientsSignleChoice {
+	flex-flow: row;
+	margin-bottom: 5px;
+}
+
+recipientssignlechoice span {
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+DisplaySelfEmail,
+SelectNextcloudUsers,
+InputUsersEmails {
+	margin-left: auto;
+}
+
+displayselfemail,
+SelectNextcloudUsers .vs__dropdown-toggle,
+recipientsSignleChoice input[type=text] {
+	width: 444px;
+}
+
+DisplaySelfEmail {
+	align-items: center;
+}
+
+DisplaySelfEmail span {
+	padding-left: 14px;
+}
+
+recipientsSignleChoice NcCheckboxRadioSwitch {
+	margin-right: auto;
+}
+
+InputUsersEmails input {
+	height: auto !important;
+	margin: 0 !important;
+}
+
+rcdevsOosModalFooter {
+	align-items: center;
+	flex-flow: column;
+	justify-content: center;
+	margin-top: 50px;
+}
+
+button {
+	height: fit-content;
+}
+
+button.closeModal,
+button.submitTransaction {
+	min-width: 150px;
+	width: fit-content;
+	justify-content: center;
+	align-items: center;
+}
+
+/* ALERTS */
+.alert {
+	border-radius: .25rem;
+	border: 1px solid transparent;
+	margin-bottom: 1rem;
+	padding: .75rem 1.25rem;
+	position: relative;
+}
+
+.alertDanger {
+	background-color: #f8d7da;
+	border-color: #f5c6cb;
+	color: #721c24;
+
+}
+
+#errorSettings,
+.disabledAction {
+	margin-top: 50px;
+	width: 400px;
+}
+
+.search-results {
+	position: absolute;
+	margin-top: 50px;
+}
+
+.search-results ul {
+	flex-flow: column;
+	border: 1px solid #ccc;
+	border-radius: 16px;
+	background-color: white;
+
+}
+
+rcdevsOosSuccess {
+	color: var(--color-success-front);
+	background-color: var(--color-success-back);
+	padding: 0 20px;
+}
+
+rcdevsOosError {
+	color: var(--color-error-front);
+	background-color: var(--color-error-back);
+	padding: 0 20px;
+}

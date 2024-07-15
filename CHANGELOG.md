@@ -6,6 +6,12 @@ Y: Nextcloud version
 Z: minor or patch
 
 -----------------------------------------
+1.30.1
+	- Fix: if the OTP server is not accessible, the request response throws an exception due to the reponse type (boolean vs expected array)
+1.29.1
+	- Fix: if the OTP server is not accessible, the request response throws an exception due to the reponse type (boolean vs expected array)
+1.28.1
+	- Fix: if the OTP server is not accessible, the request response throws an exception due to the reponse type (boolean vs expected array)
 1.30.0
 	- Complete rebuild of the application and change of versioning
 	- Have to install php-soap library
